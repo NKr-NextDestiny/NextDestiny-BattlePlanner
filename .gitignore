@@ -1,0 +1,25 @@
+node_modules/
+dist/
+.env
+*.log
+
+# All upload directories are tracked (pre-seeded images committed to repo)
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+nul
+
+# Claude Code
+.claude/
+
+# Build
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts

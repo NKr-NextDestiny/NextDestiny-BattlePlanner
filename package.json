@@ -1,0 +1,27 @@
+{
+  "name": "nextdestiny-battleplanner",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Team-scoped tactical strategy planning for competitive games — Discord-auth only",
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter @nd-battleplanner/server dev\" \"pnpm --filter @nd-battleplanner/client dev\"",
+    "build": "pnpm --filter @nd-battleplanner/shared build && pnpm --filter @nd-battleplanner/server build && pnpm --filter @nd-battleplanner/client build",
+    "db:generate": "pnpm --filter @nd-battleplanner/server db:generate",
+    "db:migrate": "pnpm --filter @nd-battleplanner/server db:migrate",
+    "db:seed": "pnpm --filter @nd-battleplanner/server db:seed",
+    "db:push": "pnpm --filter @nd-battleplanner/server db:push",
+    "db:studio": "pnpm --filter @nd-battleplanner/server db:studio",
+    "import:maps": "pnpm --filter @nd-battleplanner/server import:maps"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "core-js",
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "typescript": "^5.7.3"
+  }
+}
