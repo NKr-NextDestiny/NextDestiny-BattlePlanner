@@ -28,31 +28,10 @@ echo.
 echo Stopping containers and deleting volumes...
 docker compose down -v
 
-echo Starting fresh containers...
-docker compose up -d
-
-echo Waiting for PostgreSQL...
-timeout /t 5 /nobreak >nul
-
-echo Cleaning old migrations...
-if exist packages\server\drizzle rd /s /q packages\server\drizzle
-mkdir packages\server\drizzle
-
-echo Building shared package...
-call pnpm --filter @nd-battleplanner/shared build
-
-echo Generating migrations...
-call pnpm db:generate
-
-echo Applying migrations...
-call pnpm db:migrate
-
-echo Seeding database...
-call pnpm db:seed
-
 echo.
 echo ============================================
-echo   Data reset complete!
+echo   Data deleted!
+echo   Run dev.bat to set up again.
 echo ============================================
 pause
 exit /b 0

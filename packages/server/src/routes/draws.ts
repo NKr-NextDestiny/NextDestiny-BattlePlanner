@@ -26,7 +26,7 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
         originY: z.number(),
         destinationX: z.number().optional(),
         destinationY: z.number().optional(),
-        data: z.record(z.unknown()),
+        data: z.record(z.string(), z.unknown()),
         phaseId: z.string().uuid().nullable().optional(),
         operatorSlotId: z.string().uuid().nullable().optional(),
       })),
@@ -60,7 +60,7 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
       originY: z.number().optional(),
       destinationX: z.number().optional(),
       destinationY: z.number().optional(),
-      data: z.record(z.unknown()).optional(),
+      data: z.record(z.string(), z.unknown()).optional(),
     }).parse(request.body);
 
     // Ownership check
