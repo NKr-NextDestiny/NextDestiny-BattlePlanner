@@ -22,11 +22,11 @@ export default function DashboardPage() {
   const stats = data?.data;
 
   const cards = [
-    { label: 'Users', value: stats?.totalUsers, icon: Users },
+    { label: 'Benutzer', value: stats?.totalUsers, icon: Users },
     { label: 'Teams', value: stats?.totalTeams, icon: Users2 },
-    { label: 'Games', value: stats?.totalGames, icon: Gamepad2 },
-    { label: 'Maps', value: stats?.totalMaps, icon: Map },
-    { label: 'Battleplans', value: stats?.totalBattleplans, icon: FileText },
+    { label: 'Spiele', value: stats?.totalGames, icon: Gamepad2 },
+    { label: 'Karten', value: stats?.totalMaps, icon: Map },
+    { label: 'Pläne', value: stats?.totalBattleplans, icon: FileText },
   ];
 
   return (
@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Users</CardTitle>
+          <CardTitle>Neue Benutzer</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (

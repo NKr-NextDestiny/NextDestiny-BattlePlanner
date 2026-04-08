@@ -18,6 +18,8 @@
 - [fix] dev.bat works after full clean (refreshes workspace links after building shared package)
 - [fix] clean.bat preserves pnpm-lock.yaml to avoid broken workspace resolution
 - [fix] Discord login no longer shows cryptic error popup (React strict mode double-fired the OAuth code exchange)
+- [fix] Animated Discord avatars (GIF) now display correctly in navbar and account page
+- [improvement] Complete German localization — all UI text translated (navbar, teams, plans, rooms, admin panel, account)
 - [removed] Email/password authentication, registration, magic link, password reset, email verification
 - [removed] Guest/sandbox mode — all users must authenticate via Discord
 - [removed] Registration tokens system

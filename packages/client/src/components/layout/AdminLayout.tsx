@@ -11,9 +11,9 @@ import { Button } from '@/components/ui/button';
 
 const navItems = [
   { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Benutzer', href: '/admin/users', icon: Users },
   { label: 'Teams', href: '/admin/teams', icon: Users2 },
-  { label: 'Settings', href: '/admin/settings', icon: Settings },
+  { label: 'Einstellungen', href: '/admin/settings', icon: Settings },
 ];
 
 export function AdminLayout() {
@@ -27,7 +27,7 @@ export function AdminLayout() {
             <Button variant="ghost" className="w-full justify-start mb-4" asChild>
               <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to App
+                Zurück
               </Link>
             </Button>
 

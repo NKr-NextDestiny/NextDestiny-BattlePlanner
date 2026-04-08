@@ -90,23 +90,23 @@ export default function TeamsPage() {
         <h1 className="text-2xl font-bold">Teams</h1>
         <Button onClick={() => setShowCreate(!showCreate)} size="sm">
           <Plus className="mr-2 h-4 w-4" />
-          New Team
+          Neues Team
         </Button>
       </div>
 
       {showCreate && (
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
           <div>
-            <Label>Team Name</Label>
-            <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Team Alpha" />
+            <Label>Teamname</Label>
+            <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="z.B. Team Alpha" />
           </div>
           <div>
-            <Label>Discord Role ID</Label>
-            <Input value={newRoleId} onChange={(e) => setNewRoleId(e.target.value)} placeholder="e.g. 123456789012345678" />
+            <Label>Discord Rollen-ID</Label>
+            <Input value={newRoleId} onChange={(e) => setNewRoleId(e.target.value)} placeholder="z.B. 123456789012345678" />
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => createTeam.mutate()} disabled={!newName || !newRoleId}>Create</Button>
-            <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
+            <Button onClick={() => createTeam.mutate()} disabled={!newName || !newRoleId}>Erstellen</Button>
+            <Button variant="outline" onClick={() => setShowCreate(false)}>Abbrechen</Button>
           </div>
         </div>
       )}
@@ -121,8 +121,8 @@ export default function TeamsPage() {
                   {team.name}
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  Role ID: <code className="bg-secondary px-1 rounded">{team.discordRoleId}</code>
-                  {' '}&middot; {team.individualMemberCount} individual member(s)
+                  Rollen-ID: <code className="bg-secondary px-1 rounded">{team.discordRoleId}</code>
+                  {' '}&middot; {team.individualMemberCount} Einzelmitglied(er)
                 </p>
               </div>
               <div className="flex gap-2">
@@ -150,7 +150,7 @@ export default function TeamsPage() {
         ))}
 
         {teams.length === 0 && (
-          <p className="text-center text-muted-foreground py-8">No teams yet. Create one to get started.</p>
+          <p className="text-center text-muted-foreground py-8">Noch keine Teams. Erstelle eins um loszulegen.</p>
         )}
       </div>
 
@@ -160,51 +160,51 @@ export default function TeamsPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Team: {deleteTeam?.name}
+              Team löschen: {deleteTeam?.name}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             {stats && (stats.planCount > 0 || stats.roomCount > 0) ? (
               <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
                 <p className="text-sm font-medium text-destructive">
-                  This team has {stats.planCount} battleplan(s) and {stats.roomCount} room(s).
+                  Dieses Team hat {stats.planCount} Plan/Pläne und {stats.roomCount} Raum/Räume.
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">This team has no battleplans or rooms.</p>
+              <p className="text-sm text-muted-foreground">Dieses Team hat keine Pläne oder Räume.</p>
             )}
 
             <div className="space-y-3">
-              <Label>What should happen to the battleplans?</Label>
+              <Label>Was soll mit den Plänen passieren?</Label>
 
               <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
                 <input type="radio" name="deleteMode" value="delete" checked={deleteMode === 'delete'} onChange={() => setDeleteMode('delete')} className="mt-1" />
                 <div>
-                  <p className="font-medium text-sm">Delete everything</p>
-                  <p className="text-xs text-muted-foreground">All battleplans, rooms, and drawings will be permanently deleted.</p>
+                  <p className="font-medium text-sm">Alles löschen</p>
+                  <p className="text-xs text-muted-foreground">Alle Pläne, Räume und Zeichnungen werden unwiderruflich gelöscht.</p>
                 </div>
               </label>
 
               <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
                 <input type="radio" name="deleteMode" value="archive" checked={deleteMode === 'archive'} onChange={() => setDeleteMode('archive')} className="mt-1" />
                 <div>
-                  <p className="font-medium text-sm">Archive battleplans</p>
-                  <p className="text-xs text-muted-foreground">Battleplans are preserved without a team (rooms are deleted). Can be reassigned later.</p>
+                  <p className="font-medium text-sm">Pläne archivieren</p>
+                  <p className="text-xs text-muted-foreground">Pläne werden ohne Team aufbewahrt (Räume werden gelöscht). Können später zugewiesen werden.</p>
                 </div>
               </label>
 
               <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
                 <input type="radio" name="deleteMode" value="move" checked={deleteMode === 'move'} onChange={() => setDeleteMode('move')} className="mt-1" />
                 <div>
-                  <p className="font-medium text-sm">Move to another team</p>
-                  <p className="text-xs text-muted-foreground">All battleplans and rooms are reassigned to the selected team.</p>
+                  <p className="font-medium text-sm">Zu anderem Team verschieben</p>
+                  <p className="text-xs text-muted-foreground">Alle Pläne und Räume werden dem ausgewählten Team zugewiesen.</p>
                 </div>
               </label>
 
               {deleteMode === 'move' && (
                 <Select value={moveTargetId} onValueChange={setMoveTargetId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select target team..." />
+                    <SelectValue placeholder="Ziel-Team wählen..." />
                   </SelectTrigger>
                   <SelectContent>
                     {otherTeams.map((t) => (
@@ -217,14 +217,14 @@ export default function TeamsPage() {
           </div>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button variant="outline">Abbrechen</Button>
             </DialogClose>
             <Button
               variant="destructive"
               disabled={deleteTeamMutation.isPending || (deleteMode === 'move' && !moveTargetId)}
               onClick={handleDelete}
             >
-              {deleteTeamMutation.isPending ? 'Deleting...' : 'Delete Team'}
+              {deleteTeamMutation.isPending ? 'Lösche...' : 'Team löschen'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -262,15 +262,15 @@ function TeamMembersSection({ teamId, newMemberId, setNewMemberId }: { teamId: s
 
   return (
     <div className="mt-4 border-t border-border pt-4 space-y-3">
-      <h4 className="text-sm font-semibold">Individual Members (by Discord User ID)</h4>
+      <h4 className="text-sm font-semibold">Einzelmitglieder (per Discord User-ID)</h4>
       <div className="flex gap-2">
         <Input
           value={newMemberId}
           onChange={(e) => setNewMemberId(e.target.value)}
-          placeholder="Discord User ID"
+          placeholder="Discord User-ID"
           className="flex-1"
         />
-        <Button onClick={() => addMember.mutate()} disabled={!newMemberId} size="sm">Add</Button>
+        <Button onClick={() => addMember.mutate()} disabled={!newMemberId} size="sm">Hinzufügen</Button>
       </div>
       {members.map((m) => (
         <div key={m.id} className="flex items-center justify-between text-sm">
@@ -280,7 +280,7 @@ function TeamMembersSection({ teamId, newMemberId, setNewMemberId }: { teamId: s
           </Button>
         </div>
       ))}
-      {members.length === 0 && <p className="text-sm text-muted-foreground">No individual members</p>}
+      {members.length === 0 && <p className="text-sm text-muted-foreground">Keine Einzelmitglieder</p>}
     </div>
   );
 }

@@ -36,6 +36,8 @@ const releases: Release[] = [
       { type: 'fix', text: 'dev.bat works after full clean (refreshes workspace links after building shared package)' },
       { type: 'fix', text: 'clean.bat preserves pnpm-lock.yaml to avoid broken workspace resolution' },
       { type: 'fix', text: 'Discord login no longer shows cryptic error popup (React strict mode double-fired the OAuth code exchange)' },
+      { type: 'fix', text: 'Animated Discord avatars (GIF) now display correctly in navbar and account page' },
+      { type: 'improvement', text: 'Complete German localization \u2014 all UI text translated (navbar, teams, plans, rooms, admin panel, account)' },
       { type: 'removed', text: 'Email/password authentication, registration, magic link, password reset, email verification' },
       { type: 'removed', text: 'Guest/sandbox mode \u2014 all users must authenticate via Discord' },
       { type: 'removed', text: 'Registration tokens system' },

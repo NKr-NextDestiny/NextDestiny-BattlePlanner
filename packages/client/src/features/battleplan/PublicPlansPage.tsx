@@ -40,7 +40,7 @@ export default function PublicPlansPage() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center gap-4 mb-6">
         <Button variant="ghost" asChild><Link to={`/${gameSlug}`}><ArrowLeft className="h-4 w-4" /></Link></Button>
-        <h1 className="text-3xl font-bold">Public Battle Plans</h1>
+        <h1 className="text-3xl font-bold font-heading">Öffentliche Pläne</h1>
       </div>
 
       {/* Tag filter bar */}
@@ -51,7 +51,7 @@ export default function PublicPlansPage() {
           className="cursor-pointer"
           onClick={() => setFilterTag('')}
         >
-          All
+          Alle
         </Badge>
         {FILTER_TAGS.map((tag) => (
           <Badge
@@ -66,7 +66,7 @@ export default function PublicPlansPage() {
       </div>
 
       {data?.data.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">No public plans yet.</div>
+        <div className="text-center py-16 text-muted-foreground">Noch keine öffentlichen Pläne.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data?.data.map((plan) => (
@@ -84,7 +84,7 @@ export default function PublicPlansPage() {
               </CardHeader>
               <CardContent className="flex items-center gap-2">
                 <Button variant="outline" size="sm" asChild>
-                  <Link to={`/${gameSlug}/plans/${plan.id}`}><Eye className="mr-1 h-3 w-3" /> View</Link>
+                  <Link to={`/${gameSlug}/plans/${plan.id}`}><Eye className="mr-1 h-3 w-3" /> Ansehen</Link>
                 </Button>
                 {isAuthenticated && (
                   <>

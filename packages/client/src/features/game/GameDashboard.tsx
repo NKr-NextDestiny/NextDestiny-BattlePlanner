@@ -23,7 +23,7 @@ export default function GameDashboard() {
   const game = data?.data;
 
   if (isLoading) return <div className="container mx-auto p-8"><Skeleton className="h-64" /></div>;
-  if (!game) return <div className="container mx-auto p-8 text-center text-muted-foreground">Game not found</div>;
+  if (!game) return <div className="container mx-auto p-8 text-center text-muted-foreground">Spiel nicht gefunden</div>;
 
   return (
     <div className="container mx-auto px-6 py-12 relative max-w-7xl">
@@ -47,11 +47,11 @@ export default function GameDashboard() {
       <div className="flex gap-3 mb-8">
         {isAuthenticated && (
           <Link to={`/${gameSlug}/plans`} className="gaming-btn px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold tracking-wide uppercase text-sm hover:brightness-110 transition-all inline-flex items-center gap-2">
-            <FileText className="h-4 w-4" /> My Plans
+            <FileText className="h-4 w-4" /> Meine Pläne
           </Link>
         )}
         <Link to={`/${gameSlug}/plans/public`} className="px-5 py-2 rounded-lg border border-primary/30 text-foreground font-medium tracking-wide uppercase text-sm hover:border-primary/60 hover:bg-primary/5 transition-all inline-flex items-center gap-2">
-          <Globe className="h-4 w-4" /> Public Plans
+          <Globe className="h-4 w-4" /> Öffentliche Pläne
         </Link>
       </div>
 

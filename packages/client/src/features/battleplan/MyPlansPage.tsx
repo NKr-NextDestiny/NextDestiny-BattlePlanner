@@ -54,7 +54,7 @@ export default function MyPlansPage() {
     mutationFn: (data: { gameId: string; mapId: string; name: string; description?: string; tags?: string[] }) => apiPost<{ data: Battleplan }>('/battleplans', data),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['battleplans'] });
-      toast.success('Battleplan created');
+      toast.success('Plan erstellt');
       setIsOpen(false);
       setNewTags([]);
       setTagInput('');
@@ -65,7 +65,7 @@ export default function MyPlansPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiDelete(`/battleplans/${id}`),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['battleplans'] }); toast.success('Battleplan deleted'); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['battleplans'] }); toast.success('Plan gelöscht'); },
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -95,19 +95,19 @@ export default function MyPlansPage() {
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <Button variant="ghost" asChild><Link to={`/${gameSlug}`}><ArrowLeft className="h-4 w-4" /></Link></Button>
-          <h1 className="text-3xl font-bold">My Battle Plans</h1>
+          <h1 className="text-3xl font-bold font-heading">Meine Pläne</h1>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> New Plan</Button></DialogTrigger>
+          <DialogTrigger asChild><Button><Plus className="mr-2 h-4 w-4" /> Neuer Plan</Button></DialogTrigger>
           <DialogContent>
-            <DialogHeader><DialogTitle>Create Battle Plan</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Plan erstellen</DialogTitle></DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="space-y-2"><Label>Name</Label><Input name="name" required /></div>
-              <div className="space-y-2"><Label>Description (optional)</Label><Textarea name="description" placeholder="Brief description of this battleplan..." rows={3} /></div>
+              <div className="space-y-2"><Label>Beschreibung (optional)</Label><Textarea name="description" placeholder="Kurze Beschreibung des Plans..." rows={3} /></div>
               <div className="space-y-2">
-                <Label>Map</Label>
+                <Label>Karte</Label>
                 <Select value={selectedMapId} onValueChange={setSelectedMapId}>
-                  <SelectTrigger><SelectValue placeholder="Select a map" /></SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="Karte wählen" /></SelectTrigger>
                   <SelectContent>
                     {game?.maps.map(m => <SelectItem key={m.id} value={m.id}>{m.name}</SelectItem>)}
                   </SelectContent>
@@ -128,7 +128,7 @@ export default function MyPlansPage() {
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && tagInput.trim()) { e.preventDefault(); addTag(tagInput); } }}
-                  placeholder="Add tag and press Enter"
+                  placeholder="Tag eingeben und Enter drücken"
                 />
                 <div className="flex flex-wrap gap-1">
                   {SUGGESTED_TAGS.filter(t => !newTags.includes(t)).map((tag) => (
@@ -139,8 +139,8 @@ export default function MyPlansPage() {
                 </div>
               </div>
               <DialogFooter>
-                <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
-                <Button type="submit" disabled={!selectedMapId}>Create</Button>
+                <DialogClose asChild><Button variant="outline">Abbrechen</Button></DialogClose>
+                <Button type="submit" disabled={!selectedMapId}>Erstellen</Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -149,7 +149,7 @@ export default function MyPlansPage() {
 
       {plans.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
-          <p className="text-lg">No battle plans yet. Create your first one!</p>
+          <p className="text-lg">Noch keine Pläne. Erstelle deinen ersten!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -166,20 +166,20 @@ export default function MyPlansPage() {
                   </div>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  {new Date(plan.updatedAt).toLocaleDateString()}
+                  {new Date(plan.updatedAt).toLocaleDateString('de-DE')}
                 </p>
               </CardHeader>
               <CardContent className="flex gap-2">
                 <Button variant="outline" size="sm" asChild>
-                  <Link to={`/${gameSlug}/plans/${plan.id}`}><Eye className="mr-1 h-3 w-3" /> View</Link>
+                  <Link to={`/${gameSlug}/plans/${plan.id}`}><Eye className="mr-1 h-3 w-3" /> Ansehen</Link>
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => {
                   navigator.clipboard.writeText(`${window.location.origin}/${gameSlug}/plans/${plan.id}`);
-                  toast.success('Link copied!');
+                  toast.success('Link kopiert!');
                 }}>
                   <Share2 className="h-3 w-3" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => { if (confirm('Delete?')) deleteMutation.mutate(plan.id); }}>
+                <Button variant="ghost" size="sm" onClick={() => { if (confirm('Plan löschen?')) deleteMutation.mutate(plan.id); }}>
                   <Trash2 className="h-3 w-3 text-destructive" />
                 </Button>
               </CardContent>

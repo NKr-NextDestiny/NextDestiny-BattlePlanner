@@ -69,29 +69,29 @@ export default function CreateRoomPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" onClick={() => setStep('map')}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
           </Button>
-          <h1 className="text-3xl font-bold">Create Room</h1>
+          <h1 className="text-3xl font-bold font-heading">Raum erstellen</h1>
         </div>
 
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" /> New Collaboration Room
+                <Users className="h-5 w-5" /> Neuer Raum
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Game</span>
+                <span className="text-muted-foreground">Spiel</span>
                 <span className="font-medium">{selectedGame.name}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Map</span>
+                <span className="text-muted-foreground">Karte</span>
                 <span className="font-medium">{selectedMap.name}</span>
               </div>
               <Button onClick={handleCreate} disabled={createMutation.isPending} className="w-full">
-                {createMutation.isPending ? 'Creating...' : 'Create Room'}
+                {createMutation.isPending ? 'Erstelle...' : 'Raum erstellen'}
               </Button>
             </CardContent>
           </Card>
@@ -110,15 +110,15 @@ export default function CreateRoomPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="ghost" onClick={() => { setStep('game'); setSelectedGame(null); setMapSearch(''); }}>
-            <ArrowLeft className="h-4 w-4 mr-1" /> Back
+            <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
           </Button>
-          <h1 className="text-3xl font-bold">{selectedGame.name} — Choose a Map</h1>
+          <h1 className="text-3xl font-bold font-heading">{selectedGame.name} — Karte wählen</h1>
         </div>
 
         <div className="relative max-w-sm mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search maps..."
+            placeholder="Karten suchen..."
             value={mapSearch}
             onChange={(e) => setMapSearch(e.target.value)}
             className="pl-9"
@@ -127,7 +127,7 @@ export default function CreateRoomPage() {
 
         {maps.length === 0 ? (
           <div className="text-center py-16 text-muted-foreground">
-            <p>{allMaps.length === 0 ? 'No maps available for this game.' : 'No maps match your search.'}</p>
+            <p>{allMaps.length === 0 ? 'Keine Karten für dieses Spiel verfügbar.' : 'Keine Karten gefunden.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -137,7 +137,7 @@ export default function CreateRoomPage() {
                   {map.thumbnail ? (
                     <img src={`/uploads${map.thumbnail}`} className="w-full h-32 object-cover rounded" alt="" />
                   ) : (
-                    <div className="w-full h-32 bg-muted rounded flex items-center justify-center text-muted-foreground">No preview</div>
+                    <div className="w-full h-32 bg-muted rounded flex items-center justify-center text-muted-foreground">Keine Vorschau</div>
                   )}
                 </CardHeader>
                 <CardContent><CardTitle className="text-lg">{map.name}</CardTitle></CardContent>
@@ -152,7 +152,7 @@ export default function CreateRoomPage() {
   // Step 1: Game selection
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Create Room — Choose a Game</h1>
+      <h1 className="text-3xl font-bold font-heading mb-8">Raum erstellen — Spiel wählen</h1>
       {gamesLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-32" />)}
