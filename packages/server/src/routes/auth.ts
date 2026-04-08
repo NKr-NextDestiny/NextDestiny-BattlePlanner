@@ -60,20 +60,21 @@ export default async function authRoutes(fastify: FastifyInstance) {
     }
 
     const discordRoles = guildMember.roles;
+    const displayName = guildMember.nick || discordUser.global_name || discordUser.username;
+    const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
 
-    const user = await upsertDiscordUser(
-      discordUser.id,
-      guildMember.nick || discordUser.global_name || discordUser.username,
-      discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null,
-      discordRoles,
-    );
+    // Check access BEFORE creating/updating the user
+    const preCheckTeams = await getUserTeams(discordUser.id, discordRoles);
+    const [existingUser] = await db.select().from(users).where(eq(users.discordId, discordUser.id));
+    const preCheckAdmin = existingUser ? await isUserAdmin(existingUser.id) : false;
 
-    const userTeams = await getUserTeams(user.discordId, discordRoles);
-    const admin = await isUserAdmin(user.id);
-
-    if (userTeams.length === 0 && !admin) {
-      return reply.status(403).send({ error: 'You do not have access to any team. Contact an admin.' });
+    if (preCheckTeams.length === 0 && !preCheckAdmin) {
+      return reply.status(403).send({ message: 'You are not a member of any team. Contact an admin.' });
     }
+
+    const user = await upsertDiscordUser(discordUser.id, displayName, avatarUrl, discordRoles);
+    const userTeams = preCheckTeams;
+    const admin = existingUser ? preCheckAdmin : await isUserAdmin(user.id);
 
     const effectiveRole = admin ? 'admin' as const : 'user' as const;
     if (user.role !== effectiveRole) {
@@ -122,6 +123,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
     const admin = await isUserAdmin(user.id);
     const effectiveRole = admin ? 'admin' as const : 'user' as const;
     const userTeams = await getUserTeams(user.discordId, user.discordRoles as string[]);
+
+    // Reject refresh if user lost all team access and is not admin
+    if (userTeams.length === 0 && !admin) {
+      await revokeRefreshToken(user.id);
+      reply.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+      return reply.status(403).send({ message: 'You are no longer a member of any team.' });
+    }
 
     const accessToken = generateAccessToken(user.id, effectiveRole);
     const newRefreshToken = generateRefreshToken(user.id, effectiveRole);
