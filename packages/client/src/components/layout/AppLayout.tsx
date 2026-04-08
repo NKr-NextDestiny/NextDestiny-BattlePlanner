@@ -39,9 +39,9 @@ export function AppLayout() {
 
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center justify-between px-4 w-full">
-          <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
-            <img src="/nd-logo.png" alt="" className="h-8 w-8 rounded-full" />
-            <span className="text-xl font-bold font-heading text-primary">{APP_NAME}</span>
+          <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105 group">
+            <img src="/nd-logo.png" alt="" className="h-8 w-8 rounded-md logo-glow" />
+            <span className="text-xl font-bold font-heading text-primary drop-shadow-[0_0_8px_oklch(0.705_0.187_48/0.5)] group-hover:drop-shadow-[0_0_12px_oklch(0.705_0.187_48/0.8)] transition-all">{APP_NAME}</span>
           </Link>
 
           <div className="flex items-center gap-2">

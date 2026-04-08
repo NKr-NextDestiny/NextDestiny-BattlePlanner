@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/connection.js';
-import { users } from '../db/schema/index.js';
+import { users, settings } from '../db/schema/index.js';
 import { requireAuth } from '../middleware/auth.js';
 import {
   generateAccessToken,
@@ -66,7 +66,27 @@ export default async function authRoutes(fastify: FastifyInstance) {
     // Check access BEFORE creating/updating the user
     const preCheckTeams = await getUserTeams(discordUser.id, discordRoles);
     const [existingUser] = await db.select().from(users).where(eq(users.discordId, discordUser.id));
-    const preCheckAdmin = existingUser ? await isUserAdmin(existingUser.id) : false;
+    let preCheckAdmin = existingUser ? await isUserAdmin(existingUser.id) : false;
+
+    // If user doesn't exist yet (or isUserAdmin failed), check settings directly by Discord ID
+    if (!preCheckAdmin) {
+      const [adminUsersSetting] = await db.select().from(settings).where(eq(settings.key, 'admin_discord_user_ids'));
+      if (adminUsersSetting) {
+        try {
+          const adminUserIds = JSON.parse(adminUsersSetting.value) as string[];
+          if (adminUserIds.includes(discordUser.id)) preCheckAdmin = true;
+        } catch { /* ignore */ }
+      }
+      if (!preCheckAdmin) {
+        const [adminRolesSetting] = await db.select().from(settings).where(eq(settings.key, 'admin_discord_role_ids'));
+        if (adminRolesSetting) {
+          try {
+            const adminRoleIds = JSON.parse(adminRolesSetting.value) as string[];
+            if (discordRoles.some((r: string) => adminRoleIds.includes(r))) preCheckAdmin = true;
+          } catch { /* ignore */ }
+        }
+      }
+    }
 
     if (preCheckTeams.length === 0 && !preCheckAdmin) {
       return reply.status(403).send({ message: 'You are not a member of any team. Contact an admin.' });
