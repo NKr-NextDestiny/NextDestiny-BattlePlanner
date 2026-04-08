@@ -31,16 +31,29 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-16 relative z-10">
         {!isAuthenticated ? (
           /* ── Login view ── */
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center relative">
+            {/* Scan line */}
+            <div className="hero-scan-line" />
+
+            {/* Floating particles */}
+            <span className="gaming-particle" style={{ left: '10%', bottom: '20%', animationDelay: '0s' }} />
+            <span className="gaming-particle" style={{ left: '25%', bottom: '40%', animationDelay: '2s' }} />
+            <span className="gaming-particle" style={{ right: '15%', bottom: '30%', animationDelay: '4s' }} />
+            <span className="gaming-particle" style={{ right: '30%', bottom: '10%', animationDelay: '1s' }} />
+            <span className="gaming-particle" style={{ left: '50%', bottom: '50%', animationDelay: '3s' }} />
+
             <img
               src="/nd-logo.png"
               alt="Next Destiny"
-              className="w-44 h-44 rounded-2xl mb-8 shadow-lg shadow-primary/20"
+              className="logo-glow w-44 h-44 rounded-2xl mb-8"
             />
-            <h1 className="text-4xl font-bold mb-1 font-heading text-foreground tracking-tight">
+            <h1
+              className="glitch-text text-4xl font-bold mb-1 font-heading text-foreground tracking-tight"
+              data-text="Next Destiny"
+            >
               Next Destiny
             </h1>
-            <p className="text-lg text-primary font-heading font-semibold tracking-widest uppercase mb-4">
+            <p className="text-lg text-primary font-heading font-semibold tracking-widest uppercase mb-4 animate-pulse-glow inline-block px-4 py-1 rounded">
               BattlePlanner
             </p>
             <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
