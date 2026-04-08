@@ -8,8 +8,16 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 interface Settings {
-  adminDiscordRoleIds: string;
-  adminDiscordUserIds: string;
+  adminDiscordRoleIds: string[];
+  adminDiscordUserIds: string[];
+}
+
+function arrToStr(arr: string[]): string {
+  return arr.filter(Boolean).join(', ');
+}
+
+function strToArr(str: string): string[] {
+  return str.split(',').map((s) => s.trim()).filter(Boolean);
 }
 
 export default function SettingsPage() {
@@ -24,13 +32,14 @@ export default function SettingsPage() {
   });
 
   if (data && !loaded) {
-    setRoleIds(data.data.adminDiscordRoleIds || '');
-    setUserIds(data.data.adminDiscordUserIds || '');
+    setRoleIds(arrToStr(data.data.adminDiscordRoleIds || []));
+    setUserIds(arrToStr(data.data.adminDiscordUserIds || []));
     setLoaded(true);
   }
 
   const updateMutation = useMutation({
-    mutationFn: (settings: Partial<Settings>) => apiPut('/admin/settings', settings),
+    mutationFn: (settings: { adminDiscordRoleIds: string[]; adminDiscordUserIds: string[] }) =>
+      apiPut('/admin/settings', settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
       toast.success('Settings updated');
@@ -40,8 +49,8 @@ export default function SettingsPage() {
 
   const handleSave = () => {
     updateMutation.mutate({
-      adminDiscordRoleIds: roleIds,
-      adminDiscordUserIds: userIds,
+      adminDiscordRoleIds: strToArr(roleIds),
+      adminDiscordUserIds: strToArr(userIds),
     });
   };
 
@@ -62,7 +71,7 @@ export default function SettingsPage() {
             <Input
               value={roleIds}
               onChange={(e) => setRoleIds(e.target.value)}
-              placeholder="Comma-separated role IDs, e.g. 123456789,987654321"
+              placeholder="Comma-separated, e.g. 123456789012345678, 987654321012345678"
             />
             <p className="text-xs text-muted-foreground">
               Discord role IDs that grant admin access. Separate multiple IDs with commas.
@@ -73,7 +82,7 @@ export default function SettingsPage() {
             <Input
               value={userIds}
               onChange={(e) => setUserIds(e.target.value)}
-              placeholder="Comma-separated user IDs, e.g. 123456789,987654321"
+              placeholder="Comma-separated, e.g. 123456789012345678, 987654321012345678"
             />
             <p className="text-xs text-muted-foreground">
               Individual Discord user IDs that grant admin access. Separate multiple IDs with commas.
