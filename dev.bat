@@ -53,12 +53,16 @@ echo Waiting for database to settle...
 timeout /t 3 /nobreak >nul
 
 echo Seeding...
-start "Seeding DB" /wait cmd /c "pnpm db:seed > "%TEMP%\nd-seed.log" 2>&1 & exit 0"
-type "%TEMP%\nd-seed.log"
-del "%TEMP%\nd-seed.log" 2>nul
+if exist seed.log del seed.log
+start "Seeding DB" /wait dev-seed.bat
+if exist seed.log (
+    type seed.log
+    del seed.log
+) else (
+    echo WARNING: Seed produced no output — may have crashed.
+)
 echo.
 
-echo.
 echo [6/6] Starting dev server...
 echo.
 echo   Client: http://localhost:5173
