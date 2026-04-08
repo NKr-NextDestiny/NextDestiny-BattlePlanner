@@ -1,5 +1,12 @@
 # Changelog
 
+## v3.1.0 — 2026-04-08 — Game Dashboard Redesign
+
+- [improvement] Game dashboard redesign — "Meine Pläne" / "Öffentliche Pläne" as switchable tabs directly on the game page with inline plan lists
+- [improvement] "Raum erstellen" from game page skips game selection and goes straight to map selection for the current game
+- [improvement] Create plan dialog integrated into game dashboard tab bar
+- [fix] dev.bat aborts early with clear error message if Docker Desktop is not running
+
 ## v3.0.0 — 2026-04-08 — NextDestiny Fork
 
 - [feature] Discord OAuth2 login — replaced email/password auth with Discord-only authentication (scopes: identify, guilds.members.read)
@@ -9,21 +16,20 @@
 - [feature] Redesigned login page — centered NextDestiny logo with glitch/glow effects, Discord login button, German UI text
 - [feature] Team switcher in navbar — quickly switch between teams without logging out
 - [feature] Navbar logo with animated glow effect
+- [feature] Multi-language support (i18next) — Deutsch, English, Piratensprache with browser language auto-detection
 - [improvement] All dependencies updated to latest stable versions (TypeScript 6, Vite 8, Zod 4, Drizzle 0.45, Tailwind 4.2, React Router 7.6)
 - [improvement] Team-scoped security — requireTeamAccess middleware on all battleplan, room, and draw mutation routes
 - [improvement] Nullable owner support — battleplans and rooms survive user deletion (ownerId nullable)
 - [improvement] Help, FAQ, About, and Changelog now require login
 - [improvement] FAQ and Help pages rewritten in German with Discord-auth-relevant content
+- [improvement] Language switcher in navbar with localStorage persistence
+- [improvement] Active team name always visible in navbar, even with only one team
 - [fix] Admin login works on first login even without existing teams (direct Discord ID/role check against settings)
 - [fix] dev.bat works after full clean (refreshes workspace links after building shared package)
 - [fix] clean.bat preserves pnpm-lock.yaml to avoid broken workspace resolution
 - [fix] Discord login no longer shows cryptic error popup (React strict mode double-fired the OAuth code exchange)
 - [fix] Animated Discord avatars (GIF) now display correctly in navbar and account page
-- [feature] Multi-language support (i18next) — Deutsch, English, Piratensprache with browser language auto-detection
-- [improvement] Language switcher in navbar with localStorage persistence
 - [fix] Discord avatar stored as hash instead of full URL (fixes broken avatar display for animated/GIF avatars)
-- [improvement] Active team name always visible in navbar, even with only one team
-- [improvement] Game dashboard: added "Create Room" button, maps are display-only (no misleading clicks)
 - [removed] Email/password authentication, registration, magic link, password reset, email verification
 - [removed] Guest/sandbox mode — all users must authenticate via Discord
 - [removed] Registration tokens system

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,13 +16,28 @@ interface GameWithMaps extends Game { maps: MapData[]; }
 
 export default function CreateRoomPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useTranslation();
-  const [step, setStep] = useState<'game' | 'map' | 'confirm'>('game');
+  const preselectedGameSlug = searchParams.get('game');
+
+  const [step, setStep] = useState<'game' | 'map' | 'confirm'>(preselectedGameSlug ? 'map' : 'game');
   const [selectedGame, setSelectedGame] = useState<Game | null>(null);
   const [selectedMap, setSelectedMap] = useState<MapData | null>(null);
   const [mapSearch, setMapSearch] = useState('');
 
   const { data: gamesData, isLoading: gamesLoading } = useQuery({ queryKey: ['games'], queryFn: () => apiGet<{ data: Game[] }>('/games') });
+
+  // If a game slug is preselected via query param, find and set it once games load
+  useEffect(() => {
+    if (preselectedGameSlug && gamesData?.data && !selectedGame) {
+      const found = gamesData.data.find(g => g.slug === preselectedGameSlug);
+      if (found) {
+        setSelectedGame(found);
+        setStep('map');
+      }
+    }
+  }, [preselectedGameSlug, gamesData, selectedGame]);
+
   const { data: gameDetailData } = useQuery({ queryKey: ['game', selectedGame?.slug], queryFn: () => apiGet<{ data: GameWithMaps }>(`/games/${selectedGame!.slug}`), enabled: !!selectedGame?.slug });
 
   const createMutation = useMutation({
@@ -30,6 +45,16 @@ export default function CreateRoomPage() {
     onSuccess: (res) => navigate(`/room/${res.data.connectionString}`),
     onError: (err: Error) => toast.error(err.message),
   });
+
+  const handleBack = () => {
+    if (preselectedGameSlug) {
+      navigate(`/${preselectedGameSlug}`);
+    } else {
+      setStep('game');
+      setSelectedGame(null);
+      setMapSearch('');
+    }
+  };
 
   if (step === 'confirm' && selectedGame && selectedMap) {
     return (
@@ -60,7 +85,7 @@ export default function CreateRoomPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center gap-4 mb-8">
-          <Button variant="ghost" onClick={() => { setStep('game'); setSelectedGame(null); setMapSearch(''); }}><ArrowLeft className="h-4 w-4 mr-1" /> {t('room.back')}</Button>
+          <Button variant="ghost" onClick={handleBack}><ArrowLeft className="h-4 w-4 mr-1" /> {t('room.back')}</Button>
           <h1 className="text-3xl font-bold font-heading">{t('room.chooseMap', { game: selectedGame.name })}</h1>
         </div>
         <div className="relative max-w-sm mb-6">
