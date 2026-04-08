@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiGet, apiPut, apiDelete } from '@/lib/api';
+import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Shield, Trash2 } from 'lucide-react';
+import { Shield, Trash2, LogOut } from 'lucide-react';
 
 interface UserData {
   id: string; username: string; discordUsername: string; discordId: string;
@@ -23,6 +23,12 @@ export default function UsersPage() {
   const roleMutation = useMutation({
     mutationFn: ({ id, role }: { id: string; role: string }) => apiPut(`/admin/users/${id}/role`, { role }),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['admin', 'users'] }); toast.success('Role updated'); },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const kickMutation = useMutation({
+    mutationFn: (id: string) => apiPost(`/admin/users/${id}/kick`),
+    onSuccess: () => toast.success('User session revoked'),
     onError: (err: Error) => toast.error(err.message),
   });
 
@@ -71,6 +77,9 @@ export default function UsersPage() {
                     <div className="flex justify-end gap-1">
                       {!isSelf && (
                         <>
+                          <Button variant="ghost" size="icon" className="h-8 w-8" title="Kick (force logout)" onClick={() => { if (confirm(`Kick "${user.username}"? Their session will be revoked.`)) kickMutation.mutate(user.id); }}>
+                            <LogOut className="h-4 w-4 text-amber-500" />
+                          </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8" title="Toggle role" onClick={() => {
                             const newRole = user.role === 'admin' ? 'user' : 'admin';
                             roleMutation.mutate({ id: user.id, role: newRole });

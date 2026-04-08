@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { db } from '../../db/connection.js';
 import { users } from '../../db/schema/index.js';
 import { requireAdmin } from '../../middleware/auth.js';
+import { revokeRefreshToken } from '../../services/auth.service.js';
 
 export default async function adminUsersRoutes(fastify: FastifyInstance) {
   fastify.addHook('preHandler', requireAdmin);
@@ -51,6 +52,21 @@ export default async function adminUsersRoutes(fastify: FastifyInstance) {
     if (!user) return reply.status(404).send({ error: 'Not Found', message: 'User not found', statusCode: 404 });
 
     return { data: { id: user.id, username: user.username, discordUsername: user.discordUsername, role: user.role } };
+  });
+
+  // POST /api/admin/users/:id/kick — revoke session (force logout)
+  fastify.post('/:id/kick', async (request, reply) => {
+    const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+
+    if (id === request.user!.userId) {
+      return reply.status(400).send({ error: 'Bad Request', message: 'Cannot kick yourself', statusCode: 400 });
+    }
+
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    if (!user) return reply.status(404).send({ error: 'Not Found', message: 'User not found', statusCode: 404 });
+
+    await revokeRefreshToken(id);
+    return { message: 'User session revoked' };
   });
 
   // POST /api/admin/users/:id/delete
