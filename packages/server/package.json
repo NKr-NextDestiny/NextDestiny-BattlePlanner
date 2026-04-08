@@ -10,6 +10,7 @@
     "db:generate": "tsx ./node_modules/drizzle-kit/bin.cjs generate",
     "db:migrate": "tsx ./node_modules/drizzle-kit/bin.cjs migrate",
     "db:seed": "tsx src/db/seed.ts",
+    "db:seed:run": "node dist/db/seed.js",
     "db:studio": "tsx ./node_modules/drizzle-kit/bin.cjs studio",
     "db:push": "tsx ./node_modules/drizzle-kit/bin.cjs push",
     "import:maps": "tsx src/scripts/import-maps.ts"

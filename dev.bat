@@ -23,10 +23,16 @@ if errorlevel 1 (
 )
 
 echo.
-echo [3/6] Building shared package...
+echo [3/6] Building packages...
 call pnpm --filter @nd-battleplanner/shared build
 if errorlevel 1 (
     echo ERROR: Shared build failed.
+    pause
+    exit /b 1
+)
+call pnpm --filter @nd-battleplanner/server build
+if errorlevel 1 (
+    echo ERROR: Server build failed.
     pause
     exit /b 1
 )
@@ -48,21 +54,12 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-
-echo Waiting for database to settle...
-timeout /t 3 /nobreak >nul
-
-echo Seeding...
-if exist seed.log del seed.log
-start "Seeding DB" /wait dev-seed.bat
-if exist seed.log (
-    type seed.log
-    del seed.log
-) else (
-    echo WARNING: Seed produced no output — may have crashed.
+call pnpm --filter @nd-battleplanner/server db:seed:run
+if errorlevel 1 (
+    echo WARNING: Seed failed (may already be seeded).
 )
-echo.
 
+echo.
 echo [6/6] Starting dev server...
 echo.
 echo   Client: http://localhost:5173
