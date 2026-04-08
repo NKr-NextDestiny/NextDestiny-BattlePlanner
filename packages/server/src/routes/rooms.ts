@@ -90,10 +90,14 @@ export default async function roomsRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/rooms/:connString/delete
-  fastify.post('/:connString/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:connString/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { connString } = z.object({ connString: z.string() }).parse(request.params);
     const [room] = await db.select().from(rooms).where(eq(rooms.connectionString, connString));
     if (!room) return reply.status(404).send({ error: 'Not Found', message: 'Room not found', statusCode: 404 });
+
+    if (room.teamId !== request.teamId) {
+      return reply.status(404).send({ error: 'Not Found', message: 'Room not found', statusCode: 404 });
+    }
 
     if (room.ownerId !== request.user!.userId && request.user!.role !== 'admin') {
       return reply.status(403).send({ error: 'Forbidden', message: 'Not authorized', statusCode: 403 });

@@ -6,7 +6,6 @@ export function setupDrawingHandlers(io: Server, socket: Socket, userId: string)
   socket.on('draw:create', ({ battleplanFloorId, draws: drawItems }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
-    if ((socket as any).isGuest) return;
 
     socket.to(connString).emit('draw:created', { userId, battleplanFloorId, draws: drawItems });
   });
@@ -14,7 +13,6 @@ export function setupDrawingHandlers(io: Server, socket: Socket, userId: string)
   socket.on('draw:delete', ({ drawIds }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
-    if ((socket as any).isGuest) return;
 
     socket.to(connString).emit('draw:deleted', { userId, drawIds });
   });
@@ -22,7 +20,6 @@ export function setupDrawingHandlers(io: Server, socket: Socket, userId: string)
   socket.on('draw:update', ({ drawId, data }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
-    if ((socket as any).isGuest) return;
 
     socket.to(connString).emit('draw:updated', { userId, drawId, data });
   });

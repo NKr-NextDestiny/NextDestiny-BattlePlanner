@@ -83,7 +83,7 @@ export function AppLayout() {
                         />
                       ) : (
                         <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                          {user.username[0].toUpperCase()}
+                          {(user.username[0] ?? '?').toUpperCase()}
                         </div>
                       )}
                       {user.username}

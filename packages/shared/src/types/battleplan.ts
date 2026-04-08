@@ -4,8 +4,8 @@ import type { BattleplanPhase, OperatorBan, StratSide, StratMode, StratSite, Str
 
 export interface Battleplan {
   id: string;
-  ownerId: string;
-  teamId: string;
+  ownerId: string | null;
+  teamId: string | null;
   gameId: string;
   mapId: string;
   name: string;

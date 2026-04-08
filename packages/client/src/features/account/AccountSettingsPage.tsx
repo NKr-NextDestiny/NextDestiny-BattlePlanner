@@ -21,7 +21,7 @@ export default function AccountSettingsPage() {
               />
             ) : (
               <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-lg font-bold text-primary">
-                {user.username[0].toUpperCase()}
+                {(user.username[0] ?? '?').toUpperCase()}
               </div>
             )}
             <span>Account Information</span>

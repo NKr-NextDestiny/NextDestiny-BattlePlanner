@@ -10,10 +10,9 @@ async function getBattleplanWithDetails(id: string, userId?: string) {
   const [plan] = await db.select().from(battleplans).where(eq(battleplans.id, id));
   if (!plan) return null;
 
-  const [owner] = await db.select({
-    id: users.id,
-    username: users.username,
-  }).from(users).where(eq(users.id, plan.ownerId));
+  const owner = plan.ownerId
+    ? (await db.select({ id: users.id, username: users.username }).from(users).where(eq(users.id, plan.ownerId)))[0] ?? null
+    : null;
 
   const [game] = await db.select({ id: games.id, slug: games.slug, name: games.name })
     .from(games).where(eq(games.id, plan.gameId));
@@ -202,7 +201,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id (update)
-  fastify.post('/:id', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const body = z.object({
       name: z.string().min(1).max(255).optional(),
@@ -224,7 +223,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/delete
-  fastify.post('/:id/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const [existing] = await db.select().from(battleplans).where(eq(battleplans.id, id));
     if (!existing) return reply.status(404).send({ error: 'Not Found', message: 'Battleplan not found', statusCode: 404 });
@@ -296,7 +295,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/attacker-lineup
-  fastify.post('/:id/attacker-lineup', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/attacker-lineup', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const [existing] = await db.select().from(battleplans).where(eq(battleplans.id, id));
     if (!existing) return reply.status(404).send({ error: 'Not Found', message: 'Battleplan not found', statusCode: 404 });
@@ -324,7 +323,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/attacker-lineup/delete
-  fastify.post('/:id/attacker-lineup/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/attacker-lineup/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const [existing] = await db.select().from(battleplans).where(eq(battleplans.id, id));
     if (!existing) return reply.status(404).send({ error: 'Not Found', message: 'Battleplan not found', statusCode: 404 });
@@ -342,7 +341,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   // --- Strat Config ---
 
   // POST /api/battleplans/:id/strat-config
-  fastify.post('/:id/strat-config', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/strat-config', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const body = z.object({
       side: z.enum(['Attackers', 'Defenders', 'Unknown']).optional(),
@@ -368,7 +367,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   // --- Phases ---
 
   // GET /api/battleplans/:id/phases
-  fastify.get('/:id/phases', async (request, reply) => {
+  fastify.get('/:id/phases', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const phases = await db.select().from(battleplanPhases)
       .where(eq(battleplanPhases.battleplanId, id))
@@ -377,7 +376,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/phases
-  fastify.post('/:id/phases', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/phases', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const body = z.object({
       name: z.string().min(1).max(100),
@@ -401,7 +400,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/phases/:phaseId/update
-  fastify.post('/:id/phases/:phaseId/update', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/phases/:phaseId/update', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { phaseId } = z.object({ id: z.string().uuid(), phaseId: z.string().uuid() }).parse(request.params);
     const body = z.object({
       name: z.string().min(1).max(100).optional(),
@@ -418,7 +417,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/phases/:phaseId/delete
-  fastify.post('/:id/phases/:phaseId/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/phases/:phaseId/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { phaseId } = z.object({ id: z.string().uuid(), phaseId: z.string().uuid() }).parse(request.params);
 
     // Set phaseId to null on associated draws instead of deleting them
@@ -432,7 +431,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   // --- Bans ---
 
   // GET /api/battleplans/:id/bans
-  fastify.get('/:id/bans', async (request, reply) => {
+  fastify.get('/:id/bans', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const bans = await db.select().from(operatorBans)
       .where(eq(operatorBans.battleplanId, id));
@@ -440,7 +439,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/bans
-  fastify.post('/:id/bans', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/bans', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const body = z.object({
       operatorName: z.string().min(1).max(100),
@@ -468,14 +467,14 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/battleplans/:id/bans/:banId/delete
-  fastify.post('/:id/bans/:banId/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/bans/:banId/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { banId } = z.object({ id: z.string().uuid(), banId: z.string().uuid() }).parse(request.params);
     await db.delete(operatorBans).where(eq(operatorBans.id, banId));
     return { message: 'Ban removed' };
   });
 
   // POST /api/battleplans/:id/vote
-  fastify.post('/:id/vote', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/:id/vote', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const { value } = z.object({ value: z.number().int().min(-1).max(1) }).parse(request.body);
 

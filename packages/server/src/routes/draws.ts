@@ -2,16 +2,22 @@ import type { FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/connection.js';
-import { draws, battleplanFloors } from '../db/schema/index.js';
-import { requireAuth } from '../middleware/auth.js';
+import { draws, battleplanFloors, battleplans } from '../db/schema/index.js';
+import { requireAuth, requireTeamAccess } from '../middleware/auth.js';
 
 export default async function drawsRoutes(fastify: FastifyInstance) {
   // POST /api/battleplan-floors/:id/draws
-  fastify.post('/battleplan-floors/:id/draws', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/battleplan-floors/:id/draws', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
 
     const [floor] = await db.select().from(battleplanFloors).where(eq(battleplanFloors.id, id));
     if (!floor) return reply.status(404).send({ error: 'Not Found', message: 'Floor not found', statusCode: 404 });
+
+    // Verify team access via battleplan
+    const [plan] = await db.select({ teamId: battleplans.teamId }).from(battleplans).where(eq(battleplans.id, floor.battleplanId));
+    if (!plan || plan.teamId !== request.teamId) {
+      return reply.status(404).send({ error: 'Not Found', message: 'Floor not found', statusCode: 404 });
+    }
 
     const { items } = z.object({
       items: z.array(z.object({
@@ -47,7 +53,7 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/draws/:id (update)
-  fastify.post('/draws/:id', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/draws/:id', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
     const body = z.object({
       originX: z.number().optional(),
@@ -60,6 +66,15 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
     // Ownership check
     const [existing] = await db.select().from(draws).where(eq(draws.id, id));
     if (!existing) return reply.status(404).send({ error: 'Not Found', message: 'Draw not found', statusCode: 404 });
+
+    // Verify team access via floor → battleplan
+    const [floor] = await db.select().from(battleplanFloors).where(eq(battleplanFloors.id, existing.battleplanFloorId));
+    if (floor) {
+      const [plan] = await db.select({ teamId: battleplans.teamId }).from(battleplans).where(eq(battleplans.id, floor.battleplanId));
+      if (!plan || plan.teamId !== request.teamId) {
+        return reply.status(404).send({ error: 'Not Found', message: 'Draw not found', statusCode: 404 });
+      }
+    }
     if (existing.userId && existing.userId !== request.user!.userId) {
       return reply.status(403).send({ error: 'Forbidden', message: 'Cannot modify another user\'s draw', statusCode: 403 });
     }
@@ -69,12 +84,21 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
   });
 
   // POST /api/draws/:id/delete
-  fastify.post('/draws/:id/delete', { preHandler: [requireAuth] }, async (request, reply) => {
+  fastify.post('/draws/:id/delete', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
 
     // Ownership check
     const [existing] = await db.select().from(draws).where(eq(draws.id, id));
     if (!existing) return reply.status(404).send({ error: 'Not Found', message: 'Draw not found', statusCode: 404 });
+
+    // Verify team access via floor → battleplan
+    const [floor] = await db.select().from(battleplanFloors).where(eq(battleplanFloors.id, existing.battleplanFloorId));
+    if (floor) {
+      const [plan] = await db.select({ teamId: battleplans.teamId }).from(battleplans).where(eq(battleplans.id, floor.battleplanId));
+      if (!plan || plan.teamId !== request.teamId) {
+        return reply.status(404).send({ error: 'Not Found', message: 'Draw not found', statusCode: 404 });
+      }
+    }
     if (existing.userId && existing.userId !== request.user!.userId) {
       return reply.status(403).send({ error: 'Forbidden', message: 'Cannot delete another user\'s draw', statusCode: 403 });
     }

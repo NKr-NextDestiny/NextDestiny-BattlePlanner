@@ -1,6 +1,6 @@
 export interface Room {
   id: string;
-  ownerId: string;
+  ownerId: string | null;
   teamId: string;
   battleplanId: string | null;
   connectionString: string;

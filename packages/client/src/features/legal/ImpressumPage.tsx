@@ -30,21 +30,9 @@ export default function ImpressumPage() {
           </CardHeader>
           <CardContent className="space-y-2">
             <p>
-              <span className="text-muted-foreground">E-Mail: </span>
-              <a href="mailto:kontakt@tactihub.de" className="text-primary hover:underline">
-                kontakt@tactihub.de
-              </a>
-            </p>
-            <p>
               <span className="text-muted-foreground">GitHub: </span>
-              <a href="https://github.com/niklask52t/TactiHub" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                github.com/niklask52t/TactiHub
-              </a>
-            </p>
-            <p>
-              <span className="text-muted-foreground">Website: </span>
-              <a href="https://tactihub.de" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                tactihub.de
+              <a href="https://github.com/NKr-NextDestiny/NextDestiny-BattlePlanner" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                NKr-NextDestiny/NextDestiny-BattlePlanner
               </a>
             </p>
           </CardContent>
@@ -81,7 +69,7 @@ export default function ImpressumPage() {
               Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Der Quellcode von TactiHub ist unter der{' '}
+              Der Quellcode von NextDestiny BattlePlanner ist unter der{' '}
               <a href="https://opensource.org/licenses/MIT" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                 MIT-Lizenz
               </a>{' '}
@@ -107,7 +95,7 @@ export default function ImpressumPage() {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <p>
-              TactiHub is a fan-made tool and is not affiliated with, endorsed by, or connected to Ubisoft or any other game publisher. All game names, logos, and related assets are trademarks of their respective owners.
+              NextDestiny BattlePlanner is a fan-made tool and is not affiliated with, endorsed by, or connected to Ubisoft or any other game publisher. All game names, logos, and related assets are trademarks of their respective owners.
             </p>
             <p>
               Some images used on this website are screenshots from the game Tom Clancy&apos;s Rainbow Six Siege, developed and published by Ubisoft.

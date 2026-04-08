@@ -5,10 +5,10 @@
  * Also imports gadget icons from the Gadgets subfolder.
  *
  * Usage:
- *   pnpm --filter @tactihub/server tsx src/scripts/import-maps.ts <source-folder>
+ *   pnpm --filter @nd-battleplanner/server tsx src/scripts/import-maps.ts <source-folder>
  *
  * Example:
- *   pnpm --filter @tactihub/server tsx src/scripts/import-maps.ts "C:\Users\Niklas\Downloads\Sternab-20260211T183417Z-1-001\Sternab"
+ *   pnpm --filter @nd-battleplanner/server tsx src/scripts/import-maps.ts "C:\Users\Niklas\Downloads\Sternab-20260211T183417Z-1-001\Sternab"
  */
 
 import { config } from 'dotenv';

@@ -13,7 +13,7 @@ export default function TeamSelectionPage() {
   // Auto-select if only one team
   useEffect(() => {
     if (teams.length === 1) {
-      setActiveTeamId(teams[0].id);
+      setActiveTeamId(teams[0]!.id);
       navigate('/', { replace: true });
     }
   }, [teams, setActiveTeamId, navigate]);

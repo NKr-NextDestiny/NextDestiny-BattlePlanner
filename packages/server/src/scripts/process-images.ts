@@ -3,7 +3,7 @@
  * with deterministic file names. No DB access needed.
  *
  * Usage:
- *   pnpm --filter @tactihub/server tsx src/scripts/process-images.ts "C:\path\to\Sternab"
+ *   pnpm --filter @nd-battleplanner/server tsx src/scripts/process-images.ts "C:\path\to\Sternab"
  *
  * Output goes to packages/server/uploads/maps/ and packages/server/uploads/gadgets/
  */
