@@ -19,7 +19,11 @@
       "core-js",
       "esbuild",
       "sharp"
-    ]
+    ],
+    "allowedDeprecatedVersions": {
+      "@esbuild-kit/core-utils": "3.3.2",
+      "@esbuild-kit/esm-loader": "2.6.5"
+    }
   },
   "devDependencies": {
     "concurrently": "^9.2.1",

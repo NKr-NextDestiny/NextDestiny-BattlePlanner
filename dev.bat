@@ -18,6 +18,8 @@ echo.
 echo [3/6] Building packages...
 call pnpm --filter @nd-battleplanner/shared build
 echo       Shared done (%errorlevel%)
+call pnpm install --frozen-lockfile 2>nul || call pnpm install
+echo       Links refreshed
 call pnpm --filter @nd-battleplanner/server build
 echo       Server done (%errorlevel%)
 echo.

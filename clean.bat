@@ -59,8 +59,7 @@ if exist packages\server\drizzle rd /s /q packages\server\drizzle
 if exist packages\client\node_modules rd /s /q packages\client\node_modules
 if exist packages\client\dist rd /s /q packages\client\dist
 
-echo Removing lockfile...
-if exist pnpm-lock.yaml del pnpm-lock.yaml
+echo Lockfile preserved (pnpm-lock.yaml)
 
 echo.
 echo ============================================
