@@ -18,11 +18,11 @@ ask_yn() {
   done
 }
 
-# Run a command as the tactihub user (production only)
-# Falls back to direct execution if tactihub user doesn't exist
-run_as_tactihub() {
-  if id "tactihub" &>/dev/null; then
-    sudo -u tactihub bash -c "cd $SCRIPT_DIR && $*"
+# Run a command as the battleplanner user (production only)
+# Falls back to direct execution if battleplanner user doesn't exist
+run_as_bp() {
+  if id "battleplanner" &>/dev/null; then
+    sudo -u battleplanner bash -c "cd $SCRIPT_DIR && $*"
   else
     eval "$@"
   fi
@@ -30,7 +30,7 @@ run_as_tactihub() {
 
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
-echo "=== TactiHub Update ==="
+echo "=== NextDestiny BattlePlanner Update ==="
 echo ""
 echo "Current branch: $CURRENT_BRANCH"
 echo ""
@@ -108,7 +108,7 @@ elif [ "$MODE" = "update" ]; then
 
   echo ""
   echo "--- Building shared package ---"
-  pnpm --filter @tactihub/shared build
+  pnpm --filter @nd-battleplanner/shared build
 
   echo ""
   echo "--- Generating database migrations ---"
@@ -183,7 +183,7 @@ elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
 
   echo ""
   echo "--- Building shared package ---"
-  pnpm --filter @tactihub/shared build
+  pnpm --filter @nd-battleplanner/shared build
 
   echo ""
   echo "--- Cleaning old migration files ---"
@@ -220,7 +220,7 @@ elif [ "$MODE" = "prod" ]; then
   echo "apply database migrations, and rebuild the project."
   echo "Your existing data will be preserved."
   echo ""
-  echo "All build operations run as the 'tactihub' user."
+  echo "All build operations run as the 'battleplanner' user."
   echo ""
 
   if ! ask_yn "Continue with production update?"; then
@@ -229,52 +229,52 @@ elif [ "$MODE" = "prod" ]; then
   fi
 
   echo ""
-  echo "--- Stopping TactiHub service ---"
-  sudo systemctl stop tactihub 2>/dev/null || true
+  echo "--- Stopping BattlePlanner service ---"
+  sudo systemctl stop battleplanner 2>/dev/null || true
 
   echo ""
   echo "--- Fixing file ownership ---"
-  if id "tactihub" &>/dev/null; then
-    sudo chown -R tactihub:tactihub "$SCRIPT_DIR"
-    echo "Ownership set to tactihub:tactihub"
+  if id "battleplanner" &>/dev/null; then
+    sudo chown -R battleplanner:battleplanner "$SCRIPT_DIR"
+    echo "Ownership set to battleplanner:battleplanner"
   fi
 
   echo ""
   echo "--- Pulling latest $BRANCH branch ---"
-  run_as_tactihub git checkout "$BRANCH"
-  run_as_tactihub git pull origin "$BRANCH"
+  run_as_bp git checkout "$BRANCH"
+  run_as_bp git pull origin "$BRANCH"
 
   echo ""
   echo "--- Installing dependencies ---"
-  run_as_tactihub pnpm install
+  run_as_bp pnpm install
 
   echo ""
   echo "--- Building shared package ---"
-  run_as_tactihub pnpm --filter @tactihub/shared build
+  run_as_bp pnpm --filter @nd-battleplanner/shared build
 
   echo ""
   echo "--- Generating database migrations ---"
-  run_as_tactihub pnpm db:generate
+  run_as_bp pnpm db:generate
 
   echo ""
   echo "--- Applying database migrations ---"
-  run_as_tactihub pnpm db:migrate
+  run_as_bp pnpm db:migrate
 
   echo ""
   echo "--- Building all packages ---"
-  run_as_tactihub pnpm build
+  run_as_bp pnpm build
 
   echo ""
   echo "=== Production update complete! ==="
 
-  if ask_yn "Restart TactiHub service now?"; then
-    sudo systemctl restart tactihub
+  if ask_yn "Restart BattlePlanner service now?"; then
+    sudo systemctl restart battleplanner
     sleep 2
     echo ""
     echo "--- Service status ---"
-    sudo systemctl status tactihub --no-pager -l
+    sudo systemctl status battleplanner --no-pager -l
   else
-    echo "Run 'sudo systemctl restart tactihub' to apply changes."
+    echo "Run 'sudo systemctl restart battleplanner' to apply changes."
   fi
 
 elif [ "$MODE" = "prod-reset" ]; then
@@ -282,7 +282,7 @@ elif [ "$MODE" = "prod-reset" ]; then
   echo "This will DELETE all database data (users, battleplans, everything)"
   echo "and rebuild the entire project from scratch in production mode."
   echo ""
-  echo "All build operations run as the 'tactihub' user."
+  echo "All build operations run as the 'battleplanner' user."
   echo ""
 
   if ! ask_yn "Are you sure?"; then
@@ -313,24 +313,24 @@ elif [ "$MODE" = "prod-reset" ]; then
   done
 
   echo ""
-  echo "--- Stopping TactiHub service ---"
-  sudo systemctl stop tactihub 2>/dev/null || true
+  echo "--- Stopping BattlePlanner service ---"
+  sudo systemctl stop battleplanner 2>/dev/null || true
 
   echo ""
   echo "--- Fixing file ownership ---"
-  if id "tactihub" &>/dev/null; then
-    sudo chown -R tactihub:tactihub "$SCRIPT_DIR"
-    echo "Ownership set to tactihub:tactihub"
+  if id "battleplanner" &>/dev/null; then
+    sudo chown -R battleplanner:battleplanner "$SCRIPT_DIR"
+    echo "Ownership set to battleplanner:battleplanner"
   fi
 
   echo ""
   echo "--- Pulling latest $RESET_BRANCH branch ---"
-  run_as_tactihub git checkout "$RESET_BRANCH"
-  run_as_tactihub git pull origin "$RESET_BRANCH"
+  run_as_bp git checkout "$RESET_BRANCH"
+  run_as_bp git pull origin "$RESET_BRANCH"
 
   echo ""
   echo "--- Installing dependencies ---"
-  run_as_tactihub pnpm install
+  run_as_bp pnpm install
 
   echo ""
   echo "--- Stopping containers & deleting volumes ---"
@@ -349,38 +349,38 @@ elif [ "$MODE" = "prod-reset" ]; then
 
   echo ""
   echo "--- Building shared package ---"
-  run_as_tactihub pnpm --filter @tactihub/shared build
+  run_as_bp pnpm --filter @nd-battleplanner/shared build
 
   echo ""
   echo "--- Cleaning old migration files ---"
-  run_as_tactihub rm -rf packages/server/drizzle/*
+  run_as_bp rm -rf packages/server/drizzle/*
 
   echo ""
   echo "--- Generating migrations ---"
-  run_as_tactihub pnpm db:generate
+  run_as_bp pnpm db:generate
 
   echo ""
   echo "--- Applying migrations ---"
-  run_as_tactihub pnpm db:migrate
+  run_as_bp pnpm db:migrate
 
   echo ""
   echo "--- Seeding database ---"
-  run_as_tactihub pnpm db:seed
+  run_as_bp pnpm db:seed
 
   echo ""
   echo "--- Building all packages ---"
-  run_as_tactihub pnpm build
+  run_as_bp pnpm build
 
   echo ""
   echo "=== Production reset complete! ==="
 
-  if ask_yn "Restart TactiHub service now?"; then
-    sudo systemctl restart tactihub
+  if ask_yn "Restart BattlePlanner service now?"; then
+    sudo systemctl restart battleplanner
     sleep 2
     echo ""
     echo "--- Service status ---"
-    sudo systemctl status tactihub --no-pager -l
+    sudo systemctl status battleplanner --no-pager -l
   else
-    echo "Run 'sudo systemctl restart tactihub' to apply changes."
+    echo "Run 'sudo systemctl restart battleplanner' to apply changes."
   fi
 fi
