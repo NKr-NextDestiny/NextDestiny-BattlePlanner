@@ -6,6 +6,15 @@ echo ============================================
 echo.
 
 echo [1/6] Starting Docker containers...
+docker info >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo   ERROR: Docker Desktop is not running!
+    echo   Please start Docker Desktop and try again.
+    echo.
+    pause
+    exit /b 1
+)
 docker compose up -d
 echo       Done (%errorlevel%)
 echo.
