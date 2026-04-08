@@ -351,7 +351,7 @@ The Vite dev client proxies all `/api/*` and `/socket.io` requests to `localhost
 
 - Version is defined in two places: `package.json` (root) and `APP_VERSION` in `packages/shared/src/constants/index.ts`
 - Both must be kept in sync when bumping versions
-- Version is displayed in the footer (AppLayout) and Impressum page
+- Version is displayed in the footer (AppLayout)
 - Version history is maintained in three places that **must all be updated** when releasing a new version:
   1. `CHANGELOG.md` (root) — plain Markdown, used for external homepage sync
   2. `packages/client/src/features/legal/ChangelogPage.tsx` — the `/changelog` page in the app
@@ -399,12 +399,10 @@ All mutating endpoints use POST only (no PUT or DELETE). This ensures compatibil
 | `/` | HomePage | Public (shows Discord login if unauthenticated) |
 | `/auth/discord/callback` | DiscordCallbackPage | Public (OAuth redirect handler) |
 | `/teams` | TeamSelectionPage | Protected |
-| `/help` | HelpPage | Public |
-| `/faq` | FAQPage | Public |
-| `/changelog` | ChangelogPage | Public |
-| `/about` | AboutPage | Public |
-| `/impressum` | ImpressumPage | Public |
-| `/agb` | AGBPage | Public |
+| `/help` | HelpPage | Protected |
+| `/faq` | FAQPage | Protected |
+| `/changelog` | ChangelogPage | Protected |
+| `/about` | AboutPage | Protected |
 | `/:gameSlug` | GameDashboard | Team required |
 | `/:gameSlug/plans/public` | PublicPlansPage | Team required |
 | `/:gameSlug/plans/:planId` | BattleplanViewer | Team required |

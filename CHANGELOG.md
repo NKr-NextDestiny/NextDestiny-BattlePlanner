@@ -5,13 +5,18 @@
 - [feature] Discord OAuth2 login — replaced email/password auth with Discord-only authentication (scopes: identify, guilds.members.read)
 - [feature] Team system — Discord role-based team mapping with team selection after login, all content scoped per team
 - [feature] Team management — admin panel for creating/editing teams, assigning Discord roles, and managing individual team members
-- [feature] NextDestiny branding — new logo, red primary color (#e06161), Montserrat + Open Sans fonts, dark theme
-- [feature] Redesigned login page — centered NextDestiny logo with Discord login button, German UI text
+- [feature] NextDestiny branding — new logo, orange primary (#f97316), deep dark background (#0a0a0f), Montserrat + Open Sans fonts
+- [feature] Redesigned login page — centered NextDestiny logo with glitch/glow effects, Discord login button, German UI text
 - [feature] Team switcher in navbar — quickly switch between teams without logging out
+- [feature] Navbar logo with animated glow effect
 - [improvement] All dependencies updated to latest stable versions (TypeScript 6, Vite 8, Zod 4, Drizzle 0.45, Tailwind 4.2, React Router 7.6)
 - [improvement] Team-scoped security — requireTeamAccess middleware on all battleplan, room, and draw mutation routes
 - [improvement] Nullable owner support — battleplans and rooms survive user deletion (ownerId nullable)
-- [improvement] Help, FAQ, and Changelog now require login
+- [improvement] Help, FAQ, About, and Changelog now require login
+- [improvement] FAQ and Help pages rewritten in German with Discord-auth-relevant content
+- [fix] Admin login works on first login even without existing teams (direct Discord ID/role check against settings)
+- [fix] dev.bat works after full clean (refreshes workspace links after building shared package)
+- [fix] clean.bat preserves pnpm-lock.yaml to avoid broken workspace resolution
 - [removed] Email/password authentication, registration, magic link, password reset, email verification
 - [removed] Guest/sandbox mode — all users must authenticate via Discord
 - [removed] Registration tokens system
