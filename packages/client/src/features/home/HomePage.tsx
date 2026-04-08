@@ -31,21 +31,22 @@ export default function HomePage() {
       <div className="container mx-auto px-4 py-16 relative z-10">
         {!isAuthenticated ? (
           /* ── Login view ── */
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <img
               src="/nd-logo.png"
               alt="Next Destiny"
-              className="w-40 h-40 rounded-full mb-8 ring-4 ring-primary/30 shadow-lg shadow-primary/20"
+              className="w-44 h-44 rounded-2xl mb-8 shadow-lg shadow-primary/20"
             />
-            <h1 className="text-4xl font-bold mb-2 font-heading text-foreground tracking-tight">
+            <h1 className="text-4xl font-bold mb-1 font-heading text-foreground tracking-tight">
               Next Destiny
             </h1>
-            <p className="text-lg text-primary font-heading font-semibold tracking-wide uppercase mb-2">
+            <p className="text-lg text-primary font-heading font-semibold tracking-widest uppercase mb-4">
               BattlePlanner
             </p>
-            <p className="text-muted-foreground text-center max-w-md mb-10">
+            <p className="text-muted-foreground max-w-sm mb-10 leading-relaxed">
               Taktische Strategieplanung für Rainbow Six Siege.
-              Zeichne Taktiken, teile Pläne und koordiniere dich mit deinem Team in Echtzeit.
+              Zeichne Taktiken, teile Pläne und koordiniere dich
+              mit deinem Team in Echtzeit.
             </p>
             <button
               onClick={handleDiscordLogin}
@@ -59,11 +60,11 @@ export default function HomePage() {
           </div>
         ) : !activeTeamId ? (
           /* ── Authenticated but no team selected ── */
-          <div className="flex flex-col items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
             <img
               src="/nd-logo.png"
               alt="Next Destiny"
-              className="w-28 h-28 rounded-full mb-6 ring-4 ring-primary/30"
+              className="w-28 h-28 rounded-2xl mb-6"
             />
             <h1 className="text-3xl font-bold mb-4 font-heading text-foreground">Willkommen zurück!</h1>
             <p className="text-muted-foreground mb-8">Wähle dein Team um fortzufahren.</p>

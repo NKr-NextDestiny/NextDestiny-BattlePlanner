@@ -258,20 +258,20 @@ packages/
 
 ### Color Palette
 
-NextDestiny red primary (`#e06161`) with dark blue-gray backgrounds.
+NextDestiny orange-red primary (~`#ff3800`) with dark charcoal backgrounds (matching logo).
 
 | Role | Hex | OKLCH | Usage |
 |------|-----|-------|-------|
-| **Primary** | `#e06161` | `oklch(0.60 0.15 20)` | Buttons, links, accents, ring, glow effects |
+| **Primary** | `#ff3800` | `oklch(0.63 0.24 30)` | Buttons, links, accents, ring, glow effects |
 | **Primary Foreground** | `#ffffff` | `oklch(0.98 0 0)` | Text on primary backgrounds |
-| **Destructive** | — | `oklch(0.50 0.20 25)` | Errors, delete actions, warnings |
-| **Background** | `#2a2f38` | `oklch(0.185 0.01 250)` | Page background |
-| **Foreground** | `#c3c9cc` | `oklch(0.88 0.005 250)` | Primary text |
-| **Card** | `#323842` | `oklch(0.22 0.012 250)` | Card backgrounds |
-| **Secondary** | `#3c4653` | `oklch(0.28 0.015 250)` | Secondary backgrounds, muted areas |
-| **Muted Foreground** | — | `oklch(0.65 0.01 250)` | Secondary text, labels |
-| **Border / Input** | — | `oklch(0.32 0.015 250)` | Borders, input outlines |
-| **Chart 1–5** | — | red, deep-red, amber, teal, purple | Data visualization |
+| **Destructive** | — | `oklch(0.50 0.22 25)` | Errors, delete actions, warnings |
+| **Background** | `#1a1a1a` | `oklch(0.16 0.005 0)` | Page background (dark charcoal) |
+| **Foreground** | `#e0e0e0` | `oklch(0.90 0.005 0)` | Primary text |
+| **Card** | `#262626` | `oklch(0.20 0.005 0)` | Card backgrounds |
+| **Secondary** | `#303030` | `oklch(0.24 0.005 0)` | Secondary backgrounds, muted areas |
+| **Muted Foreground** | — | `oklch(0.60 0.005 0)` | Secondary text, labels |
+| **Border / Input** | — | `oklch(0.30 0.005 0)` | Borders, input outlines |
+| **Chart 1–5** | — | orange-red, deep-red, amber, teal, purple | Data visualization |
 
 ---
 

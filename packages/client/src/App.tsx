@@ -64,13 +64,13 @@ export function App() {
         {/* Main app */}
         <Route element={<AppLayout />}>
           <Route path="/" element={<HomePage />} />
-          <Route path="/about" element={<AboutPage />} />
 
           {/* Auth-required pages */}
           <Route element={<ProtectedRoute />}>
             <Route path="/help" element={<HelpPage />} />
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/changelog" element={<ChangelogPage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Route>
 
           {/* Team-scoped routes */}

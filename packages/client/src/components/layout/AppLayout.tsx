@@ -135,9 +135,9 @@ export function AppLayout() {
                 <Link to="/help" className="hover:text-primary transition-colors">Help</Link>
                 <Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link>
                 <Link to="/changelog" className="hover:text-primary transition-colors">Changelog</Link>
+                <Link to="/about" className="hover:text-primary transition-colors">About</Link>
               </>
             )}
-            <Link to="/about" className="hover:text-primary transition-colors">About</Link>
           </div>
         </div>
       </footer>

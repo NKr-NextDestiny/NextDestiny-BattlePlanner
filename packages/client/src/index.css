@@ -25,8 +25,8 @@ html, body {
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px oklch(0.60 0.15 20 / 0.3); }
-  50% { box-shadow: 0 0 20px oklch(0.60 0.15 20 / 0.6); }
+  0%, 100% { box-shadow: 0 0 8px oklch(0.63 0.24 30 / 0.3); }
+  50% { box-shadow: 0 0 20px oklch(0.63 0.24 30 / 0.6); }
 }
 
 @keyframes scan-line {
@@ -64,7 +64,7 @@ html, body {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    oklch(0.60 0.15 20 / 0.08) 50%,
+    oklch(0.63 0.24 30 / 0.08) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -81,7 +81,7 @@ html, body {
 
 /* Gaming input focus glow */
 .gaming-input:focus {
-  box-shadow: 0 0 0 1px oklch(0.60 0.15 20 / 0.5), 0 0 12px oklch(0.60 0.15 20 / 0.2);
+  box-shadow: 0 0 0 1px oklch(0.63 0.24 30 / 0.5), 0 0 12px oklch(0.63 0.24 30 / 0.2);
 }
 
 /* Gaming button shimmer */
@@ -119,15 +119,15 @@ html, body {
 .gaming-card::before {
   top: -1px;
   left: -1px;
-  border-top: 2px solid oklch(0.60 0.15 20 / 0.6);
-  border-left: 2px solid oklch(0.60 0.15 20 / 0.6);
+  border-top: 2px solid oklch(0.63 0.24 30 / 0.6);
+  border-left: 2px solid oklch(0.63 0.24 30 / 0.6);
 }
 
 .gaming-card::after {
   bottom: -1px;
   right: -1px;
-  border-bottom: 2px solid oklch(0.60 0.15 20 / 0.6);
-  border-right: 2px solid oklch(0.60 0.15 20 / 0.6);
+  border-bottom: 2px solid oklch(0.63 0.24 30 / 0.6);
+  border-right: 2px solid oklch(0.63 0.24 30 / 0.6);
 }
 
 /* Top-right and bottom-left corners via child spans */
@@ -145,15 +145,15 @@ html, body {
 .gaming-card-corners::before {
   top: -1px;
   right: -1px;
-  border-top: 2px solid oklch(0.60 0.15 20 / 0.6);
-  border-right: 2px solid oklch(0.60 0.15 20 / 0.6);
+  border-top: 2px solid oklch(0.63 0.24 30 / 0.6);
+  border-right: 2px solid oklch(0.63 0.24 30 / 0.6);
 }
 
 .gaming-card-corners::after {
   bottom: -1px;
   left: -1px;
-  border-bottom: 2px solid oklch(0.60 0.15 20 / 0.6);
-  border-left: 2px solid oklch(0.60 0.15 20 / 0.6);
+  border-bottom: 2px solid oklch(0.63 0.24 30 / 0.6);
+  border-left: 2px solid oklch(0.63 0.24 30 / 0.6);
 }
 
 /* Floating particle */
@@ -162,7 +162,7 @@ html, body {
   width: 2px;
   height: 2px;
   border-radius: 50%;
-  background: oklch(0.60 0.15 20 / 0.6);
+  background: oklch(0.63 0.24 30 / 0.6);
   animation: float-particle 6s ease-in-out infinite;
 }
 
@@ -171,15 +171,15 @@ html, body {
   position: absolute;
   height: 1px;
   width: 40%;
-  background: linear-gradient(90deg, transparent, oklch(0.60 0.15 20 / 0.4), transparent);
+  background: linear-gradient(90deg, transparent, oklch(0.63 0.24 30 / 0.4), transparent);
   animation: glow-line 4s ease-in-out infinite;
 }
 
 /* Subtle grid background */
 .gaming-bg {
   background-image:
-    linear-gradient(oklch(0.60 0.15 20 / 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, oklch(0.60 0.15 20 / 0.03) 1px, transparent 1px);
+    linear-gradient(oklch(0.63 0.24 30 / 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.63 0.24 30 / 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -192,39 +192,39 @@ html, body {
 }
 
 @theme {
-  /* Dark theme — NextDestiny red primary (#e06161) */
+  /* Dark theme — NextDestiny orange-red primary (~#ff3000) */
 
-  --color-background: oklch(0.185 0.01 250);       /* ~#2a2f38 dark blue-gray */
-  --color-foreground: oklch(0.88 0.005 250);        /* ~#c3c9cc light gray */
-  --color-card: oklch(0.22 0.012 250);              /* ~#323842 */
-  --color-card-foreground: oklch(0.88 0.005 250);   /* ~#c3c9cc */
-  --color-popover: oklch(0.22 0.012 250);
-  --color-popover-foreground: oklch(0.88 0.005 250);
-  --color-primary: oklch(0.60 0.15 20);             /* ~#e06161 NextDestiny red */
-  --color-primary-foreground: oklch(0.98 0 0);      /* white */
-  --color-secondary: oklch(0.28 0.015 250);         /* ~#3c4653 dark gray */
-  --color-secondary-foreground: oklch(0.88 0.005 250);
-  --color-muted: oklch(0.28 0.015 250);
-  --color-muted-foreground: oklch(0.65 0.01 250);   /* mid gray */
-  --color-accent: oklch(0.30 0.018 250);
-  --color-accent-foreground: oklch(0.88 0.005 250);
-  --color-destructive: oklch(0.50 0.20 25);         /* deeper red for destructive */
+  --color-background: oklch(0.16 0.005 0);          /* ~#1a1a1a dark charcoal */
+  --color-foreground: oklch(0.90 0.005 0);           /* ~#e0e0e0 light gray */
+  --color-card: oklch(0.20 0.005 0);                 /* ~#262626 */
+  --color-card-foreground: oklch(0.90 0.005 0);      /* ~#e0e0e0 */
+  --color-popover: oklch(0.20 0.005 0);
+  --color-popover-foreground: oklch(0.90 0.005 0);
+  --color-primary: oklch(0.63 0.24 30);              /* ~#ff3800 NextDestiny orange-red */
+  --color-primary-foreground: oklch(0.98 0 0);       /* white */
+  --color-secondary: oklch(0.24 0.005 0);            /* ~#303030 dark gray */
+  --color-secondary-foreground: oklch(0.90 0.005 0);
+  --color-muted: oklch(0.24 0.005 0);
+  --color-muted-foreground: oklch(0.60 0.005 0);     /* mid gray */
+  --color-accent: oklch(0.26 0.008 0);
+  --color-accent-foreground: oklch(0.90 0.005 0);
+  --color-destructive: oklch(0.50 0.22 25);          /* deep red for destructive */
   --color-destructive-foreground: oklch(0.98 0 0);
-  --color-border: oklch(0.32 0.015 250);
-  --color-input: oklch(0.32 0.015 250);
-  --color-ring: oklch(0.60 0.15 20);                /* red ring to match primary */
-  --color-chart-1: oklch(0.60 0.15 20);             /* red */
-  --color-chart-2: oklch(0.55 0.18 10);             /* deep red */
-  --color-chart-3: oklch(0.65 0.15 60);             /* amber */
-  --color-chart-4: oklch(0.65 0.15 160);            /* teal */
-  --color-chart-5: oklch(0.65 0.15 310);            /* purple */
-  --color-sidebar-background: oklch(0.20 0.012 250);
-  --color-sidebar-foreground: oklch(0.88 0.005 250);
-  --color-sidebar-primary: oklch(0.60 0.15 20);
+  --color-border: oklch(0.30 0.005 0);
+  --color-input: oklch(0.30 0.005 0);
+  --color-ring: oklch(0.63 0.24 30);                 /* orange-red ring to match primary */
+  --color-chart-1: oklch(0.63 0.24 30);              /* orange-red */
+  --color-chart-2: oklch(0.50 0.20 20);              /* deep red */
+  --color-chart-3: oklch(0.70 0.15 60);              /* amber */
+  --color-chart-4: oklch(0.65 0.15 160);             /* teal */
+  --color-chart-5: oklch(0.65 0.15 310);             /* purple */
+  --color-sidebar-background: oklch(0.18 0.005 0);
+  --color-sidebar-foreground: oklch(0.90 0.005 0);
+  --color-sidebar-primary: oklch(0.63 0.24 30);
   --color-sidebar-primary-foreground: oklch(0.98 0 0);
-  --color-sidebar-accent: oklch(0.28 0.015 250);
-  --color-sidebar-accent-foreground: oklch(0.88 0.005 250);
-  --color-sidebar-border: oklch(0.32 0.015 250);
-  --color-sidebar-ring: oklch(0.60 0.15 20);
+  --color-sidebar-accent: oklch(0.24 0.005 0);
+  --color-sidebar-accent-foreground: oklch(0.90 0.005 0);
+  --color-sidebar-border: oklch(0.30 0.005 0);
+  --color-sidebar-ring: oklch(0.63 0.24 30);
   --radius: 0.625rem;
 }
