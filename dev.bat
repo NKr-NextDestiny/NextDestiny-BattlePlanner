@@ -7,59 +7,33 @@ echo.
 
 echo [1/6] Starting Docker containers...
 docker compose up -d
-if errorlevel 1 (
-    echo ERROR: Docker failed. Is Docker Desktop running?
-    pause
-    exit /b 1
-)
-
+echo       Done (%errorlevel%)
 echo.
+
 echo [2/6] Installing dependencies...
 call pnpm install
-if errorlevel 1 (
-    echo ERROR: pnpm install failed.
-    pause
-    exit /b 1
-)
-
+echo       Done (%errorlevel%)
 echo.
+
 echo [3/6] Building packages...
 call pnpm --filter @nd-battleplanner/shared build
-if errorlevel 1 (
-    echo ERROR: Shared build failed.
-    pause
-    exit /b 1
-)
+echo       Shared done (%errorlevel%)
 call pnpm --filter @nd-battleplanner/server build
-if errorlevel 1 (
-    echo ERROR: Server build failed.
-    pause
-    exit /b 1
-)
-
+echo       Server done (%errorlevel%)
 echo.
+
 echo [4/6] Generating database migrations...
 call pnpm db:generate
-if errorlevel 1 (
-    echo ERROR: Migration generation failed.
-    pause
-    exit /b 1
-)
-
+echo       Done (%errorlevel%)
 echo.
+
 echo [5/6] Applying migrations and seeding...
 call pnpm db:migrate
-if errorlevel 1 (
-    echo ERROR: Migration failed.
-    pause
-    exit /b 1
-)
-call pnpm --filter @nd-battleplanner/server db:seed:run
-if errorlevel 1 (
-    echo WARNING: Seed failed (may already be seeded).
-)
-
+echo       Migrate done (%errorlevel%)
+call pnpm db:seed:run
+echo       Seed done (%errorlevel%)
 echo.
+
 echo [6/6] Starting dev server...
 echo.
 echo   Client: http://localhost:5173
