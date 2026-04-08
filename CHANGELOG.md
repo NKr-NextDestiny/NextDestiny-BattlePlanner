@@ -1,5 +1,23 @@
 # Changelog
 
+## v3.0.0 — 2026-04-08 — NextDestiny Fork
+
+- [feature] Discord OAuth2 login — replaced email/password auth with Discord-only authentication (scopes: identify, guilds.members.read)
+- [feature] Team system — Discord role-based team mapping with team selection after login, all content scoped per team
+- [feature] Team management — admin panel for creating/editing teams, assigning Discord roles, and managing individual team members
+- [feature] NextDestiny branding — new logo, red primary color (#e06161), Montserrat + Open Sans fonts, dark theme
+- [feature] Redesigned login page — centered NextDestiny logo with Discord login button, German UI text
+- [feature] Team switcher in navbar — quickly switch between teams without logging out
+- [improvement] All dependencies updated to latest stable versions (TypeScript 6, Vite 8, Zod 4, Drizzle 0.45, Tailwind 4.2, React Router 7.6)
+- [improvement] Team-scoped security — requireTeamAccess middleware on all battleplan, room, and draw mutation routes
+- [improvement] Nullable owner support — battleplans and rooms survive user deletion (ownerId nullable)
+- [improvement] Help, FAQ, and Changelog now require login
+- [removed] Email/password authentication, registration, magic link, password reset, email verification
+- [removed] Guest/sandbox mode — all users must authenticate via Discord
+- [removed] Registration tokens system
+- [removed] AGB and Impressum pages
+- [removed] reCAPTCHA, SMTP/email service, bcrypt/nodemailer dependencies
+
 ## v2.0.1 — 2026-02-18 — Operator Icons & Icon Sizing
 
 - [feature] Operator images in OperatorStrip and SidePanel — assigned operators now show their actual icon instead of just a first letter

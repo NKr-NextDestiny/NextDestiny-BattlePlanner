@@ -40,6 +40,7 @@ export function AppLayout() {
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center justify-between px-4 w-full">
           <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
+            <img src="/nd-logo.png" alt="" className="h-8 w-8 rounded-full" />
             <span className="text-xl font-bold font-heading text-primary">{APP_NAME}</span>
           </Link>
 
@@ -129,12 +130,14 @@ export function AppLayout() {
         <div className="container flex items-center justify-between px-4 text-xs text-muted-foreground">
           <span>{APP_NAME} v{APP_VERSION}</span>
           <div className="flex items-center gap-4">
-            <Link to="/help" className="hover:text-primary transition-colors">Help</Link>
-            <Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link>
-            <Link to="/changelog" className="hover:text-primary transition-colors">Changelog</Link>
+            {isAuthenticated && (
+              <>
+                <Link to="/help" className="hover:text-primary transition-colors">Help</Link>
+                <Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link>
+                <Link to="/changelog" className="hover:text-primary transition-colors">Changelog</Link>
+              </>
+            )}
             <Link to="/about" className="hover:text-primary transition-colors">About</Link>
-            <Link to="/impressum" className="hover:text-primary transition-colors">Impressum</Link>
-            <Link to="/agb" className="hover:text-primary transition-colors">AGB</Link>
           </div>
         </div>
       </footer>

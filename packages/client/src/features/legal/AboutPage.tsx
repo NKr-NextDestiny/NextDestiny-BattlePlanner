@@ -24,7 +24,7 @@ export default function AboutPage() {
             </p>
             <p className="text-muted-foreground">
               Passionate gamer and active in the Rainbow Six Siege esports scene.
-              TactiHub is a heart project — built to help his team and other esports teams plan and coordinate strategies more effectively.
+              NextDestiny BattlePlanner is built to help the NKr-NextDestiny team and other esports teams plan and coordinate strategies more effectively.
             </p>
           </CardContent>
         </Card>
@@ -32,17 +32,17 @@ export default function AboutPage() {
         {/* About */}
         <Card>
           <CardHeader>
-            <CardTitle>About TactiHub</CardTitle>
+            <CardTitle>About NextDestiny BattlePlanner</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-muted-foreground">
-              TactiHub is a modern, collaborative strategy planning tool for Rainbow Six Siege.
+              NextDestiny BattlePlanner is a modern, collaborative strategy planning tool for Rainbow Six Siege.
               It allows teams to draw tactics on game maps, share battle plans, and coordinate
               strategies in real-time.
             </p>
             <p className="text-muted-foreground">
               This project is built upon the ideas and work of two original open-source projects
-              that are unfortunately no longer actively maintained. TactiHub merges their best
+              that are unfortunately no longer actively maintained. NextDestiny BattlePlanner merges their best
               features into a single, modern application with a new tech stack and additional functionality.
             </p>
           </CardContent>
@@ -54,8 +54,8 @@ export default function AboutPage() {
         <div>
           <h2 className="text-2xl font-bold mb-4">Based On</h2>
           <p className="text-muted-foreground mb-6">
-            TactiHub would not exist without these two projects. While both have been inactive for
-            several years, they laid the groundwork for what TactiHub is today.
+            NextDestiny BattlePlanner would not exist without these two projects. While both have been inactive for
+            several years, they laid the groundwork for what NextDestiny BattlePlanner is today.
           </p>
 
           <div className="grid gap-6 md:grid-cols-2">
@@ -150,7 +150,7 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">
-              TactiHub is built as a modern TypeScript monorepo using:
+              NextDestiny BattlePlanner is built as a modern TypeScript monorepo using:
             </p>
             <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
               <li>React + Vite (Frontend)</li>
@@ -170,12 +170,12 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent>
             <a
-              href="https://github.com/niklask52t/TactiHub"
+              href="https://github.com/NKr-NextDestiny/NextDestiny-BattlePlanner"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-primary hover:underline"
             >
-              github.com/niklask52t/TactiHub
+              github.com/NKr-NextDestiny/NextDestiny-BattlePlanner
               <ExternalLink className="h-4 w-4" />
             </a>
           </CardContent>
@@ -188,7 +188,7 @@ export default function AboutPage() {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <p>
-              TactiHub is a fan-made tool and is not affiliated with, endorsed by, or connected
+              NextDestiny BattlePlanner is a fan-made tool and is not affiliated with, endorsed by, or connected
               to Ubisoft or any other game publisher. All game names, logos, and
               related assets are trademarks of their respective owners.
             </p>

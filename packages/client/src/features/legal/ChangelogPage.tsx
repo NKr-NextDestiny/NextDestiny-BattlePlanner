@@ -15,10 +15,32 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: '3.0.0',
+    subtitle: 'NextDestiny Fork',
+    date: '2026-04-08',
+    tag: 'Latest',
+    changes: [
+      { type: 'feature', text: 'Discord OAuth2 login \u2014 replaced email/password auth with Discord-only authentication (scopes: identify, guilds.members.read)' },
+      { type: 'feature', text: 'Team system \u2014 Discord role-based team mapping with team selection after login, all content scoped per team' },
+      { type: 'feature', text: 'Team management \u2014 admin panel for creating/editing teams, assigning Discord roles, and managing individual team members' },
+      { type: 'feature', text: 'NextDestiny branding \u2014 new logo, red primary color (#e06161), Montserrat + Open Sans fonts, dark theme' },
+      { type: 'feature', text: 'Redesigned login page \u2014 centered NextDestiny logo with Discord login button, German UI text' },
+      { type: 'feature', text: 'Team switcher in navbar \u2014 quickly switch between teams without logging out' },
+      { type: 'improvement', text: 'All dependencies updated to latest stable versions (TypeScript 6, Vite 8, Zod 4, Drizzle 0.45, Tailwind 4.2, React Router 7.6)' },
+      { type: 'improvement', text: 'Team-scoped security \u2014 requireTeamAccess middleware on all battleplan, room, and draw mutation routes' },
+      { type: 'improvement', text: 'Nullable owner support \u2014 battleplans and rooms survive user deletion (ownerId nullable)' },
+      { type: 'improvement', text: 'Help, FAQ, and Changelog now require login' },
+      { type: 'removed', text: 'Email/password authentication, registration, magic link, password reset, email verification' },
+      { type: 'removed', text: 'Guest/sandbox mode \u2014 all users must authenticate via Discord' },
+      { type: 'removed', text: 'Registration tokens system' },
+      { type: 'removed', text: 'AGB and Impressum pages' },
+      { type: 'removed', text: 'reCAPTCHA, SMTP/email service, bcrypt/nodemailer dependencies' },
+    ],
+  },
+  {
     version: '2.0.1',
     subtitle: 'Operator Icons & Icon Sizing',
     date: '2026-02-18',
-    tag: 'Latest',
     changes: [
       { type: 'feature', text: 'Operator images in OperatorStrip and SidePanel \u2014 assigned operators now show their actual icon instead of just a first letter' },
       { type: 'feature', text: 'Operator badge on placed gadget icons \u2014 small circular operator logo overlay in the bottom-right corner of canvas gadget icons' },
