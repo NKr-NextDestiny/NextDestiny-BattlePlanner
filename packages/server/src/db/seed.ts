@@ -423,10 +423,10 @@ async function seed() {
 }
 
 seed()
+  .then(() => {
+    process.exit(0);
+  })
   .catch((err) => {
     console.error('Seed error:', err);
-    process.exitCode = 1;
-  })
-  .finally(async () => {
-    await client.end();
+    process.exit(1);
   });

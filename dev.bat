@@ -53,10 +53,8 @@ echo Waiting for database to settle...
 timeout /t 3 /nobreak >nul
 
 echo Seeding...
-cmd /c "pnpm db:seed"
-if errorlevel 1 (
-    echo WARNING: Seed failed (may already be seeded).
-)
+start "Seeding DB" /wait cmd /c "pnpm db:seed & exit 0"
+echo Seed step done.
 
 echo.
 echo [6/6] Starting dev server...
