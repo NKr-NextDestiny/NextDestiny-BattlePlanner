@@ -1,6 +1,6 @@
 import { config } from 'dotenv';
 config({ path: '../../.env' });
-import { db } from './connection.js';
+import { db, client } from './connection.js';
 import { users, settings, games, maps, mapFloors, operators, gadgets, operatorGadgets } from './schema/index.js';
 import { eq } from 'drizzle-orm';
 
@@ -420,10 +420,13 @@ async function seed() {
   }
 
   console.log('Seeding complete!');
-  process.exit(0);
 }
 
-seed().catch((err) => {
-  console.error('Seed error:', err);
-  process.exit(1);
-});
+seed()
+  .catch((err) => {
+    console.error('Seed error:', err);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await client.end();
+  });

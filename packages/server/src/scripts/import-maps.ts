@@ -18,7 +18,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import sharp from 'sharp';
 import { nanoid } from 'nanoid';
-import { db } from '../db/connection.js';
+import { db, client } from '../db/connection.js';
 import { maps, mapFloors, games, gadgets } from '../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
 
@@ -397,10 +397,13 @@ async function main() {
 
   console.log(`\n✅ Imported ${gadgetCount} gadget icons`);
   console.log('\nDone!');
-  process.exit(0);
 }
 
-main().catch((err) => {
-  console.error('Import error:', err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error('Import error:', err);
+    process.exitCode = 1;
+  })
+  .finally(async () => {
+    await client.end();
+  });

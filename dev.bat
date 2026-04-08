@@ -60,3 +60,4 @@ echo   Client: http://localhost:5173
 echo   API:    http://localhost:3001
 echo.
 call pnpm dev
+pause
