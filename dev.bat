@@ -16,6 +16,7 @@ echo       Done (%errorlevel%)
 echo.
 
 echo [3/6] Building packages...
+if exist packages\shared\tsconfig.tsbuildinfo del packages\shared\tsconfig.tsbuildinfo
 call pnpm --filter @nd-battleplanner/shared build
 echo       Shared done (%errorlevel%)
 call pnpm install --frozen-lockfile 2>nul || call pnpm install
