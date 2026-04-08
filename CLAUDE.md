@@ -258,20 +258,20 @@ packages/
 
 ### Color Palette
 
-NextDestiny orange-red primary (~`#ff3800`) with dark charcoal backgrounds (matching logo).
+NextDestiny orange primary (`#f97316`) with deep dark backgrounds (blue tint). Palette matched from NextPhantoms HQ.
 
 | Role | Hex | OKLCH | Usage |
 |------|-----|-------|-------|
-| **Primary** | `#ff3800` | `oklch(0.63 0.24 30)` | Buttons, links, accents, ring, glow effects |
+| **Primary** | `#f97316` | `oklch(0.705 0.187 48)` | Buttons, links, accents, ring, glow effects |
 | **Primary Foreground** | `#ffffff` | `oklch(0.98 0 0)` | Text on primary backgrounds |
-| **Destructive** | — | `oklch(0.50 0.22 25)` | Errors, delete actions, warnings |
-| **Background** | `#1a1a1a` | `oklch(0.16 0.005 0)` | Page background (dark charcoal) |
-| **Foreground** | `#e0e0e0` | `oklch(0.90 0.005 0)` | Primary text |
-| **Card** | `#262626` | `oklch(0.20 0.005 0)` | Card backgrounds |
-| **Secondary** | `#303030` | `oklch(0.24 0.005 0)` | Secondary backgrounds, muted areas |
-| **Muted Foreground** | — | `oklch(0.60 0.005 0)` | Secondary text, labels |
-| **Border / Input** | — | `oklch(0.30 0.005 0)` | Borders, input outlines |
-| **Chart 1–5** | — | orange-red, deep-red, amber, teal, purple | Data visualization |
+| **Destructive** | `#ef4444` | `oklch(0.637 0.208 25)` | Errors, delete actions, warnings |
+| **Background** | `#0a0a0f` | `oklch(0.147 0.011 285)` | Page background (deep dark, blue tint) |
+| **Foreground** | `#e5e5e5` | `oklch(0.922 0 0)` | Primary text |
+| **Card** | `#111118` | `oklch(0.181 0.014 285)` | Card backgrounds |
+| **Secondary** | `#1a1a24` | `oklch(0.222 0.019 285)` | Secondary backgrounds, muted areas |
+| **Muted Foreground** | `#71717a` | `oklch(0.552 0.014 286)` | Secondary text, labels |
+| **Border / Input** | `#27272a` | `oklch(0.274 0.006 286)` | Borders, input outlines |
+| **Chart 1–5** | — | orange, red, amber, teal, purple | Data visualization |
 
 ---
 
