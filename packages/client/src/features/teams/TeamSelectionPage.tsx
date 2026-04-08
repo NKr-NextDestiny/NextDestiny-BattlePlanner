@@ -1,15 +1,16 @@
 import { useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { Users, Shield } from 'lucide-react';
 
 export default function TeamSelectionPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const teams = useAuthStore((s) => s.teams);
   const setActiveTeamId = useAuthStore((s) => s.setActiveTeamId);
   const isAdmin = useAuthStore((s) => s.isAdmin);
 
-  // Auto-select if only one team
   useEffect(() => {
     if (teams.length === 1) {
       setActiveTeamId(teams[0]!.id);
@@ -34,20 +35,15 @@ export default function TeamSelectionPage() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background gaming-bg relative overflow-hidden p-6">
       <div className="gaming-glow-line top-0 left-0 z-50" />
 
-      {/* Floating particles */}
       <span className="gaming-particle" style={{ left: '15%', bottom: '25%', animationDelay: '0s' }} />
       <span className="gaming-particle" style={{ right: '20%', bottom: '35%', animationDelay: '2s' }} />
       <span className="gaming-particle" style={{ left: '40%', bottom: '15%', animationDelay: '4s' }} />
 
       <div className="relative z-10 w-full max-w-3xl">
         <div className="mb-10 text-center">
-          <img
-            src="/nd-logo.png"
-            alt="Next Destiny"
-            className="logo-glow w-24 h-24 rounded-2xl mb-6 mx-auto"
-          />
-          <h1 className="text-3xl font-bold text-foreground font-heading mb-2">Wähle dein Team</h1>
-          <p className="text-muted-foreground">Wähle ein Team um fortzufahren.</p>
+          <img src="/nd-logo.png" alt="Next Destiny" className="logo-glow w-24 h-24 rounded-2xl mb-6 mx-auto" />
+          <h1 className="text-3xl font-bold text-foreground font-heading mb-2">{t('teams.title')}</h1>
+          <p className="text-muted-foreground">{t('teams.subtitle')}</p>
         </div>
 
         {teams.length > 0 ? (
@@ -72,9 +68,7 @@ export default function TeamSelectionPage() {
               <Users className="h-8 w-8" />
             </div>
             <p className="text-muted-foreground mb-6">
-              {isAdmin
-                ? 'Noch keine Teams konfiguriert.'
-                : 'Du bist keinem Team zugewiesen. Kontaktiere einen Admin.'}
+              {isAdmin ? t('teams.noTeamsAdmin') : t('teams.noTeamsUser')}
             </p>
             {isAdmin && (
               <Link
@@ -82,7 +76,7 @@ export default function TeamSelectionPage() {
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-primary-foreground font-semibold hover:brightness-110 transition-all"
               >
                 <Shield className="h-4 w-4" />
-                Teams verwalten
+                {t('teams.manageTeams')}
               </Link>
             )}
           </div>

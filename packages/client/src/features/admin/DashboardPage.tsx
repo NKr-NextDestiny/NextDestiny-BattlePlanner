@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { apiGet } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,6 +15,7 @@ interface Stats {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: () => apiGet<{ data: Stats }>('/admin/settings/stats'),
@@ -22,16 +24,16 @@ export default function DashboardPage() {
   const stats = data?.data;
 
   const cards = [
-    { label: 'Benutzer', value: stats?.totalUsers, icon: Users },
-    { label: 'Teams', value: stats?.totalTeams, icon: Users2 },
-    { label: 'Spiele', value: stats?.totalGames, icon: Gamepad2 },
-    { label: 'Karten', value: stats?.totalMaps, icon: Map },
-    { label: 'Pläne', value: stats?.totalBattleplans, icon: FileText },
+    { label: t('admin.users'), value: stats?.totalUsers, icon: Users },
+    { label: t('admin.teams'), value: stats?.totalTeams, icon: Users2 },
+    { label: t('admin.games'), value: stats?.totalGames, icon: Gamepad2 },
+    { label: t('admin.maps'), value: stats?.totalMaps, icon: Map },
+    { label: t('admin.plans'), value: stats?.totalBattleplans, icon: FileText },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
+      <h1 className="text-3xl font-bold">{t('admin.dashboard')}</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map((card) => {
@@ -52,7 +54,7 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Neue Benutzer</CardTitle>
+          <CardTitle>{t('admin.recentUsers')}</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (

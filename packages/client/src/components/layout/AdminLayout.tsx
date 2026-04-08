@@ -1,4 +1,5 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Users,
@@ -9,15 +10,16 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-const navItems = [
-  { label: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { label: 'Benutzer', href: '/admin/users', icon: Users },
-  { label: 'Teams', href: '/admin/teams', icon: Users2 },
-  { label: 'Einstellungen', href: '/admin/settings', icon: Settings },
-];
-
 export function AdminLayout() {
   const location = useLocation();
+  const { t } = useTranslation();
+
+  const navItems = [
+    { label: t('admin.dashboard'), href: '/admin', icon: LayoutDashboard },
+    { label: t('admin.users'), href: '/admin/users', icon: Users },
+    { label: t('admin.teams'), href: '/admin/teams', icon: Users2 },
+    { label: t('admin.settings'), href: '/admin/settings', icon: Settings },
+  ];
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
@@ -27,7 +29,7 @@ export function AdminLayout() {
             <Button variant="ghost" className="w-full justify-start mb-4" asChild>
               <Link to="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Zurück
+                {t('admin.back')}
               </Link>
             </Button>
 
