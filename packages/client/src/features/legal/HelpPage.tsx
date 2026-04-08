@@ -1,103 +1,103 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Keyboard, Mouse, Pencil, Move, ZoomIn, Eraser, Type, Minus, Square, Users, Share2, Shield, Crosshair, Presentation, Sticker, Settings, Wand2, Camera, FileDown, MousePointer2, MessageSquare, Tag, UserCheck } from 'lucide-react';
+import { Keyboard, Mouse, Pencil, Move, ZoomIn, Eraser, Type, Minus, Square, Users, Share2, Shield, Crosshair, Presentation, Sticker, Settings, Camera, FileDown, MousePointer2, MessageSquare, Tag, UserCheck } from 'lucide-react';
 
 export default function HelpPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <h1 className="text-3xl font-bold mb-2">Help</h1>
-      <p className="text-muted-foreground mb-8">Learn how to use TactiHub's canvas, tools, and collaboration features.</p>
+      <p className="text-muted-foreground mb-8">Erfahre, wie du Canvas, Tools und Zusammenarbeit im NextDestiny BattlePlanner nutzt.</p>
 
       <div className="space-y-8">
         {/* Drawing Tools */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Pencil className="h-5 w-5" /> Drawing Tools</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Pencil className="h-5 w-5" /> Zeichenwerkzeuge</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3">
                 <Pencil className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Pen</p>
-                  <p className="text-sm text-muted-foreground">Freehand drawing. Click and drag to draw paths.</p>
+                  <p className="font-medium">Stift</p>
+                  <p className="text-sm text-muted-foreground">Freihandzeichnen. Klicke und ziehe, um Pfade zu zeichnen.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Minus className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Line</p>
-                  <p className="text-sm text-muted-foreground">Click start point, drag to end point for straight lines.</p>
+                  <p className="font-medium">Linie</p>
+                  <p className="text-sm text-muted-foreground">Klicke auf den Startpunkt und ziehe zum Endpunkt für gerade Linien.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Square className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Rectangle</p>
-                  <p className="text-sm text-muted-foreground">Click and drag to draw rectangular shapes.</p>
+                  <p className="font-medium">Rechteck</p>
+                  <p className="text-sm text-muted-foreground">Klicke und ziehe, um rechteckige Formen zu zeichnen.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Type className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
                   <p className="font-medium">Text</p>
-                  <p className="text-sm text-muted-foreground">Click on the canvas, then type your text in the prompt.</p>
+                  <p className="text-sm text-muted-foreground">Klicke auf die Canvas und gib deinen Text ein.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Eraser className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Eraser</p>
-                  <p className="text-sm text-muted-foreground">Click on a drawing to delete it. You can only erase your own drawings — others&apos; draws appear dimmed.</p>
+                  <p className="font-medium">Radierer</p>
+                  <p className="text-sm text-muted-foreground">Klicke auf eine Zeichnung, um sie zu löschen. Du kannst nur eigene Zeichnungen löschen.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <MousePointer2 className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Select, Resize &amp; Rotate</p>
-                  <p className="text-sm text-muted-foreground">Click on your own drawing to select it. Drag to reposition. Use the 8 square handles (corners and edges) to resize. Use the circle handle above the selection to rotate. After drawing a line or rectangle, the tool automatically switches to Select mode so you can immediately adjust.</p>
+                  <p className="font-medium">Auswählen, Skalieren &amp; Drehen</p>
+                  <p className="text-sm text-muted-foreground">Klicke auf eine eigene Zeichnung zum Auswählen. Ziehe zum Verschieben. Nutze die 8 Handles zum Skalieren und den Kreis-Handle oben zum Drehen. Nach Linie/Rechteck wechselt das Tool automatisch zu Select.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Sticker className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Gadget Icons</p>
-                  <p className="text-sm text-muted-foreground">Place operator gadgets on the map. In the side panels (ATK/DEF), each operator column shows their available gadgets below the drawing tools. Click a gadget cell to select it, then click on the canvas to place the icon. General gadgets (Drone, Barricade, etc.) are available for all slots.</p>
+                  <p className="font-medium">Gadget-Icons</p>
+                  <p className="text-sm text-muted-foreground">Platziere Operator-Gadgets auf der Karte. In den Seitenpanels zeigt jede Operator-Spalte die verfügbaren Gadgets. Klicke auf ein Gadget und dann auf die Canvas.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Move className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
-                  <p className="font-medium">Pan</p>
-                  <p className="text-sm text-muted-foreground">Click and drag to move around the map. Also works with middle mouse button.</p>
+                  <p className="font-medium">Verschieben</p>
+                  <p className="text-sm text-muted-foreground">Klicke und ziehe, um die Karte zu bewegen. Funktioniert auch mit der mittleren Maustaste.</p>
                 </div>
               </div>
             </div>
 
             <Separator />
 
-            <p className="font-medium">Laser Pointer Tools</p>
+            <p className="font-medium">Laserpointer</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3">
                 <Crosshair className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
                   <p className="font-medium">Laser Dot</p>
-                  <p className="text-sm text-muted-foreground">Shows a glowing dot at your cursor position, visible to all room members. Useful for pointing at specific spots.</p>
+                  <p className="text-sm text-muted-foreground">Zeigt einen leuchtenden Punkt an deiner Cursor-Position, sichtbar für alle im Raum.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <Presentation className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
                   <p className="font-medium">Laser Line</p>
-                  <p className="text-sm text-muted-foreground">Click and drag to draw a temporary line visible to all room members. The line fades out over 3 seconds after releasing.</p>
+                  <p className="text-sm text-muted-foreground">Zeichne temporäre Linien, die nach 3 Sekunden verblassen. Sichtbar für alle im Raum.</p>
                 </div>
               </div>
             </div>
             <Separator />
             <div>
               <p className="text-sm text-muted-foreground">
-                Use the <strong>color picker</strong> to change the drawing color and the <strong>slider</strong> to adjust line width.
-                When the Text tool is active, a <strong>font size selector</strong> appears in the toolbar (12–64px).
+                Nutze den <strong>Farbwähler</strong> für die Zeichenfarbe und den <strong>Regler</strong> für die Linienstärke.
+                Beim Text-Tool erscheint ein <strong>Schriftgrößen-Selector</strong> in der Toolbar (12–64px).
               </p>
             </div>
           </CardContent>
@@ -113,21 +113,21 @@ export default function HelpPage() {
               <Mouse className="h-5 w-5 mt-0.5 text-primary shrink-0" />
               <div>
                 <p className="font-medium">Zoom</p>
-                <p className="text-sm text-muted-foreground">Scroll the mouse wheel to zoom in/out, centered on your cursor. Zoom range: 25% to 400%.</p>
+                <p className="text-sm text-muted-foreground">Scrolle mit dem Mausrad zum Zoomen, zentriert auf deinen Cursor. Zoombereich: 25% bis 400%.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <Move className="h-5 w-5 mt-0.5 text-primary shrink-0" />
               <div>
                 <p className="font-medium">Pan</p>
-                <p className="text-sm text-muted-foreground">Use the Pan tool or hold middle mouse button and drag to move around the map.</p>
+                <p className="text-sm text-muted-foreground">Nutze das Pan-Tool oder halte die mittlere Maustaste gedrückt und ziehe.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <ZoomIn className="h-5 w-5 mt-0.5 text-primary shrink-0" />
               <div>
-                <p className="font-medium">Zoom Controls</p>
-                <p className="text-sm text-muted-foreground">Use the +/- buttons in the bottom-right corner, or click the reset button to return to 100%.</p>
+                <p className="font-medium">Zoom-Controls</p>
+                <p className="text-sm text-muted-foreground">Nutze die +/- Buttons unten rechts oder den Reset-Button für 100%.</p>
               </div>
             </div>
           </CardContent>
@@ -136,18 +136,18 @@ export default function HelpPage() {
         {/* Keyboard Shortcuts */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Keyboard className="h-5 w-5" /> Keyboard Shortcuts</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Keyboard className="h-5 w-5" /> Tastenkürzel</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid gap-2 sm:grid-cols-2">
               {[
-                ['Ctrl + Z', 'Undo last action'],
-                ['Ctrl + Y', 'Redo last action'],
-                ['Ctrl + Shift + Z', 'Redo (alternative)'],
-                ['K', 'Go to floor above'],
-                ['J', 'Go to floor below'],
-                ['Middle Mouse', 'Pan (drag)'],
-                ['Scroll Wheel', 'Zoom in/out'],
+                ['Strg + Z', 'Rückgängig'],
+                ['Strg + Y', 'Wiederherstellen'],
+                ['Strg + Shift + Z', 'Wiederherstellen (Alt.)'],
+                ['K', 'Etage hoch'],
+                ['J', 'Etage runter'],
+                ['Mittlere Maustaste', 'Verschieben (ziehen)'],
+                ['Scrollrad', 'Rein-/Rauszoomen'],
               ].map(([key, desc]) => (
                 <div key={key} className="flex items-center justify-between py-1.5 px-2 rounded bg-muted/50">
                   <kbd className="text-xs font-mono bg-background px-2 py-0.5 rounded border">{key}</kbd>
@@ -161,85 +161,53 @@ export default function HelpPage() {
         {/* Collaboration */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" /> Collaboration</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Users className="h-5 w-5" /> Zusammenarbeit</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Create a room by choosing a game and map. Share the invite link with your teammates — they can join by clicking the link or entering the room code.</p>
-            <p>Everyone in the room sees each other's drawings and cursor positions in real-time. Each user gets assigned a unique color.</p>
-            <p>Guests can view and draw in rooms without logging in. Guest drawings are local only and won&apos;t be saved or visible to other room members. Log in to persist and share your drawings.</p>
+            <p>Erstelle einen Raum mit Spiel und Karte. Teile den Einladungslink mit deinen Teammates — sie können über den Link oder den Raum-Code beitreten.</p>
+            <p>Alle im Raum sehen die Zeichnungen und Cursor-Positionen der anderen in Echtzeit. Jedem Nutzer wird eine eigene Farbe zugewiesen.</p>
           </CardContent>
         </Card>
 
         {/* Sharing */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Sharing Battle Plans</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Share2 className="h-5 w-5" /> Battle Plans teilen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Battle plans are private by default. To share a plan:</p>
+            <p>Battle Plans sind standardmäßig privat. Zum Teilen:</p>
             <ol className="list-decimal list-inside space-y-1 ml-2">
-              <li>Open the plan in the viewer</li>
-              <li>Toggle the <strong>Public</strong> switch to make it visible to everyone</li>
-              <li>Click <strong>Share</strong> to copy the direct link</li>
+              <li>Öffne den Plan im Viewer</li>
+              <li>Schalte den <strong>Public</strong>-Toggle ein</li>
+              <li>Klicke <strong>Teilen</strong>, um den Link zu kopieren</li>
             </ol>
-            <p>Public plans appear in the community section where others can view, vote, and copy them.</p>
-          </CardContent>
-        </Card>
-
-        {/* Sandbox */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sandbox Mode</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            <p>
-              Want to try TactiHub without creating an account? Use the <strong>Sandbox</strong> to draw on any map locally.
-              Sandbox drawings are not saved — log in and create a room or battle plan to persist your work.
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Magic Link Login */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Wand2 className="h-5 w-5" /> Magic Link Login</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Magic Link is a passwordless login option. Instead of entering a password, you receive a one-time login link via email.</p>
-            <ol className="list-decimal list-inside space-y-1 ml-2">
-              <li>On the login page, click <strong>Login with Magic Link</strong></li>
-              <li>Enter your email address or username</li>
-              <li>Check your email and click the login link</li>
-              <li>You'll be logged in automatically</li>
-            </ol>
-            <p>The link expires after 15 minutes and can only be used once. If the link expires, simply request a new one.</p>
+            <p>Öffentliche Pläne erscheinen im Community-Bereich, wo andere sie ansehen, bewerten und kopieren können.</p>
           </CardContent>
         </Card>
 
         {/* Export */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5" /> Export Drawings</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Camera className="h-5 w-5" /> Zeichnungen exportieren</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Export your strategy drawings using the buttons in the bottom-right corner of the canvas (next to the zoom controls).</p>
+            <p>Exportiere deine Strategie-Zeichnungen mit den Buttons unten rechts auf der Canvas (neben den Zoom-Controls).</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex items-start gap-3">
                 <Camera className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
                   <p className="font-medium text-foreground">PNG Export</p>
-                  <p>Downloads the current floor as a PNG image with all drawings composited onto the map background.</p>
+                  <p>Lädt die aktuelle Etage als PNG-Bild mit allen Zeichnungen auf dem Kartenhintergrund herunter.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
                 <FileDown className="h-5 w-5 mt-0.5 text-primary shrink-0" />
                 <div>
                   <p className="font-medium text-foreground">PDF Export</p>
-                  <p>Downloads all floors as a multi-page landscape PDF with floor names as headers. Great for printing or sharing a complete strategy.</p>
+                  <p>Lädt alle Etagen als mehrseitiges Landscape-PDF mit Etagennamen als Überschriften herunter.</p>
                 </div>
               </div>
             </div>
-            <p>Export is available to all users, including guests.</p>
           </CardContent>
         </Card>
 
@@ -249,12 +217,11 @@ export default function HelpPage() {
             <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" /> In-Room Chat</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Use the chat panel to send text messages to everyone in the room. Click the <strong>Chat</strong> button in the bottom-left corner to open the panel.</p>
+            <p>Nutze das Chat-Panel, um Textnachrichten an alle im Raum zu senden. Klicke auf <strong>Chat</strong> unten links zum Öffnen.</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Messages are <strong>ephemeral</strong> — they are not saved and disappear when you leave the room</li>
-              <li>Each user&apos;s name is shown in their assigned room color</li>
-              <li>An <strong>unread badge</strong> appears on the chat button when new messages arrive while the panel is closed</li>
-              <li>Guests can read messages but must log in to send</li>
+              <li>Nachrichten sind <strong>temporär</strong> — sie verschwinden beim Verlassen des Raums</li>
+              <li>Jeder Nutzername wird in der zugewiesenen Raum-Farbe angezeigt</li>
+              <li>Ein <strong>Unread-Badge</strong> erscheint bei neuen Nachrichten, wenn das Panel geschlossen ist</li>
             </ul>
           </CardContent>
         </Card>
@@ -265,12 +232,12 @@ export default function HelpPage() {
             <CardTitle className="flex items-center gap-2"><Tag className="h-5 w-5" /> Battleplan Tags</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Organize your battle plans with tags like &quot;Rush&quot;, &quot;Default&quot;, &quot;Retake&quot;, &quot;Aggressive&quot;, etc.</p>
+            <p>Organisiere deine Battle Plans mit Tags wie &quot;Rush&quot;, &quot;Default&quot;, &quot;Retake&quot;, &quot;Aggressive&quot;, etc.</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Add tags when creating a plan or edit them later in the plan viewer</li>
-              <li>Use suggested tags or type your own (up to 10 tags, max 30 characters each)</li>
-              <li>Public plans can be <strong>filtered by tag</strong> on the community page</li>
-              <li>Tags are shown as colored badges on plan cards</li>
+              <li>Füge Tags beim Erstellen eines Plans hinzu oder bearbeite sie später im Viewer</li>
+              <li>Nutze vorgeschlagene Tags oder tippe eigene (bis zu 10 Tags, max 30 Zeichen)</li>
+              <li>Öffentliche Pläne können <strong>nach Tag gefiltert</strong> werden</li>
+              <li>Tags werden als farbige Badges auf den Plan-Karten angezeigt</li>
             </ul>
           </CardContent>
         </Card>
@@ -278,36 +245,35 @@ export default function HelpPage() {
         {/* Operator Lineup & Side Panels */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><UserCheck className="h-5 w-5" /> Operator Lineup &amp; Side Panels</CardTitle>
+            <CardTitle className="flex items-center gap-2"><UserCheck className="h-5 w-5" /> Operator Lineup &amp; Seitenpanels</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>The editor has an <strong>OperatorStrip</strong> at the top showing 5 ATK + 5 DEF operator slots. Click a slot to assign an operator via a searchable popover grid.</p>
-            <p>The left and right <strong>Side Panels</strong> (Attackers / Defenders) contain:</p>
+            <p>Der Editor hat einen <strong>OperatorStrip</strong> oben mit 5 ATK + 5 DEF Operator-Slots. Klicke auf einen Slot, um einen Operator über ein durchsuchbares Popover zuzuweisen.</p>
+            <p>Die linken und rechten <strong>Seitenpanels</strong> (Angreifer / Verteidiger) enthalten:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Visibility toggles</strong> and <strong>color pickers</strong> per operator slot</li>
-              <li><strong>Landscape section</strong> — draw without a specific operator using a separate color</li>
-              <li><strong>Tool grid</strong> — 5 columns (one per operator) × drawing tools (Pen, Line, Rectangle, Text, Eraser, Select). Clicking a cell activates that tool with that operator&apos;s color.</li>
-              <li><strong>Gadget rows</strong> — below the tools, each column shows operator-specific gadgets (unique, secondary) plus general gadgets (Drone, Barricade, etc.). Click a gadget to activate Icon tool and place it on the canvas.</li>
-              <li><strong>Operator avatars</strong> — bottom row showing assigned operators with active slot highlight</li>
+              <li><strong>Sichtbarkeits-Toggles</strong> und <strong>Farbwähler</strong> pro Operator-Slot</li>
+              <li><strong>Landscape-Bereich</strong> — Zeichnen ohne spezifischen Operator mit eigener Farbe</li>
+              <li><strong>Tool-Grid</strong> — 5 Spalten (eine pro Operator) × Zeichenwerkzeuge. Klick aktiviert Tool mit Operator-Farbe.</li>
+              <li><strong>Gadget-Reihen</strong> — unter den Tools zeigt jede Spalte operator-spezifische Gadgets (einzigartig, sekundär) plus allgemeine Gadgets</li>
+              <li><strong>Operator-Avatare</strong> — untere Reihe mit zugewiesenen Operatoren</li>
             </ul>
             <Separator />
-            <p className="font-medium text-foreground">Phases</p>
-            <p>Use the <strong>Phase dropdown</strong> in the top bar to create, rename, delete, and switch between strategy phases. Each phase can have its own set of drawings.</p>
+            <p className="font-medium text-foreground">Phasen</p>
+            <p>Nutze das <strong>Phasen-Dropdown</strong> in der oberen Leiste zum Erstellen, Umbenennen, Löschen und Wechseln zwischen Strategie-Phasen.</p>
             <Separator />
-            <p>Lineup changes are synced in real-time to all room participants via Socket.IO.</p>
+            <p>Lineup-Änderungen werden in Echtzeit an alle Raum-Teilnehmer synchronisiert.</p>
           </CardContent>
         </Card>
 
         {/* Account Settings */}
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" /> Account Settings</CardTitle>
+            <CardTitle className="flex items-center gap-2"><Settings className="h-5 w-5" /> Account-Einstellungen</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Access your account settings from the user menu in the top-right corner of the navbar.</p>
+            <p>Öffne deine Account-Einstellungen über das Benutzermenü oben rechts im Navbar.</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Account Info</strong> — View your username, email, role, and registration date</li>
-              <li><strong>Delete Account</strong> — Request account deletion with a two-step confirmation process and email verification. After confirming via email, your account is deactivated for 30 days. During this grace period, an administrator can reactivate your account. After 30 days, your account and all associated data (battle plans, drawings, rooms) are permanently deleted.</li>
+              <li><strong>Account Info</strong> — Zeigt deinen Discord-Username, -Avatar, Rolle und Team-Zugehörigkeiten</li>
             </ul>
           </CardContent>
         </Card>
@@ -318,15 +284,15 @@ export default function HelpPage() {
             <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" /> Admin Panel</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <p>Admins have access to the admin panel for managing the platform:</p>
+            <p>Admins haben Zugang zum Admin Panel:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>Games</strong> — Add/edit games with name, slug, icon, and active status</li>
-              <li><strong>Maps</strong> — Add maps per game with thumbnail, competitive/active toggles</li>
-              <li><strong>Floor Layouts</strong> — Manage floor definitions for each map (reorder, rename, delete, optional image upload)</li>
-              <li><strong>Operators &amp; Gadgets</strong> — Manage operators and their gadgets with icons</li>
-              <li><strong>Users</strong> — View all users, toggle roles, manually verify emails (important if no SMTP is set up!), delete users</li>
-              <li><strong>Tokens</strong> — Create single-use registration tokens when public registration is disabled</li>
-              <li><strong>Settings</strong> — Toggle public registration on/off</li>
+              <li><strong>Games</strong> — Spiele hinzufügen/bearbeiten mit Name, Slug, Icon und Aktivstatus</li>
+              <li><strong>Maps</strong> — Karten pro Spiel mit Thumbnail und Competitive/Active-Toggles</li>
+              <li><strong>Floor Layouts</strong> — Etagenlayouts pro Karte verwalten (sortieren, umbenennen, löschen, Bild-Upload)</li>
+              <li><strong>Operators &amp; Gadgets</strong> — Operatoren und ihre Gadgets mit Icons verwalten</li>
+              <li><strong>Teams</strong> — Teams erstellen, Discord-Rollen zuweisen, individuelle Mitglieder verwalten</li>
+              <li><strong>Users</strong> — Alle Nutzer anzeigen, Rollen ändern, Nutzer löschen</li>
+              <li><strong>Settings</strong> — Admin-Rollen und Discord-User-IDs konfigurieren</li>
             </ul>
           </CardContent>
         </Card>

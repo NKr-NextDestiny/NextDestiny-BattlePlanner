@@ -1,5 +1,5 @@
 /**
- * Maps SVG filenames (without extension) to TactiHub DB slugs.
+ * Maps SVG filenames (without extension) to DB slugs.
  * Also maps DB slugs back to SVG filenames for reverse lookups.
  */
 
