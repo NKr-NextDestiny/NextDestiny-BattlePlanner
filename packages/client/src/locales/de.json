@@ -27,7 +27,8 @@
   "game": {
     "myPlans": "Meine Pläne",
     "publicPlans": "Öffentliche Pläne",
-    "notFound": "Spiel nicht gefunden"
+    "notFound": "Spiel nicht gefunden",
+    "createRoom": "Raum erstellen"
   },
   "plans": {
     "myTitle": "Meine Pläne",

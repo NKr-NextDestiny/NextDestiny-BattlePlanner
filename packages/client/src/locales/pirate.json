@@ -27,7 +27,8 @@
   "game": {
     "myPlans": "Meine Schlachtpläne",
     "publicPlans": "Öffentliche Schlachtpläne",
-    "notFound": "Schlachtfeld nicht gefunden, Arrr!"
+    "notFound": "Schlachtfeld nicht gefunden, Arrr!",
+    "createRoom": "Kajüte erstellen"
   },
   "plans": {
     "myTitle": "Meine Schlachtpläne",

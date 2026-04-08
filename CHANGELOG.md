@@ -21,6 +21,9 @@
 - [fix] Animated Discord avatars (GIF) now display correctly in navbar and account page
 - [feature] Multi-language support (i18next) — Deutsch, English, Piratensprache with browser language auto-detection
 - [improvement] Language switcher in navbar with localStorage persistence
+- [fix] Discord avatar stored as hash instead of full URL (fixes broken avatar display for animated/GIF avatars)
+- [improvement] Active team name always visible in navbar, even with only one team
+- [improvement] Game dashboard: added "Create Room" button, maps are display-only (no misleading clicks)
 - [removed] Email/password authentication, registration, magic link, password reset, email verification
 - [removed] Guest/sandbox mode — all users must authenticate via Discord
 - [removed] Registration tokens system

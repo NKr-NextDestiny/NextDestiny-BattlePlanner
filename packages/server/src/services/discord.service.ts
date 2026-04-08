@@ -20,6 +20,7 @@ export interface DiscordUser {
 export interface DiscordGuildMember {
   roles: string[];
   nick: string | null;
+  avatar: string | null;
   user?: DiscordUser;
 }
 

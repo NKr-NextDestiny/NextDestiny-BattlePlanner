@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { apiGet } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Map, FileText, Globe, ArrowLeft } from 'lucide-react';
+import { Map, FileText, Globe, ArrowLeft, Plus } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 
 interface GameWithMaps {
@@ -48,9 +48,14 @@ export default function GameDashboard() {
 
       <div className="flex gap-3 mb-8">
         {isAuthenticated && (
-          <Link to={`/${gameSlug}/plans`} className="gaming-btn px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold tracking-wide uppercase text-sm hover:brightness-110 transition-all inline-flex items-center gap-2">
-            <FileText className="h-4 w-4" /> {t('game.myPlans')}
-          </Link>
+          <>
+            <Link to={`/${gameSlug}/plans`} className="gaming-btn px-5 py-2 rounded-lg bg-primary text-primary-foreground font-semibold tracking-wide uppercase text-sm hover:brightness-110 transition-all inline-flex items-center gap-2">
+              <FileText className="h-4 w-4" /> {t('game.myPlans')}
+            </Link>
+            <Link to="/room/create" className="px-5 py-2 rounded-lg border border-primary/30 text-foreground font-medium tracking-wide uppercase text-sm hover:border-primary/60 hover:bg-primary/5 transition-all inline-flex items-center gap-2">
+              <Plus className="h-4 w-4" /> {t('game.createRoom')}
+            </Link>
+          </>
         )}
         <Link to={`/${gameSlug}/plans/public`} className="px-5 py-2 rounded-lg border border-primary/30 text-foreground font-medium tracking-wide uppercase text-sm hover:border-primary/60 hover:bg-primary/5 transition-all inline-flex items-center gap-2">
           <Globe className="h-4 w-4" /> {t('game.publicPlans')}

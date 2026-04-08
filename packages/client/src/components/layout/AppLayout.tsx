@@ -78,29 +78,36 @@ export function AppLayout() {
 
             {isAuthenticated && user ? (
               <>
-                {/* Team switcher */}
-                {activeTeam && teams.length > 1 && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-2">
-                        <Users className="h-4 w-4" />
-                        {activeTeam.name}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>{t('nav.switchTeam')}</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {teams.map((team) => (
-                        <DropdownMenuItem
-                          key={team.id}
-                          onClick={() => handleSwitchTeam(team.id)}
-                          className={team.id === activeTeamId ? 'bg-primary/10 text-primary' : ''}
-                        >
-                          {team.name}
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                {/* Team indicator / switcher */}
+                {activeTeam && (
+                  teams.length > 1 ? (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <Users className="h-4 w-4" />
+                          {activeTeam.name}
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>{t('nav.switchTeam')}</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {teams.map((team) => (
+                          <DropdownMenuItem
+                            key={team.id}
+                            onClick={() => handleSwitchTeam(team.id)}
+                            className={team.id === activeTeamId ? 'bg-primary/10 text-primary' : ''}
+                          >
+                            {team.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : (
+                    <div className="flex items-center gap-1.5 rounded-md border border-border/60 bg-card/50 px-3 py-1.5 text-sm text-muted-foreground">
+                      <Users className="h-3.5 w-3.5" />
+                      {activeTeam.name}
+                    </div>
+                  )
                 )}
 
                 {/* User menu */}

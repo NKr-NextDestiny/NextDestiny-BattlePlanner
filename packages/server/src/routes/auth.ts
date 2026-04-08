@@ -61,7 +61,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
 
     const discordRoles = guildMember.roles;
     const displayName = guildMember.nick || discordUser.global_name || discordUser.username;
-    const avatarUrl = discordUser.avatar ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png` : null;
+    // Store just the avatar hash (not a full URL)
+    const avatarHash = discordUser.avatar;
 
     // Check access BEFORE creating/updating the user
     const preCheckTeams = await getUserTeams(discordUser.id, discordRoles);
@@ -92,7 +93,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
       return reply.status(403).send({ message: 'You are not a member of any team. Contact an admin.' });
     }
 
-    const user = await upsertDiscordUser(discordUser.id, displayName, avatarUrl, discordRoles);
+    const user = await upsertDiscordUser(discordUser.id, displayName, avatarHash, discordRoles);
     const userTeams = preCheckTeams;
     const admin = existingUser ? preCheckAdmin : await isUserAdmin(user.id);
 
