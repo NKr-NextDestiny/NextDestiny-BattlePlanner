@@ -48,7 +48,12 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
-call pnpm db:seed
+
+echo Waiting for database to settle...
+timeout /t 3 /nobreak >nul
+
+echo Seeding...
+cmd /c "pnpm db:seed"
 if errorlevel 1 (
     echo WARNING: Seed failed (may already be seeded).
 )
