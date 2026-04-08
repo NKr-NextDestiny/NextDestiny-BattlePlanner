@@ -35,6 +35,7 @@ const releases: Release[] = [
       { type: 'fix', text: 'Admin login works on first login even without existing teams (direct Discord ID/role check against settings)' },
       { type: 'fix', text: 'dev.bat works after full clean (refreshes workspace links after building shared package)' },
       { type: 'fix', text: 'clean.bat preserves pnpm-lock.yaml to avoid broken workspace resolution' },
+      { type: 'fix', text: 'Discord login no longer shows cryptic error popup (React strict mode double-fired the OAuth code exchange)' },
       { type: 'removed', text: 'Email/password authentication, registration, magic link, password reset, email verification' },
       { type: 'removed', text: 'Guest/sandbox mode \u2014 all users must authenticate via Discord' },
       { type: 'removed', text: 'Registration tokens system' },
