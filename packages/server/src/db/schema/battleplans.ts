@@ -10,8 +10,8 @@ export const slotSideEnum = pgEnum('slot_side', ['defender', 'attacker']);
 
 export const battleplans = pgTable('battleplans', {
   id: uuid('id').primaryKey().defaultRandom(),
-  ownerId: uuid('owner_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  teamId: uuid('team_id').notNull().references(() => teams.id, { onDelete: 'cascade' }),
+  ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
+  teamId: uuid('team_id').references(() => teams.id, { onDelete: 'set null' }),
   gameId: uuid('game_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
   mapId: uuid('map_id').notNull().references(() => maps.id, { onDelete: 'cascade' }),
   name: varchar('name', { length: 255 }).notNull(),

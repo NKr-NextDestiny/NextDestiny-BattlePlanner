@@ -4,7 +4,9 @@ import { apiGet, apiPost } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Plus, Trash2, Users, UserPlus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Plus, Trash2, Users, UserPlus, AlertTriangle } from 'lucide-react';
 
 interface TeamWithCount {
   id: string;
@@ -21,6 +23,11 @@ interface TeamMember {
   createdAt: string;
 }
 
+interface TeamStats {
+  planCount: number;
+  roomCount: number;
+}
+
 export default function TeamsPage() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
@@ -28,10 +35,19 @@ export default function TeamsPage() {
   const [newRoleId, setNewRoleId] = useState('');
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
   const [newMemberId, setNewMemberId] = useState('');
+  const [deleteTeam, setDeleteTeam] = useState<TeamWithCount | null>(null);
+  const [deleteMode, setDeleteMode] = useState<'delete' | 'archive' | 'move'>('delete');
+  const [moveTargetId, setMoveTargetId] = useState('');
 
   const { data: teamsData } = useQuery({
     queryKey: ['admin', 'teams'],
     queryFn: () => apiGet<{ data: TeamWithCount[] }>('/admin/teams'),
+  });
+
+  const { data: deleteStats } = useQuery({
+    queryKey: ['admin', 'teams', deleteTeam?.id, 'stats'],
+    queryFn: () => apiGet<{ data: TeamStats }>(`/admin/teams/${deleteTeam!.id}/stats`),
+    enabled: !!deleteTeam,
   });
 
   const createTeam = useMutation({
@@ -44,12 +60,29 @@ export default function TeamsPage() {
     },
   });
 
-  const deleteTeam = useMutation({
-    mutationFn: (id: string) => apiPost(`/admin/teams/${id}/delete`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'teams'] }),
+  const deleteTeamMutation = useMutation({
+    mutationFn: ({ id, mode, targetTeamId }: { id: string; mode: string; targetTeamId?: string }) =>
+      apiPost(`/admin/teams/${id}/delete`, { mode, targetTeamId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'teams'] });
+      setDeleteTeam(null);
+      setDeleteMode('delete');
+      setMoveTargetId('');
+    },
   });
 
   const teams = teamsData?.data || [];
+  const stats = deleteStats?.data;
+  const otherTeams = teams.filter((t) => t.id !== deleteTeam?.id);
+
+  const handleDelete = () => {
+    if (!deleteTeam) return;
+    deleteTeamMutation.mutate({
+      id: deleteTeam.id,
+      mode: deleteMode,
+      targetTeamId: deleteMode === 'move' ? moveTargetId : undefined,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -103,7 +136,7 @@ export default function TeamsPage() {
                 <Button
                   variant="destructive"
                   size="sm"
-                  onClick={() => { if (confirm(`Delete team "${team.name}"?`)) deleteTeam.mutate(team.id); }}
+                  onClick={() => { setDeleteTeam(team); setDeleteMode('delete'); setMoveTargetId(''); }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -120,6 +153,82 @@ export default function TeamsPage() {
           <p className="text-center text-muted-foreground py-8">No teams yet. Create one to get started.</p>
         )}
       </div>
+
+      {/* Delete Team Dialog */}
+      <Dialog open={!!deleteTeam} onOpenChange={(open) => { if (!open) setDeleteTeam(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Delete Team: {deleteTeam?.name}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {stats && (stats.planCount > 0 || stats.roomCount > 0) ? (
+              <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                <p className="text-sm font-medium text-destructive">
+                  This team has {stats.planCount} battleplan(s) and {stats.roomCount} room(s).
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">This team has no battleplans or rooms.</p>
+            )}
+
+            <div className="space-y-3">
+              <Label>What should happen to the battleplans?</Label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
+                <input type="radio" name="deleteMode" value="delete" checked={deleteMode === 'delete'} onChange={() => setDeleteMode('delete')} className="mt-1" />
+                <div>
+                  <p className="font-medium text-sm">Delete everything</p>
+                  <p className="text-xs text-muted-foreground">All battleplans, rooms, and drawings will be permanently deleted.</p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
+                <input type="radio" name="deleteMode" value="archive" checked={deleteMode === 'archive'} onChange={() => setDeleteMode('archive')} className="mt-1" />
+                <div>
+                  <p className="font-medium text-sm">Archive battleplans</p>
+                  <p className="text-xs text-muted-foreground">Battleplans are preserved without a team (rooms are deleted). Can be reassigned later.</p>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted/50">
+                <input type="radio" name="deleteMode" value="move" checked={deleteMode === 'move'} onChange={() => setDeleteMode('move')} className="mt-1" />
+                <div>
+                  <p className="font-medium text-sm">Move to another team</p>
+                  <p className="text-xs text-muted-foreground">All battleplans and rooms are reassigned to the selected team.</p>
+                </div>
+              </label>
+
+              {deleteMode === 'move' && (
+                <Select value={moveTargetId} onValueChange={setMoveTargetId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select target team..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {otherTeams.map((t) => (
+                      <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button
+              variant="destructive"
+              disabled={deleteTeamMutation.isPending || (deleteMode === 'move' && !moveTargetId)}
+              onClick={handleDelete}
+            >
+              {deleteTeamMutation.isPending ? 'Deleting...' : 'Delete Team'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

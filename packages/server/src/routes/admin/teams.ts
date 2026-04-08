@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { eq, count } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../../db/connection.js';
-import { teams, teamMembers } from '../../db/schema/index.js';
+import { teams, teamMembers, battleplans, rooms } from '../../db/schema/index.js';
 import { requireAdmin } from '../../middleware/auth.js';
 
 export default async function adminTeamsRoutes(fastify: FastifyInstance) {
@@ -50,9 +50,45 @@ export default async function adminTeamsRoutes(fastify: FastifyInstance) {
     return { data: team };
   });
 
+  // GET /api/admin/teams/:id/stats — counts for delete warning
+  fastify.get('/:id/stats', { preHandler: [requireAdmin] }, async (request, reply) => {
+    const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+    const [{ planCount }] = await db.select({ planCount: count() }).from(battleplans).where(eq(battleplans.teamId, id));
+    const [{ roomCount }] = await db.select({ roomCount: count() }).from(rooms).where(eq(rooms.teamId, id));
+    return { data: { planCount, roomCount } };
+  });
+
   // POST /api/admin/teams/:id/delete
+  // mode: 'delete' (delete all plans + rooms), 'archive' (plans become teamless, rooms deleted), 'move' (reassign to targetTeamId)
   fastify.post('/:id/delete', { preHandler: [requireAdmin] }, async (request, reply) => {
     const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+    const body = z.object({
+      mode: z.enum(['delete', 'archive', 'move']),
+      targetTeamId: z.string().uuid().optional(),
+    }).parse(request.body);
+
+    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    if (!team) return reply.status(404).send({ message: 'Team not found' });
+
+    if (body.mode === 'move') {
+      if (!body.targetTeamId) return reply.status(400).send({ message: 'targetTeamId required for move mode' });
+      const [target] = await db.select().from(teams).where(eq(teams.id, body.targetTeamId));
+      if (!target) return reply.status(400).send({ message: 'Target team not found' });
+
+      await db.update(battleplans).set({ teamId: body.targetTeamId }).where(eq(battleplans.teamId, id));
+      await db.update(rooms).set({ teamId: body.targetTeamId }).where(eq(rooms.teamId, id));
+    } else if (body.mode === 'archive') {
+      // Battleplans: set teamId to null (archived, accessible by admins later)
+      await db.update(battleplans).set({ teamId: null }).where(eq(battleplans.teamId, id));
+      // Rooms: delete (rooms without team make no sense)
+      await db.delete(rooms).where(eq(rooms.teamId, id));
+    }
+    // mode 'delete': cascade handles it (battleplans.teamId is SET NULL, so we must delete manually)
+    if (body.mode === 'delete') {
+      await db.delete(rooms).where(eq(rooms.teamId, id));
+      await db.delete(battleplans).where(eq(battleplans.teamId, id));
+    }
+
     await db.delete(teams).where(eq(teams.id, id));
     return { message: 'Team deleted' };
   });
