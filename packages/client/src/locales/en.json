@@ -51,9 +51,21 @@
     "all": "All",
     "planCreated": "Battleplan created",
     "planDeleted": "Battleplan deleted",
+    "planSaved": "Battleplan saved",
     "linkCopied": "Link copied!",
     "confirmDelete": "Delete this plan?",
-    "date": "{{date, datetime}}"
+    "date": "{{date, datetime}}",
+    "save": "Save",
+    "saving": "Saving...",
+    "update": "Update",
+    "savePlan": "Save Battleplan",
+    "updatePlan": "Update Battleplan",
+    "makePublic": "Make public",
+    "edit": "Edit",
+    "copy": "Copy",
+    "searchPlans": "Search plans...",
+    "allMaps": "All maps",
+    "noFilterResults": "No plans found for these filters."
   },
   "room": {
     "createTitle": "Create Room",

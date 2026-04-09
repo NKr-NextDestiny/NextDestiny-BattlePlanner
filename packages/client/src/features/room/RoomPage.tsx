@@ -7,6 +7,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost, apiPut, apiDelete } from '@/lib/api';
 import { getSocket, connectSocket, disconnectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/auth.store';
@@ -18,8 +19,17 @@ import { ChatDrawer } from '@/features/editor/ChatDrawer';
 import MapCanvas from '@/features/canvas/MapCanvas';
 import { exportFloorAsPng, exportAllFloorsAsPdf } from '@/features/canvas/utils/exportCanvas';
 import type { LaserLineData, CursorData } from '@/features/canvas/types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
+
+const SUGGESTED_TAGS = ['Aggressive', 'Default', 'Retake', 'Rush', 'Anchor', 'Roam', 'Site A', 'Site B'];
 
 console.log('[RoomPage] module loaded');
 let drawCounter = 0;
@@ -52,7 +62,54 @@ export default function RoomPage() {
     enabled: !!battleplanId,
   });
 
+  const { t } = useTranslation();
   const gameSlug = planData?.game?.slug || 'r6-siege';
+
+  // Save dialog state
+  const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [saveName, setSaveName] = useState('');
+  const [saveDesc, setSaveDesc] = useState('');
+  const [saveTags, setSaveTags] = useState<string[]>([]);
+  const [saveTagInput, setSaveTagInput] = useState('');
+  const [saveIsPublic, setSaveIsPublic] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const planIsSaved = planData?.isSaved ?? false;
+
+  const openSaveDialog = useCallback(() => {
+    setSaveName(planData?.name && planData.name !== 'Room Plan' ? planData.name : '');
+    setSaveDesc(planData?.description || '');
+    setSaveTags(planData?.tags || []);
+    setSaveIsPublic(planData?.isPublic ?? false);
+    setSaveDialogOpen(true);
+  }, [planData]);
+
+  const handleSavePlan = useCallback(async () => {
+    if (!saveName.trim() || !battleplanId) return;
+    setIsSaving(true);
+    try {
+      await apiPut(`/battleplans/${battleplanId}`, {
+        name: saveName.trim(),
+        description: saveDesc.trim() || undefined,
+        tags: saveTags.length > 0 ? saveTags : [],
+        isPublic: saveIsPublic,
+        isSaved: true,
+      });
+      await refetchPlan();
+      setSaveDialogOpen(false);
+      toast.success(t('plans.planSaved'));
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [saveName, saveDesc, saveTags, saveIsPublic, battleplanId, refetchPlan, t]);
+
+  const addSaveTag = (tag: string) => {
+    const trimmed = tag.trim();
+    if (trimmed && !saveTags.includes(trimmed) && saveTags.length < 10) setSaveTags(prev => [...prev, trimmed]);
+    setSaveTagInput('');
+  };
 
   // Floor management
   const sortedFloors = useMemo(() => {
@@ -445,8 +502,19 @@ export default function RoomPage() {
         readOnly={false}
         headerRight={
           <div className="flex items-center gap-1 ml-2">
+            {isAuthenticated && (
+              <Button
+                variant={planIsSaved ? 'ghost' : 'default'}
+                size="sm"
+                className="h-6 px-2 text-xs"
+                onClick={openSaveDialog}
+              >
+                <Save className="h-3 w-3 mr-1" />
+                {planIsSaved ? t('plans.update') : t('plans.save')}
+              </Button>
+            )}
             <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" asChild>
-              <Link to="/"><ArrowLeft className="h-3 w-3 mr-1" />Back</Link>
+              <Link to="/"><ArrowLeft className="h-3 w-3 mr-1" />{t('room.back')}</Link>
             </Button>
           </div>
         }
@@ -471,6 +539,58 @@ export default function RoomPage() {
         />
         <ChatDrawer />
       </EditorShell>
+
+      {/* Save Plan Dialog */}
+      <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{planIsSaved ? t('plans.updatePlan') : t('plans.savePlan')}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('plans.name')}</Label>
+              <Input value={saveName} onChange={(e) => setSaveName(e.target.value)} required />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('plans.description')}</Label>
+              <Textarea value={saveDesc} onChange={(e) => setSaveDesc(e.target.value)} placeholder={t('plans.descriptionPlaceholder')} rows={3} />
+            </div>
+            <div className="space-y-2">
+              <Label>{t('plans.tags')}</Label>
+              {saveTags.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {saveTags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="cursor-pointer" onClick={() => setSaveTags(tags => tags.filter(x => x !== tag))}>
+                      {tag} <X className="h-2 w-2 ml-1" />
+                    </Badge>
+                  ))}
+                </div>
+              )}
+              <Input
+                value={saveTagInput}
+                onChange={(e) => setSaveTagInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && saveTagInput.trim()) { e.preventDefault(); addSaveTag(saveTagInput); } }}
+                placeholder={t('plans.tagPlaceholder')}
+              />
+              <div className="flex flex-wrap gap-1">
+                {SUGGESTED_TAGS.filter(tg => !saveTags.includes(tg)).map((tag) => (
+                  <Badge key={tag} variant="outline" className="cursor-pointer text-xs" onClick={() => addSaveTag(tag)}>+ {tag}</Badge>
+                ))}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={saveIsPublic} onCheckedChange={setSaveIsPublic} />
+              <Label>{t('plans.makePublic')}</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">{t('plans.cancel')}</Button></DialogClose>
+            <Button onClick={handleSavePlan} disabled={!saveName.trim() || isSaving}>
+              {isSaving ? t('plans.saving') : (planIsSaved ? t('plans.update') : t('plans.save'))}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

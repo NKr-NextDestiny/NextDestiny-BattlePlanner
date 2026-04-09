@@ -51,9 +51,21 @@
     "all": "Alle",
     "planCreated": "Plan erstellt",
     "planDeleted": "Plan gelöscht",
+    "planSaved": "Plan gespeichert",
     "linkCopied": "Link kopiert!",
     "confirmDelete": "Plan löschen?",
-    "date": "{{date, datetime}}"
+    "date": "{{date, datetime}}",
+    "save": "Speichern",
+    "saving": "Speichere...",
+    "update": "Aktualisieren",
+    "savePlan": "Plan speichern",
+    "updatePlan": "Plan aktualisieren",
+    "makePublic": "Öffentlich machen",
+    "edit": "Bearbeiten",
+    "copy": "Kopieren",
+    "searchPlans": "Pläne suchen...",
+    "allMaps": "Alle Karten",
+    "noFilterResults": "Keine Pläne gefunden für diese Filter."
   },
   "room": {
     "createTitle": "Raum erstellen",

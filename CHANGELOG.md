@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.2.0 — 2026-04-09 — Editor-First Plan Creation & Filters
+
+- [improvement] Plans are now created from within the editor — "New Plan" button removed, plans are saved via the editor save dialog
+- [improvement] Save dialog in editor asks for name, description, tags, and public visibility when saving a plan for the first time
+- [improvement] Plans can be edited — "Edit" button on plan cards and in the BattleplanViewer opens the plan in a new editor room
+- [improvement] Comprehensive filtering in "My Plans" — search by name, filter by map, and filter by tags
+- [improvement] Map name shown on plan cards for better orientation
+- [removed] Standalone "New Plan" dialog from game dashboard and My Plans page — plans are only created through rooms now
+
 ## v3.1.0 — 2026-04-08 — Game Dashboard Redesign
 
 - [improvement] Game dashboard redesign — "Meine Pläne" / "Öffentliche Pläne" as switchable tabs directly on the game page with inline plan lists

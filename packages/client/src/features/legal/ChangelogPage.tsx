@@ -15,10 +15,23 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: '3.2.0',
+    subtitle: 'Editor-First Plan Creation & Filters',
+    date: '2026-04-09',
+    tag: 'Latest',
+    changes: [
+      { type: 'improvement', text: 'Plans are now created from within the editor \u2014 "New Plan" button removed, plans are saved via the editor save dialog' },
+      { type: 'improvement', text: 'Save dialog in editor asks for name, description, tags, and public visibility when saving a plan for the first time' },
+      { type: 'improvement', text: 'Plans can be edited \u2014 "Edit" button on plan cards and in the BattleplanViewer opens the plan in a new editor room' },
+      { type: 'improvement', text: 'Comprehensive filtering in "My Plans" \u2014 search by name, filter by map, and filter by tags' },
+      { type: 'improvement', text: 'Map name shown on plan cards for better orientation' },
+      { type: 'removed', text: 'Standalone "New Plan" dialog from game dashboard and My Plans page \u2014 plans are only created through rooms now' },
+    ],
+  },
+  {
     version: '3.1.0',
     subtitle: 'Game Dashboard Redesign',
     date: '2026-04-08',
-    tag: 'Latest',
     changes: [
       { type: 'improvement', text: 'Game dashboard redesign \u2014 "Meine Pläne" / "Öffentliche Pläne" as switchable tabs directly on the game page with inline plan lists' },
       { type: 'improvement', text: '"Raum erstellen" from game page skips game selection and goes straight to map selection for the current game' },

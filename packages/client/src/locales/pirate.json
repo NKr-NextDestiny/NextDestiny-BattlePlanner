@@ -51,9 +51,21 @@
     "all": "Alle",
     "planCreated": "Schlachtplan geschmiedet!",
     "planDeleted": "Schlachtplan über Bord geworfen!",
+    "planSaved": "Schlachtplan in die Schatzkiste gelegt!",
     "linkCopied": "Link in die Schatzkiste kopiert!",
     "confirmDelete": "Diesen Plan über Bord werfen?",
-    "date": "{{date, datetime}}"
+    "date": "{{date, datetime}}",
+    "save": "Sichern",
+    "saving": "Sichere...",
+    "update": "Auffrischen",
+    "savePlan": "Schlachtplan sichern",
+    "updatePlan": "Schlachtplan auffrischen",
+    "makePublic": "Für alle sichtbar machen",
+    "edit": "Bearbeiten",
+    "copy": "Kapern",
+    "searchPlans": "Pläne durchsuchen...",
+    "allMaps": "Alle Seekarten",
+    "noFilterResults": "Keine Pläne für diese Filter gefunden, Arrr!"
   },
   "room": {
     "createTitle": "Kajüte erstellen",

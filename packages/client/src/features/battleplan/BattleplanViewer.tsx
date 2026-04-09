@@ -5,8 +5,9 @@
  */
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost, apiPut } from '@/lib/api';
 import { useAuthStore } from '@/stores/auth.store';
 import { useStratStore } from '@/stores/strat.store';
@@ -15,10 +16,13 @@ import MapCanvas from '@/features/canvas/MapCanvas';
 import { exportFloorAsPng, exportAllFloorsAsPdf } from '@/features/canvas/utils/exportCanvas';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ThumbsUp, Copy, Pencil, Check, X } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function BattleplanViewer() {
   const { gameSlug, planId } = useParams<{ gameSlug: string; planId: string }>();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const stratStore = useStratStore;
 
@@ -184,6 +188,24 @@ export default function BattleplanViewer() {
           <div className="flex items-center gap-1">
             {user && (
               <>
+                {isOwner && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs gap-1"
+                    onClick={async () => {
+                      try {
+                        const res = await apiPost<{ data: { connectionString: string } }>('/rooms', { battleplanId: planId });
+                        navigate(`/room/${res.data.connectionString}`);
+                      } catch (err: any) {
+                        toast.error(err.message);
+                      }
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                    {t('plans.edit')}
+                  </Button>
+                )}
                 <Button
                   variant="ghost"
                   size="sm"
@@ -202,7 +224,7 @@ export default function BattleplanViewer() {
                   disabled={copyMutation.isPending}
                 >
                   <Copy className="h-3 w-3" />
-                  Copy
+                  {t('plans.copy')}
                 </Button>
               </>
             )}

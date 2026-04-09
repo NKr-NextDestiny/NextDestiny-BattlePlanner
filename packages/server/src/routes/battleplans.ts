@@ -88,7 +88,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
     const p = Math.max(1, parseInt(page));
     const ps = Math.min(100, Math.max(1, parseInt(pageSize)));
 
-    const conditions = [eq(battleplans.isPublic, true), eq(battleplans.teamId, request.teamId!)];
+    const conditions = [eq(battleplans.isPublic, true), eq(battleplans.isSaved, true), eq(battleplans.teamId, request.teamId!)];
     if (gameId) conditions.push(eq(battleplans.gameId, gameId));
     if (tagsParam) {
       const tagList = tagsParam.split(',').map(t => t.trim()).filter(Boolean);
@@ -119,7 +119,11 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
   // GET /api/battleplans/mine
   fastify.get('/mine', { preHandler: [requireAuth, requireTeamAccess] }, async (request) => {
     const result = await db.select().from(battleplans)
-      .where(and(eq(battleplans.ownerId, request.user!.userId), eq(battleplans.teamId, request.teamId!)))
+      .where(and(
+        eq(battleplans.ownerId, request.user!.userId),
+        eq(battleplans.teamId, request.teamId!),
+        eq(battleplans.isSaved, true),
+      ))
       .orderBy(desc(battleplans.updatedAt));
     return { data: result };
   });
