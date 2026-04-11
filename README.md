@@ -390,3 +390,6 @@ Based on [TactiHub](https://github.com/niklask52t/TactiHub) by Niklas Kronig, wh
 ## Disclaimer
 
 This is a fan-made tool and is not affiliated with Ubisoft or any game publisher. All game names, logos, and assets are trademarks of their respective owners.
+
+---
+_Last reviewed: 2026-04-11_
