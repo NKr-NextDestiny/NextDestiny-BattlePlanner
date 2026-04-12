@@ -34,14 +34,12 @@ call pnpm --filter @nd-battleplanner/server build
 echo       Server done (%errorlevel%)
 echo.
 
-echo [4/6] Generating database migrations...
-call pnpm db:generate
+echo [4/6] Applying database migrations...
+call pnpm db:migrate
 echo       Done (%errorlevel%)
 echo.
 
-echo [5/6] Applying migrations and seeding...
-call pnpm db:migrate
-echo       Migrate done (%errorlevel%)
+echo [5/6] Seeding database...
 call pnpm db:seed:run
 echo       Seed done (%errorlevel%)
 echo.

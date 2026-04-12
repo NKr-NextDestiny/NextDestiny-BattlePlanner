@@ -4,9 +4,9 @@
 
 Built for the NKr-NextDestiny Discord community. Authenticate via Discord, select your team, and plan strategies together in real-time. All content is isolated per team.
 
-![Version](https://img.shields.io/badge/version-1.0.0-red)
+![Version](https://img.shields.io/badge/version-3.4.0-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
-![Node](https://img.shields.io/badge/Node.js-20+-green)
+![Node](https://img.shields.io/badge/Node.js-24-green)
 
 ---
 
@@ -43,11 +43,14 @@ Built for the NKr-NextDestiny Discord community. Authenticate via Discord, selec
 
 ## Requirements
 
-- **Node.js** >= 20 (LTS)
-- **pnpm** >= 9
+- **Node.js** 24.x
+- **pnpm** >= 10.30
+- **npm** >= 11.12 (only if you use npm directly; the project itself uses pnpm)
 - **Docker** + **Docker Compose** (for PostgreSQL + Redis)
 - **Git**
 - A **Discord Application** with OAuth2 configured
+
+Docker is only needed if you want this repo to provide PostgreSQL and Redis for you. If you already have external PostgreSQL/Redis instances, you can point `.env` at those and skip `docker compose`.
 
 ---
 
@@ -71,12 +74,13 @@ Complete guide for a fresh **Debian 13 (Trixie)** server. SSL is not covered her
 apt update && apt upgrade -y
 apt install -y curl git ca-certificates gnupg
 
-# Node.js 22 LTS
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+# Node.js 24
+curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 apt install -y nodejs
 
-# pnpm
-npm install -g pnpm
+# pnpm via Corepack (preferred)
+corepack enable
+corepack prepare pnpm@10.30.0 --activate
 
 # Docker
 curl -fsSL https://get.docker.com | sh
@@ -86,8 +90,9 @@ systemctl enable --now docker
 Verify:
 
 ```bash
-node -v    # v22.x
-pnpm -v    # 10.x
+node -v    # v24.x
+npm -v     # v11.12.x
+pnpm -v    # 10.30.x
 docker -v  # 27.x
 ```
 
@@ -118,6 +123,8 @@ PORT=3001
 NODE_ENV=production
 
 # Public URL (your domain or IP — NO trailing slash)
+# Public browser URL (your domain or IP, no trailing slash)
+# In development this is the Vite app URL (5173), not the API port (3001).
 APP_URL=http://your-server-ip:5173
 
 # JWT — generate with: openssl rand -base64 48
@@ -135,8 +142,6 @@ DISCORD_REDIRECT_URI=http://your-server-ip:5173/auth/discord/callback
 DISCORD_ADMIN_ID=your-discord-user-id
 
 # Client
-VITE_API_URL=http://your-server-ip:3001
-VITE_SOCKET_URL=http://your-server-ip:3001
 ```
 
 ### 3. Discord Application Setup
@@ -161,11 +166,7 @@ pnpm install
 # Build shared package first
 pnpm --filter @nd-battleplanner/shared build
 
-# Clean migrations (fresh install)
-rm -rf packages/server/drizzle/*
-
-# Generate and apply migrations
-pnpm db:generate
+# Apply committed migrations
 pnpm db:migrate
 
 # Seed database (admin user + R6 Siege data)
@@ -175,7 +176,17 @@ pnpm db:seed
 pnpm build
 ```
 
-### 5. Nginx Reverse Proxy
+If you want one interactive command after `.env` is configured, you can also run:
+
+```bash
+bash update.sh
+```
+
+and choose `9` (`setup`).
+
+### 5. Nginx Reverse Proxy (Optional)
+
+You only need nginx if you want a clean public URL on port 80/443, TLS termination, or reverse-proxy routing. For local development you do not need it, and for simple private setups you can also run the app directly on port `3001`.
 
 ```bash
 apt install -y nginx
@@ -342,8 +353,6 @@ Select the appropriate mode. Data is preserved during normal updates.
 docker compose down -v
 docker compose up -d
 sleep 3
-rm -rf packages/server/drizzle/*
-pnpm db:generate
 pnpm db:migrate
 pnpm db:seed
 ```

@@ -50,9 +50,10 @@ echo "  [6] prod main  — Pull main, install, migrate, rebuild (keeps data)"
 echo "  [7] prod dev   — Pull dev, install, migrate, rebuild (keeps data)"
 echo "  [8] prod reset — Full reset: delete ALL data, rebuild from scratch"
 echo ""
+echo "  [9] setup      â€” First-time setup for current branch"
 
 while true; do
-  read -p "Enter mode (1-8): " mode
+  read -p "Enter mode (1-9): " mode
   case "$mode" in
     1) MODE="update"; BRANCH="$CURRENT_BRANCH"; break ;;
     2) MODE="dev-current"; break ;;
@@ -62,7 +63,8 @@ while true; do
     6) MODE="prod"; BRANCH="main"; break ;;
     7) MODE="prod"; BRANCH="dev"; break ;;
     8) MODE="prod-reset"; break ;;
-    *) echo "Please enter 1-8." ;;
+    9) MODE="setup"; BRANCH="$CURRENT_BRANCH"; break ;;
+    *) echo "Please enter 1-9." ;;
   esac
 done
 
@@ -111,10 +113,6 @@ elif [ "$MODE" = "update" ]; then
   pnpm --filter @nd-battleplanner/shared build
 
   echo ""
-  echo "--- Generating database migrations ---"
-  pnpm db:generate
-
-  echo ""
   echo "--- Applying database migrations ---"
   pnpm db:migrate
 
@@ -124,6 +122,58 @@ elif [ "$MODE" = "update" ]; then
 
   echo ""
   echo "=== Update complete! ==="
+
+  if ask_yn "Start dev server now?"; then
+    pnpm dev
+  else
+    echo "Run 'pnpm dev' to start."
+  fi
+
+elif [ "$MODE" = "setup" ]; then
+  echo "=== FIRST-TIME SETUP (branch: $BRANCH) ==="
+  echo "This will start Docker services, install dependencies, apply existing"
+  echo "database migrations, seed the database, and build the project."
+  echo "Make sure your .env file is already configured before continuing."
+  echo ""
+
+  if ! ask_yn "Continue?"; then
+    echo "Aborted."
+    exit 0
+  fi
+
+  echo ""
+  echo "--- Starting PostgreSQL + Redis ---"
+  docker compose up -d
+
+  echo ""
+  echo "--- Waiting for PostgreSQL to be ready ---"
+  until docker compose exec -T postgres pg_isready -U battleplanner > /dev/null 2>&1; do
+    sleep 1
+  done
+  echo "PostgreSQL is ready."
+
+  echo ""
+  echo "--- Installing dependencies ---"
+  pnpm install
+
+  echo ""
+  echo "--- Building shared package ---"
+  pnpm --filter @nd-battleplanner/shared build
+
+  echo ""
+  echo "--- Applying database migrations ---"
+  pnpm db:migrate
+
+  echo ""
+  echo "--- Seeding database ---"
+  pnpm db:seed
+
+  echo ""
+  echo "--- Building all packages ---"
+  pnpm build
+
+  echo ""
+  echo "=== First-time setup complete! ==="
 
   if ask_yn "Start dev server now?"; then
     pnpm dev
@@ -186,14 +236,6 @@ elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
   pnpm --filter @nd-battleplanner/shared build
 
   echo ""
-  echo "--- Cleaning old migration files ---"
-  rm -rf packages/server/drizzle/*
-
-  echo ""
-  echo "--- Generating migrations ---"
-  pnpm db:generate
-
-  echo ""
   echo "--- Applying migrations ---"
   pnpm db:migrate
 
@@ -251,10 +293,6 @@ elif [ "$MODE" = "prod" ]; then
   echo ""
   echo "--- Building shared package ---"
   run_as_bp pnpm --filter @nd-battleplanner/shared build
-
-  echo ""
-  echo "--- Generating database migrations ---"
-  run_as_bp pnpm db:generate
 
   echo ""
   echo "--- Applying database migrations ---"
@@ -350,14 +388,6 @@ elif [ "$MODE" = "prod-reset" ]; then
   echo ""
   echo "--- Building shared package ---"
   run_as_bp pnpm --filter @nd-battleplanner/shared build
-
-  echo ""
-  echo "--- Cleaning old migration files ---"
-  run_as_bp rm -rf packages/server/drizzle/*
-
-  echo ""
-  echo "--- Generating migrations ---"
-  run_as_bp pnpm db:generate
 
   echo ""
   echo "--- Applying migrations ---"

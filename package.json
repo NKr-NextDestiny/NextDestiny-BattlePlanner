@@ -2,6 +2,12 @@
   "name": "nextdestiny-battleplanner",
   "version": "3.4.0",
   "private": true,
+  "packageManager": "pnpm@10.30.0",
+  "engines": {
+    "node": "24.x",
+    "pnpm": ">=10.30.0",
+    "npm": ">=11.12.1"
+  },
   "description": "Team-scoped tactical strategy planning for competitive games — Discord-auth only",
   "scripts": {
     "dev": "concurrently \"pnpm --filter @nd-battleplanner/server dev\" \"pnpm --filter @nd-battleplanner/client dev\"",
