@@ -260,6 +260,15 @@ const GADGET_ICON_MAP: Record<string, React.FC<IconProps>> = {
   'zoto canister': MineIcon,
   'ee-one-d': DroneAltIcon,
   'ks79 lifeline': LauncherIcon,
+  // Tactical postures & markers (all have r6calls PNG icons, fallbacks for safety)
+  'stand': DefaultGadgetIcon,
+  'crouch': DefaultGadgetIcon,
+  'prone': DefaultGadgetIcon,
+  'run': DefaultGadgetIcon,
+  'rappel (upside)': RappelIcon,
+  'camera': CameraIcon,
+  'plant defuser': ObjectiveIcon,
+  'disable defuser': ObjectiveIcon,
 };
 
 export function getGadgetFallbackIcon(gadgetName: string): React.FC<IconProps> {
