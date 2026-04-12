@@ -232,11 +232,11 @@ elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
 
   echo ""
   echo "--- Starting PostgreSQL + Redis ---"
-  docker compose up -d
+  docker compose up -d postgres redis
 
   echo ""
   echo "--- Waiting for PostgreSQL to be ready ---"
-  until docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
+  until docker compose exec -T postgres pg_isready -U battleplanner -d battleplanner > /dev/null 2>&1; do
     sleep 1
   done
   echo "PostgreSQL is ready."
@@ -347,7 +347,7 @@ elif [ "$MODE" = "prod-reset" ]; then
 
   echo ""
   echo "--- Starting PostgreSQL + Redis ---"
-  docker compose up -d
+  docker compose up -d postgres redis
 
   echo ""
   echo "--- Waiting for PostgreSQL to be ready ---"
