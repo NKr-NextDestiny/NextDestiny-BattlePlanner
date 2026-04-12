@@ -184,67 +184,17 @@ bash update.sh
 
 and choose `9` (`setup`).
 
-### 5. Nginx Reverse Proxy (Optional)
+### 5. Runtime Model
 
-You only need nginx if you want a clean public URL on port 80/443, TLS termination, or reverse-proxy routing. For local development you do not need it, and for simple private setups you can also run the app directly on port `3001`.
+Current repo status:
 
-```bash
-apt install -y nginx
-```
+- `docker-compose.yml` only provides `postgres` and `redis`
+- the app itself is still built and started on the host
+- there is currently no `Dockerfile` and no fully containerized app stack in this repository
 
-Create `/etc/nginx/sites-available/battleplanner`:
+That means the old nginx/systemd style deployment is a host-based production setup, not an all-Docker deployment.
 
-```nginx
-server {
-    listen 80;
-    server_name your-server-ip;
-
-    # Client SPA
-    root /opt/battleplanner/packages/client/dist;
-    index index.html;
-
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # API
-    location /api/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Uploaded files
-    location /uploads/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_set_header Host $host;
-    }
-
-    # Socket.IO (WebSocket upgrade required)
-    location /socket.io/ {
-        proxy_pass http://127.0.0.1:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    client_max_body_size 10M;
-}
-```
-
-Enable:
-
-```bash
-ln -s /etc/nginx/sites-available/battleplanner /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
-```
+If you want a pure Docker deployment, that still needs to be implemented in the repo first.
 
 ### 6. systemd Service
 
