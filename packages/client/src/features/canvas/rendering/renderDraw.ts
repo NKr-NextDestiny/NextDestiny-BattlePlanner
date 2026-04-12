@@ -197,32 +197,18 @@ function drawIcon(
 ): void {
   const size = d.size ?? 14;
   const halfSize = size / 2;
-  const pad = 2; // padding around icon for background rect
-  const rectSize = size + pad * 2;
-  const rectHalf = rectSize / 2;
+  const pad = 3;
+  const circleRadius = halfSize + pad;
+  const borderColor = d.bgColor ?? d.fallbackColor ?? '#888888';
 
-  // Draw colored background rectangle (operator color)
-  if (d.bgColor || d.fallbackColor) {
-    const bgColor = d.bgColor ?? d.fallbackColor ?? '#888888';
-    ctx.fillStyle = bgColor;
-    ctx.globalAlpha = 0.85;
-    ctx.beginPath();
-    const radius = 2;
-    const rx = draw.originX - rectHalf;
-    const ry = draw.originY - rectHalf;
-    ctx.moveTo(rx + radius, ry);
-    ctx.lineTo(rx + rectSize - radius, ry);
-    ctx.arcTo(rx + rectSize, ry, rx + rectSize, ry + radius, radius);
-    ctx.lineTo(rx + rectSize, ry + rectSize - radius);
-    ctx.arcTo(rx + rectSize, ry + rectSize, rx + rectSize - radius, ry + rectSize, radius);
-    ctx.lineTo(rx + radius, ry + rectSize);
-    ctx.arcTo(rx, ry + rectSize, rx, ry + rectSize - radius, radius);
-    ctx.lineTo(rx, ry + radius);
-    ctx.arcTo(rx, ry, rx + radius, ry, radius);
-    ctx.closePath();
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
+  // Clean circle outline with subtle dark fill for visibility
+  ctx.beginPath();
+  ctx.arc(draw.originX, draw.originY, circleRadius, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = borderColor;
+  ctx.stroke();
 
   // Apply flip transforms
   const flipH = d.flipH ? -1 : 1;

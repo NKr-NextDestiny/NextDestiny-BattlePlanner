@@ -102,6 +102,7 @@ export function EditorShell({
           onOperatorAssign={onOperatorAssign}
           onBanUpdate={onBanUpdate}
           onBanRemove={onBanRemove}
+          onLoadoutUpdate={onLoadoutUpdate}
         />
       </div>
 

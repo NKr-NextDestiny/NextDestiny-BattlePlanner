@@ -1,6 +1,7 @@
 /**
  * Horizontal operator slots strip (5 ATK + 5 DEF).
  * 5 ATK "?" slots (blue) + separator + 5 DEF "?" slots (red).
+ * Assigned operators show a small loadout trigger on hover.
  */
 
 import { useMemo } from 'react';
@@ -9,10 +10,11 @@ import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useStratStore } from '@/stores/strat.store';
 import { OperatorPickerPopover } from './OperatorPickerPopover';
+import { LoadoutPopover } from './LoadoutPopover';
 import { BanStrip } from './BanStrip';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { Swords } from 'lucide-react';
-import type { StratOperatorSlot, Operator } from '@nd-battleplanner/shared';
+import { Swords, Backpack } from 'lucide-react';
+import type { StratOperatorSlot, Operator, Gadget } from '@nd-battleplanner/shared';
 
 interface OperatorStripProps {
   gameSlug: string;
@@ -20,9 +22,10 @@ interface OperatorStripProps {
   onOperatorAssign?: (slotId: string, operatorId: string | null) => void;
   onBanUpdate?: (operatorName: string, side: 'attacker' | 'defender', slotIndex: number) => void;
   onBanRemove?: (banId: string) => void;
+  onLoadoutUpdate?: (slotId: string, loadout: Record<string, string | null>) => void;
 }
 
-export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdate, onBanRemove }: OperatorStripProps) {
+export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdate, onBanRemove, onLoadoutUpdate }: OperatorStripProps) {
   const { t } = useTranslation();
   const operatorSlots = useStratStore((s) => s.operatorSlots);
   const attackerSlots = useMemo(
@@ -36,7 +39,7 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdat
   const activeSlotId = useStratStore((s) => s.activeOperatorSlotId);
   const setActiveSlotId = useStratStore((s) => s.setActiveOperatorSlotId);
 
-  // Fetch operators to get icon URLs (shared cache key with SidePanel/OperatorPickerPopover)
+  // Fetch operators to get icon URLs and gadgets
   const { data: operatorsData } = useQuery({
     queryKey: ['operators', gameSlug],
     queryFn: () => apiGet<{ data: Operator[] }>(`/games/${gameSlug}/operators`),
@@ -48,6 +51,17 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdat
     const map: Record<string, string | null> = {};
     for (const op of operatorsData?.data || []) {
       map[op.id] = op.icon ?? null;
+    }
+    return map;
+  }, [operatorsData]);
+
+  // Build operator → secondary gadgets map for loadout popovers
+  const operatorGadgetMap = useMemo(() => {
+    const map: Record<string, Gadget[]> = {};
+    for (const op of operatorsData?.data || []) {
+      if (op.gadgets) {
+        map[op.id] = op.gadgets.filter(g => g.category === 'secondary');
+      }
     }
     return map;
   }, [operatorsData]);
@@ -84,16 +98,42 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdat
       </button>
     );
 
-    if (readOnly || !onOperatorAssign) {
+    // Wrapper with loadout trigger for assigned operators
+    const slotWithLoadout = (pickerOrTooltip: React.ReactNode) => {
+      if (!slot.operatorId || readOnly || !onLoadoutUpdate) {
+        return pickerOrTooltip;
+      }
+
       return (
+        <div key={slot.id} className="relative group/slot">
+          {pickerOrTooltip}
+          <LoadoutPopover
+            slot={slot}
+            secondaryGadgets={slot.operatorId ? operatorGadgetMap[slot.operatorId] : undefined}
+            onLoadoutUpdate={onLoadoutUpdate}
+            readOnly={readOnly}
+            trigger={
+              <button
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-4 w-4 rounded-full bg-card border border-border flex items-center justify-center opacity-0 group-hover/slot:opacity-100 transition-opacity z-10 hover:bg-primary hover:text-primary-foreground"
+              >
+                <Backpack className="h-2.5 w-2.5" />
+              </button>
+            }
+          />
+        </div>
+      );
+    };
+
+    if (readOnly || !onOperatorAssign) {
+      return slotWithLoadout(
         <Tooltip key={slot.id}>
           <TooltipTrigger asChild>{inner}</TooltipTrigger>
           <TooltipContent className="text-xs">{slot.operatorName || t('editor.operatorPicker.slot', { number: slot.slotNumber })}</TooltipContent>
-        </Tooltip>
+        </Tooltip>,
       );
     }
 
-    return (
+    return slotWithLoadout(
       <OperatorPickerPopover
         key={slot.id}
         side={slot.side}
@@ -101,7 +141,7 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdat
         gameSlug={gameSlug}
         trigger={inner}
         onSelect={onOperatorAssign}
-      />
+      />,
     );
   };
 

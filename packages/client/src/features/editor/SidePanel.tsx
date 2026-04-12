@@ -296,6 +296,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
             {activeSlot.operatorId && onLoadoutUpdate && (
               <LoadoutPopover
                 slot={activeSlot}
+                secondaryGadgets={operatorMap[activeSlot.operatorId]?.gadgets?.filter(g => g.category === 'secondary')}
                 onLoadoutUpdate={onLoadoutUpdate}
                 readOnly={readOnly}
               />
