@@ -490,7 +490,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
     const body = z.object({
       operatorName: z.string().min(1).max(100),
       side: z.enum(['attacker', 'defender']),
-      slotIndex: z.number().int().min(0).max(1),
+      slotIndex: z.number().int().min(0).max(2),
     }).parse(request.body);
 
     // Upsert: delete existing ban at this slot, then insert
@@ -576,7 +576,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
         bans: z.array(z.object({
           operatorName: z.string(),
           side: z.enum(['attacker', 'defender']),
-          slotIndex: z.number().int().min(0).max(1),
+          slotIndex: z.number().int().min(0).max(2),
         })).optional(),
         operators: z.array(z.object({
           slotNumber: z.number().int().min(1).max(MAX_OPERATOR_SLOTS),

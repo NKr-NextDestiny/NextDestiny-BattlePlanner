@@ -1,5 +1,5 @@
 /**
- * BanStrip — 2 ban slots for a given side (attacker or defender).
+ * BanStrip — 3 ban slots for a given side (attacker or defender).
  * Empty slots show "BAN" + click to pick an operator.
  * Filled slots show operator name with red X to remove.
  */
@@ -96,6 +96,7 @@ export function BanStrip({ side, gameSlug, readOnly, onBanUpdate, onBanRemove }:
     <div className="flex items-center gap-0.5">
       {renderSlot(0)}
       {renderSlot(1)}
+      {renderSlot(2)}
     </div>
   );
 }
