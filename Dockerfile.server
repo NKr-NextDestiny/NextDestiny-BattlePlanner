@@ -16,6 +16,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN rm -rf packages/shared/dist packages/server/dist packages/client/dist \
+ && find . -name "*.tsbuildinfo" -delete
+
 RUN pnpm --filter @nd-battleplanner/shared build \
  && pnpm --filter @nd-battleplanner/server build
 
