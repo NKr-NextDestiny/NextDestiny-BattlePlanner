@@ -170,10 +170,10 @@ export function AppLayout() {
           <div className="flex items-center gap-4">
             {isAuthenticated && (
               <>
-                <Link to="/help" className="hover:text-primary transition-colors">Help</Link>
-                <Link to="/faq" className="hover:text-primary transition-colors">FAQ</Link>
-                <Link to="/changelog" className="hover:text-primary transition-colors">Changelog</Link>
-                <Link to="/about" className="hover:text-primary transition-colors">About</Link>
+                <Link to="/help" className="hover:text-primary transition-colors">{t('footer.help')}</Link>
+                <Link to="/faq" className="hover:text-primary transition-colors">{t('footer.faq')}</Link>
+                <Link to="/changelog" className="hover:text-primary transition-colors">{t('footer.changelog')}</Link>
+                <Link to="/about" className="hover:text-primary transition-colors">{t('footer.about')}</Link>
               </>
             )}
           </div>

@@ -5,6 +5,7 @@
  */
 
 import { useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { Tool } from '@nd-battleplanner/shared';
 import type { StratOperatorSlot, Operator, Gadget } from '@nd-battleplanner/shared';
@@ -13,8 +14,9 @@ import { useStratStore } from '@/stores/strat.store';
 import { useCanvasStore } from '@/stores/canvas.store';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
-import { Pencil, Minus, Square, Type, Eraser, MousePointer2 } from 'lucide-react';
+import { Pencil, Minus, MoveRight, Square, Circle, Type, Eraser, MousePointer2, Trash2 } from 'lucide-react';
 import { getGadgetFallbackIcon } from './GadgetIcons';
+import { LoadoutPopover } from './LoadoutPopover';
 
 interface SidePanelProps {
   side: 'attacker' | 'defender';
@@ -22,12 +24,16 @@ interface SidePanelProps {
   readOnly?: boolean;
   onVisibilityToggle?: (slotId: string, visible: boolean) => void;
   onColorChange?: (slotId: string, color: string) => void;
+  onLoadoutUpdate?: (slotId: string, loadout: Record<string, string | null>) => void;
+  onFloorClear?: () => void;
 }
 
 const DRAWING_TOOLS: Array<{ tool: Tool; icon: typeof Pencil; label: string }> = [
   { tool: Tool.Pen, icon: Pencil, label: 'Pen' },
   { tool: Tool.Line, icon: Minus, label: 'Line' },
+  { tool: Tool.Arrow, icon: MoveRight, label: 'Arrow' },
   { tool: Tool.Rectangle, icon: Square, label: 'Rectangle' },
+  { tool: Tool.Ellipse, icon: Circle, label: 'Ellipse' },
   { tool: Tool.Text, icon: Type, label: 'Text' },
   { tool: Tool.Eraser, icon: Eraser, label: 'Eraser' },
   { tool: Tool.Select, icon: MousePointer2, label: 'Select' },
@@ -36,14 +42,17 @@ const DRAWING_TOOLS: Array<{ tool: Tool; icon: typeof Pencil; label: string }> =
 const LANDSCAPE_TOOLS: Array<{ tool: Tool; icon: typeof Pencil; label: string }> = [
   { tool: Tool.Pen, icon: Pencil, label: 'Pen' },
   { tool: Tool.Line, icon: Minus, label: 'Line' },
+  { tool: Tool.Arrow, icon: MoveRight, label: 'Arrow' },
   { tool: Tool.Rectangle, icon: Square, label: 'Rect' },
+  { tool: Tool.Ellipse, icon: Circle, label: 'Ellipse' },
   { tool: Tool.Text, icon: Type, label: 'Text' },
 ];
 
 const CATEGORY_ORDER: Record<string, number> = { unique: 0, secondary: 1, general: 2 };
 const CATEGORY_LABELS: Record<string, string> = { unique: 'Unique', secondary: 'Secondary', general: 'General' };
 
-export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColorChange }: SidePanelProps) {
+export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColorChange, onLoadoutUpdate, onFloorClear }: SidePanelProps) {
+  const { t } = useTranslation();
   const operatorSlots = useStratStore(s => s.operatorSlots);
   const slots = useMemo(
     () => operatorSlots.filter(s => s.side === side).sort((a, b) => a.slotNumber - b.slotNumber),
@@ -172,7 +181,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
     >
       {/* Header */}
       <p className="text-[10px] font-bold uppercase tracking-wider text-center mb-2" style={{ color: accentColor }}>
-        {side === 'attacker' ? 'Attackers' : 'Defenders'}
+        {side === 'attacker' ? t('editor.sidePanel.attackers') : t('editor.sidePanel.defenders')}
       </p>
 
       {/* Operator avatars row */}
@@ -198,7 +207,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
                 )}
               </button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">{slot.operatorName || `Slot ${slot.slotNumber}`}</TooltipContent>
+            <TooltipContent className="text-xs">{slot.operatorName || t('editor.operatorPicker.slot', { number: slot.slotNumber })}</TooltipContent>
           </Tooltip>
         ))}
       </div>
@@ -223,7 +232,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
                   disabled={readOnly}
                 />
               </TooltipTrigger>
-              <TooltipContent className="text-xs">Color: {slot.operatorName || `Slot ${slot.slotNumber}`}</TooltipContent>
+              <TooltipContent className="text-xs">{t('editor.sidePanel.colorFor', { name: slot.operatorName || t('editor.operatorPicker.slot', { number: slot.slotNumber }) })}</TooltipContent>
             </Tooltip>
           </div>
         ))}
@@ -239,7 +248,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
             className="h-4 w-4 p-0 border-0 cursor-pointer rounded-sm"
             disabled={readOnly}
           />
-          <span className="text-[9px] text-green-400 font-medium">Landscape</span>
+          <span className="text-[9px] text-green-400 font-medium">{t('editor.sidePanel.landscape')}</span>
           <Checkbox
             checked={landscapeVisible}
             onCheckedChange={(v) => setLandscapeVisible(!!v)}
@@ -251,6 +260,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
           <div className="flex gap-0.5">
             {LANDSCAPE_TOOLS.map(({ tool, icon: Icon, label }) => {
               const isActive = !activeSlotId && activeTool === tool;
+              const toolKey = label.toLowerCase() === 'rect' ? 'rectangle' : label.toLowerCase();
               return (
                 <Tooltip key={tool}>
                   <TooltipTrigger asChild>
@@ -263,7 +273,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
                       <Icon className="h-3 w-3" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent className="text-xs">{label} (Landscape)</TooltipContent>
+                  <TooltipContent className="text-xs">{t('editor.sidePanel.landscapeTool', { tool: t(`editor.sidePanel.tools.${toolKey}`) })}</TooltipContent>
                 </Tooltip>
               );
             })}
@@ -274,21 +284,29 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
       {/* Selected operator section */}
       {activeSlot && !readOnly && (
         <div className="flex flex-col gap-1">
-          {/* Operator name */}
+          {/* Operator name + loadout */}
           <div className="flex items-center gap-1.5 px-1">
             <div
               className="h-3 w-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: activeSlot.color }}
             />
-            <span className="text-[10px] font-bold truncate">
+            <span className="text-[10px] font-bold truncate flex-1">
               {activeSlot.operatorName || `Slot ${activeSlot.slotNumber}`}
             </span>
+            {activeSlot.operatorId && onLoadoutUpdate && (
+              <LoadoutPopover
+                slot={activeSlot}
+                onLoadoutUpdate={onLoadoutUpdate}
+                readOnly={readOnly}
+              />
+            )}
           </div>
 
           {/* Drawing tools row */}
           <div className="flex gap-0.5 mb-1">
             {DRAWING_TOOLS.map(({ tool, icon: Icon, label }) => {
               const isActive = activeSlotId === activeSlot.id && activeTool === tool && !selectedIcon;
+              const toolKey = label.toLowerCase();
               return (
                 <Tooltip key={tool}>
                   <TooltipTrigger asChild>
@@ -303,7 +321,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
                       <Icon className="h-3.5 w-3.5" />
                     </button>
                   </TooltipTrigger>
-                  <TooltipContent className="text-xs">{label}</TooltipContent>
+                  <TooltipContent className="text-xs">{t(`editor.sidePanel.tools.${toolKey}`)}</TooltipContent>
                 </Tooltip>
               );
             })}
@@ -323,7 +341,7 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
                     <div key={gadget.id}>
                       {showHeader && (
                         <div className="text-[8px] font-bold uppercase tracking-wider text-muted-foreground/60 pt-1.5 pb-0.5 px-0.5 border-t border-border/20">
-                          {CATEGORY_LABELS[gadget.category] || gadget.category}
+                          {t(`editor.sidePanel.categories.${gadget.category}`, CATEGORY_LABELS[gadget.category] || gadget.category)}
                         </div>
                       )}
                       <Tooltip>
@@ -371,11 +389,24 @@ export function SidePanel({ side, gameSlug, readOnly, onVisibilityToggle, onColo
         </div>
       )}
 
+      {/* Clear floor button */}
+      {!readOnly && onFloorClear && (
+        <div className="mt-auto pt-2 px-1">
+          <button
+            className="flex items-center gap-1 w-full h-6 px-2 rounded text-[10px] text-destructive hover:bg-destructive/10 transition-colors"
+            onClick={onFloorClear}
+          >
+            <Trash2 className="h-3 w-3" />
+            {t('editor.sidePanel.clearFloor')}
+          </button>
+        </div>
+      )}
+
       {/* No operator selected hint */}
       {!activeSlot && !readOnly && (
         <div className="flex-1 flex items-center justify-center">
           <p className="text-[9px] text-muted-foreground/50 text-center px-2">
-            Select an operator to see tools & gadgets
+            {t('editor.sidePanel.selectOperator')}
           </p>
         </div>
       )}

@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { db } from '../db/connection.js';
 import { draws, battleplanFloors, battleplans } from '../db/schema/index.js';
@@ -105,5 +105,28 @@ export default async function drawsRoutes(fastify: FastifyInstance) {
 
     const [draw] = await db.update(draws).set({ isDeleted: true, updatedAt: new Date() }).where(eq(draws.id, id)).returning();
     return { data: draw };
+  });
+
+  // POST /api/battleplan-floors/:id/draws/clear — batch soft-delete draws for the current user
+  fastify.post('/battleplan-floors/:id/draws/clear', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
+    const { id } = z.object({ id: z.string().uuid() }).parse(request.params);
+
+    const [floor] = await db.select().from(battleplanFloors).where(eq(battleplanFloors.id, id));
+    if (!floor) return reply.status(404).send({ error: 'Not Found', message: 'Floor not found', statusCode: 404 });
+
+    const [plan] = await db.select({ teamId: battleplans.teamId }).from(battleplans).where(eq(battleplans.id, floor.battleplanId));
+    if (!plan || plan.teamId !== request.teamId) {
+      return reply.status(404).send({ error: 'Not Found', message: 'Floor not found', statusCode: 404 });
+    }
+
+    await db.update(draws).set({ isDeleted: true, updatedAt: new Date() }).where(
+      and(
+        eq(draws.battleplanFloorId, id),
+        eq(draws.userId, request.user!.userId),
+        eq(draws.isDeleted, false),
+      ),
+    );
+
+    return { message: 'Floor cleared' };
   });
 }

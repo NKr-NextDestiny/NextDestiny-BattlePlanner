@@ -1,3 +1,5 @@
+export type RoomUserRole = 'owner' | 'editor' | 'viewer';
+
 export interface Room {
   id: string;
   ownerId: string | null;
@@ -12,6 +14,7 @@ export interface RoomUser {
   userId: string;
   username: string;
   color: string;
+  role: RoomUserRole;
 }
 
 export interface CursorPosition {
@@ -35,6 +38,7 @@ export interface SocketEvents {
   // Client -> Server
   'room:join': { connectionString: string };
   'room:leave': { connectionString: string };
+  'room:permission-update': { targetUserId: string; role: RoomUserRole };
   'cursor:move': { x: number; y: number; floorId: string; isLaser?: boolean };
   'draw:create': { battleplanFloorId: string; draws: CreateDrawPayload[] };
   'draw:delete': { drawIds: string[] };
@@ -45,9 +49,10 @@ export interface SocketEvents {
   'attacker-lineup:create': { battleplanId: string };
 
   // Server -> Client
-  'room:joined': { userId: string; color: string; users: RoomUser[] };
-  'room:user-joined': { userId: string; username: string; color: string };
+  'room:joined': { userId: string; color: string; users: RoomUser[]; role: RoomUserRole };
+  'room:user-joined': { userId: string; username: string; color: string; role: RoomUserRole };
   'room:user-left': { userId: string };
+  'room:permission-updated': { userId: string; role: RoomUserRole };
   'cursor:moved': CursorPosition;
   'draw:created': { userId: string; draws: unknown[] };
   'draw:deleted': { userId: string; drawIds: string[] };

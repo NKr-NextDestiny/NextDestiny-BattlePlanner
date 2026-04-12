@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { apiGet, apiPut } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ function strToArr(str: string): string[] {
 }
 
 export default function SettingsPage() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [roleIds, setRoleIds] = useState('');
   const [userIds, setUserIds] = useState('');
@@ -42,7 +44,7 @@ export default function SettingsPage() {
       apiPut('/admin/settings', settings),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'settings'] });
-      toast.success('Settings updated');
+      toast.success(t('adminSettings.updated'));
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -56,40 +58,40 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Settings</h1>
+      <h1 className="text-3xl font-bold">{t('adminSettings.title')}</h1>
 
       <Card>
         <CardHeader>
-          <CardTitle>Admin Access</CardTitle>
+          <CardTitle>{t('adminSettings.adminAccess')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Users with these Discord role IDs or user IDs will have admin access, in addition to users with the admin role in the database.
+            {t('adminSettings.description')}
           </p>
           <div className="space-y-2">
-            <Label>Admin Discord Role IDs</Label>
+            <Label>{t('adminSettings.roleIds')}</Label>
             <Input
               value={roleIds}
               onChange={(e) => setRoleIds(e.target.value)}
-              placeholder="Comma-separated, e.g. 123456789012345678, 987654321012345678"
+              placeholder={t('adminSettings.roleIdsPlaceholder')}
             />
             <p className="text-xs text-muted-foreground">
-              Discord role IDs that grant admin access. Separate multiple IDs with commas.
+              {t('adminSettings.roleIdsHelp')}
             </p>
           </div>
           <div className="space-y-2">
-            <Label>Admin Discord User IDs</Label>
+            <Label>{t('adminSettings.userIds')}</Label>
             <Input
               value={userIds}
               onChange={(e) => setUserIds(e.target.value)}
-              placeholder="Comma-separated, e.g. 123456789012345678, 987654321012345678"
+              placeholder={t('adminSettings.userIdsPlaceholder')}
             />
             <p className="text-xs text-muted-foreground">
-              Individual Discord user IDs that grant admin access. Separate multiple IDs with commas.
+              {t('adminSettings.userIdsHelp')}
             </p>
           </div>
           <Button onClick={handleSave} disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? 'Saving...' : 'Save Settings'}
+            {updateMutation.isPending ? t('adminSettings.saving') : t('adminSettings.save')}
           </Button>
         </CardContent>
       </Card>

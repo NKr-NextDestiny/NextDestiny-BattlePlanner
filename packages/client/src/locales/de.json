@@ -80,7 +80,21 @@
     "mapLabel": "Karte",
     "creating": "Erstelle...",
     "createRoom": "Raum erstellen",
-    "back": "Zurück"
+    "back": "Zurück",
+    "activeUsers": "Aktive Nutzer",
+    "settings": "Raum-Einstellungen",
+    "shareLink": "Einladungslink",
+    "connectionId": "Verbindungs-ID",
+    "deleteRoom": "Raum löschen",
+    "deleteConfirm": "Bist du sicher, dass du diesen Raum löschen möchtest? Dies kann nicht rückgängig gemacht werden.",
+    "deleted": "Raum gelöscht",
+    "makeEditor": "Editor",
+    "makeViewer": "Zuschauer",
+    "roles": {
+      "owner": "Besitzer",
+      "editor": "Editor",
+      "viewer": "Zuschauer"
+    }
   },
   "account": {
     "title": "Kontoeinstellungen",

@@ -80,7 +80,21 @@
     "mapLabel": "Seekarte",
     "creating": "Zimmere...",
     "createRoom": "Kajüte erstellen",
-    "back": "Rückzug!"
+    "back": "Rückzug!",
+    "activeUsers": "Mannschaft an Bord",
+    "settings": "Kajüten-Einstellungen",
+    "shareLink": "Einladungsbrief",
+    "connectionId": "Verbindungs-Kodex",
+    "deleteRoom": "Kajüte versenken",
+    "deleteConfirm": "Willst du diese Kajüte wirklich versenken? Das kann nicht rückgängig gemacht werden, Käpt'n!",
+    "deleted": "Kajüte versenkt!",
+    "makeEditor": "Steuermann",
+    "makeViewer": "Ausguck",
+    "roles": {
+      "owner": "Käpt'n",
+      "editor": "Steuermann",
+      "viewer": "Ausguck"
+    }
   },
   "account": {
     "title": "Logbuch-Einstellungen",

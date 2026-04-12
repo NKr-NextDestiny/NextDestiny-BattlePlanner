@@ -18,12 +18,16 @@ export function getDrawBounds(draw: any): Rect | null {
       return pathBounds(d.points);
 
     case 'line':
+    case 'arrow':
       return lineBounds(
         draw.originX,
         draw.originY,
         draw.destinationX ?? draw.originX,
         draw.destinationY ?? draw.originY,
       );
+
+    case 'ellipse':
+      return ellipseBounds(draw, d);
 
     case 'rectangle':
       return rectBounds(draw, d);
@@ -101,4 +105,12 @@ function iconBounds(ox: number, oy: number, size: number | undefined): Rect {
   const s = (size ?? 14) + 4; // include background padding
   const half = s / 2;
   return { x: ox - half, y: oy - half, width: s, height: s };
+}
+
+function ellipseBounds(draw: any, d: any): Rect {
+  const cx = draw.originX;
+  const cy = draw.originY;
+  const rx = d.radiusX ?? Math.abs((draw.destinationX ?? cx) - cx);
+  const ry = d.radiusY ?? Math.abs((draw.destinationY ?? cy) - cy);
+  return { x: cx - rx, y: cy - ry, width: 2 * rx, height: 2 * ry };
 }

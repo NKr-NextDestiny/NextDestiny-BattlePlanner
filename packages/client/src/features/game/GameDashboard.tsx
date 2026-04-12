@@ -13,9 +13,6 @@ import { toast } from 'sonner';
 import { ArrowLeft, Plus, FileText, Globe, Eye, Share2, Trash2, Pencil, ThumbsUp, ThumbsDown, Search } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 
-const SUGGESTED_TAGS = ['Aggressive', 'Default', 'Retake', 'Rush', 'Anchor', 'Roam', 'Site A', 'Site B'];
-const FILTER_TAGS = SUGGESTED_TAGS;
-
 interface GameWithMaps {
   id: string; name: string; slug: string; icon: string | null; description: string | null;
   maps: Array<{ id: string; name: string; slug: string; thumbnail: string | null; isCompetitive: boolean }>;
@@ -37,6 +34,19 @@ export default function GameDashboard() {
   const [filterTag, setFilterTag] = useState('');
   const [filterMapId, setFilterMapId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const filterTags = useMemo(
+    () => [
+      { value: 'Aggressive', label: t('plans.suggestedTags.aggressive') },
+      { value: 'Default', label: t('plans.suggestedTags.default') },
+      { value: 'Retake', label: t('plans.suggestedTags.retake') },
+      { value: 'Rush', label: t('plans.suggestedTags.rush') },
+      { value: 'Anchor', label: t('plans.suggestedTags.anchor') },
+      { value: 'Roam', label: t('plans.suggestedTags.roam') },
+      { value: 'Site A', label: t('plans.suggestedTags.siteA') },
+      { value: 'Site B', label: t('plans.suggestedTags.siteB') },
+    ],
+    [t],
+  );
 
   const { data, isLoading } = useQuery({
     queryKey: ['game', gameSlug],
@@ -183,8 +193,8 @@ export default function GameDashboard() {
             </Select>
             <div className="flex flex-wrap items-center gap-1">
               <Badge variant={filterTag === '' ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag('')}>{t('plans.all')}</Badge>
-              {FILTER_TAGS.map((tag) => (
-                <Badge key={tag} variant={filterTag === tag ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>{tag}</Badge>
+              {filterTags.map((tag) => (
+                <Badge key={tag.value} variant={filterTag === tag.value ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag.value ? '' : tag.value)}>{tag.label}</Badge>
               ))}
             </div>
           </div>
@@ -226,8 +236,8 @@ export default function GameDashboard() {
           <div className="flex flex-wrap items-center gap-2 mb-6">
             <span className="text-sm text-muted-foreground">{t('plans.filter')}</span>
             <Badge variant={filterTag === '' ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag('')}>{t('plans.all')}</Badge>
-            {FILTER_TAGS.map((tag) => (
-              <Badge key={tag} variant={filterTag === tag ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>{tag}</Badge>
+            {filterTags.map((tag) => (
+              <Badge key={tag.value} variant={filterTag === tag.value ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag.value ? '' : tag.value)}>{tag.label}</Badge>
             ))}
           </div>
 

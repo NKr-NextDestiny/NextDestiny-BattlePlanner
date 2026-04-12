@@ -11,8 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { Trash2, Eye, ArrowLeft, Share2, Pencil, Search } from 'lucide-react';
 
-const FILTER_TAGS = ['Aggressive', 'Default', 'Retake', 'Rush', 'Anchor', 'Roam', 'Site A', 'Site B'];
-
 interface Battleplan {
   id: string; name: string; description: string | null; tags: string[]; isPublic: boolean;
   gameId: string; mapId: string; createdAt: string; updatedAt: string;
@@ -28,6 +26,19 @@ export default function MyPlansPage() {
   const [filterTag, setFilterTag] = useState('');
   const [filterMapId, setFilterMapId] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const filterTags = useMemo(
+    () => [
+      { value: 'Aggressive', label: t('plans.suggestedTags.aggressive') },
+      { value: 'Default', label: t('plans.suggestedTags.default') },
+      { value: 'Retake', label: t('plans.suggestedTags.retake') },
+      { value: 'Rush', label: t('plans.suggestedTags.rush') },
+      { value: 'Anchor', label: t('plans.suggestedTags.anchor') },
+      { value: 'Roam', label: t('plans.suggestedTags.roam') },
+      { value: 'Site A', label: t('plans.suggestedTags.siteA') },
+      { value: 'Site B', label: t('plans.suggestedTags.siteB') },
+    ],
+    [t],
+  );
 
   const { data: gameData } = useQuery({ queryKey: ['game', gameSlug], queryFn: () => apiGet<{ data: GameWithMaps }>(`/games/${gameSlug}`) });
   const { data: plansData } = useQuery({ queryKey: ['battleplans', 'mine'], queryFn: () => apiGet<{ data: Battleplan[] }>('/battleplans/mine') });
@@ -92,8 +103,8 @@ export default function MyPlansPage() {
         )}
         <div className="flex flex-wrap items-center gap-1">
           <Badge variant={filterTag === '' ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag('')}>{t('plans.all')}</Badge>
-          {FILTER_TAGS.map((tag) => (
-            <Badge key={tag} variant={filterTag === tag ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>{tag}</Badge>
+          {filterTags.map((tag) => (
+            <Badge key={tag.value} variant={filterTag === tag.value ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag.value ? '' : tag.value)}>{tag.label}</Badge>
           ))}
         </div>
       </div>

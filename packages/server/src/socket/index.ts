@@ -1,6 +1,6 @@
 import type { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import type { TokenPayload } from '@nd-battleplanner/shared';
+import type { TokenPayload, RoomUserRole } from '@nd-battleplanner/shared';
 import { COLORS_ARRAY } from '@nd-battleplanner/shared';
 import { setupRoomHandlers } from './handlers/room.js';
 import { setupDrawingHandlers } from './handlers/drawing.js';
@@ -13,6 +13,8 @@ import { eq } from 'drizzle-orm';
 
 interface RoomState {
   users: Map<string, { userId: string; username: string; socketId: string; color: string }>;
+  permissions: Map<string, RoomUserRole>;
+  ownerId: string | null;
   colorIndex: number;
 }
 
@@ -21,10 +23,14 @@ export const roomStates = new Map<string, RoomState>();
 export function getRoomState(connectionString: string): RoomState {
   let state = roomStates.get(connectionString);
   if (!state) {
-    state = { users: new Map(), colorIndex: 0 };
+    state = { users: new Map(), permissions: new Map(), ownerId: null, colorIndex: 0 };
     roomStates.set(connectionString, state);
   }
   return state;
+}
+
+export function getUserRole(state: RoomState, userId: string): RoomUserRole {
+  return state.permissions.get(userId) ?? 'editor';
 }
 
 export function assignColor(state: RoomState): string {

@@ -4,10 +4,12 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useStratStore } from '@/stores/strat.store';
 import { OperatorPickerPopover } from './OperatorPickerPopover';
+import { BanStrip } from './BanStrip';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Swords } from 'lucide-react';
 import type { StratOperatorSlot, Operator } from '@nd-battleplanner/shared';
@@ -16,9 +18,12 @@ interface OperatorStripProps {
   gameSlug: string;
   readOnly?: boolean;
   onOperatorAssign?: (slotId: string, operatorId: string | null) => void;
+  onBanUpdate?: (operatorName: string, side: 'attacker' | 'defender', slotIndex: number) => void;
+  onBanRemove?: (banId: string) => void;
 }
 
-export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign }: OperatorStripProps) {
+export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign, onBanUpdate, onBanRemove }: OperatorStripProps) {
+  const { t } = useTranslation();
   const operatorSlots = useStratStore((s) => s.operatorSlots);
   const attackerSlots = useMemo(
     () => operatorSlots.filter(s => s.side === 'attacker').sort((a, b) => a.slotNumber - b.slotNumber),
@@ -83,7 +88,7 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign }: Operator
       return (
         <Tooltip key={slot.id}>
           <TooltipTrigger asChild>{inner}</TooltipTrigger>
-          <TooltipContent className="text-xs">{slot.operatorName || `Slot ${slot.slotNumber}`}</TooltipContent>
+          <TooltipContent className="text-xs">{slot.operatorName || t('editor.operatorPicker.slot', { number: slot.slotNumber })}</TooltipContent>
         </Tooltip>
       );
     }
@@ -107,10 +112,16 @@ export function OperatorStrip({ gameSlug, readOnly, onOperatorAssign }: Operator
         {attackerSlots.map(slot => renderSlot(slot, '#1a8fe3'))}
       </div>
 
+      {/* ATK bans */}
+      <BanStrip side="attacker" gameSlug={gameSlug} readOnly={readOnly} onBanUpdate={onBanUpdate} onBanRemove={onBanRemove} />
+
       {/* Separator */}
       <div className="flex items-center justify-center h-8 w-8 text-muted-foreground">
         <Swords className="h-4 w-4" />
       </div>
+
+      {/* DEF bans */}
+      <BanStrip side="defender" gameSlug={gameSlug} readOnly={readOnly} onBanUpdate={onBanUpdate} onBanRemove={onBanRemove} />
 
       {/* DEF slots */}
       <div className="flex items-center gap-1">

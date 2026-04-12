@@ -81,13 +81,15 @@ export default function BattleplanViewer() {
 
   // Voting
   const voteMutation = useMutation({
-    mutationFn: () => apiPost(`/battleplans/${planId}/vote`),
+    mutationFn: () => apiPost(`/battleplans/${planId}/vote`, { value: planData?.userVote === 1 ? 0 : 1 }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['battleplan', planId] }),
   });
 
   // Copy
   const copyMutation = useMutation({
     mutationFn: () => apiPost(`/battleplans/${planId}/copy`),
+    onSuccess: () => toast.success(t('plans.planCreated')),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   // Editable description
@@ -142,14 +144,14 @@ export default function BattleplanViewer() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  });
+  }, [sortedFloors.length]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64 text-muted-foreground">Loading plan...</div>;
+    return <div className="flex items-center justify-center h-64 text-muted-foreground">{t('viewer.loadingPlan')}</div>;
   }
 
   if (!planData) {
-    return <div className="flex items-center justify-center h-64 text-muted-foreground">Plan not found</div>;
+    return <div className="flex items-center justify-center h-64 text-muted-foreground">{t('viewer.planNotFound')}</div>;
   }
 
   return (
@@ -158,14 +160,14 @@ export default function BattleplanViewer() {
       <div className="px-4 py-3 border-b bg-background/80 shrink-0">
         <div className="flex items-center gap-3 flex-wrap">
           <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" asChild>
-            <Link to={`/${gameSlug}/plans/public`}><ArrowLeft className="h-3 w-3 mr-1" />Plans</Link>
+            <Link to={`/${gameSlug}/plans/public`}><ArrowLeft className="h-3 w-3 mr-1" />{t('viewer.plans')}</Link>
           </Button>
 
           <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-semibold truncate">{planData.title}</h1>
+            <h1 className="text-sm font-semibold truncate">{planData.name}</h1>
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
               <span>{planData.map?.name}</span>
-              <span>by {planData.owner?.username || 'Unknown'}</span>
+              <span>{t('viewer.by', { name: planData.owner?.username || t('common.unknown') })}</span>
               {planData.stratSide && planData.stratSide !== 'Unknown' && (
                 <span className="px-1 py-0.5 rounded bg-muted text-[10px]">{planData.stratSide}</span>
               )}
@@ -251,7 +253,7 @@ export default function BattleplanViewer() {
               </div>
             ) : (
               <div className="flex items-start gap-1">
-                <p className="text-xs text-muted-foreground flex-1">{planData.description || 'No description'}</p>
+                <p className="text-xs text-muted-foreground flex-1">{planData.description || t('viewer.noDescription')}</p>
                 {isOwner && (
                   <Button variant="ghost" size="sm" className="h-5 w-5 p-0 shrink-0" onClick={() => { setDescDraft(planData.description || ''); setEditingDesc(true); }}>
                     <Pencil className="h-2.5 w-2.5" />
@@ -282,7 +284,7 @@ export default function BattleplanViewer() {
               </div>
             ) : (
               <div className="flex items-start gap-1">
-                <p className="text-xs text-muted-foreground/70 flex-1 italic">{planData.notes || 'No notes'}</p>
+                <p className="text-xs text-muted-foreground/70 flex-1 italic">{planData.notes || t('viewer.noNotes')}</p>
                 {isOwner && (
                   <Button variant="ghost" size="sm" className="h-5 w-5 p-0 shrink-0" onClick={() => { setNotesDraft(planData.notes || ''); setEditingNotes(true); }}>
                     <Pencil className="h-2.5 w-2.5" />
@@ -322,7 +324,7 @@ export default function BattleplanViewer() {
         </div>
       ) : (
         <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          No floors available
+          {t('viewer.noFloors')}
         </div>
       )}
     </div>

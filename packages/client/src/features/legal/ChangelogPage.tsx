@@ -15,10 +15,32 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: '3.3.0',
+    subtitle: 'r6calls Feature Parity & .nds File Format',
+    date: '2026-04-12',
+    tag: 'Latest',
+    changes: [
+      { type: 'feature', text: 'Arrow drawing tool \u2014 draw directional arrows with filled arrowhead' },
+      { type: 'feature', text: 'Ellipse drawing tool \u2014 draw circles and ovals with optional fill' },
+      { type: 'feature', text: 'Room permission system \u2014 owner can toggle users between Editor and Viewer roles' },
+      { type: 'feature', text: 'User list popover \u2014 see active room participants with role badges and permission controls' },
+      { type: 'feature', text: 'Room settings popover \u2014 share link, connection ID, room deletion for owner' },
+      { type: 'feature', text: 'Operator ban UI \u2014 2 ATK + 2 DEF ban slots in operator strip' },
+      { type: 'feature', text: 'Loadout popover \u2014 configure weapons and equipment per operator slot' },
+      { type: 'feature', text: 'Phase copy/duplicate \u2014 duplicate a phase with all its draws' },
+      { type: 'feature', text: 'Floor clear \u2014 delete all your drawings on the current floor' },
+      { type: 'feature', text: 'Icon flip rendering \u2014 horizontal/vertical flip on placed icons' },
+      { type: 'feature', text: '.nds strat file format \u2014 custom binary format with gzip compression and CRC32 integrity' },
+      { type: 'feature', text: '.nds export/import \u2014 download or upload entire strats as portable .nds files' },
+      { type: 'improvement', text: 'Viewer role enforcement \u2014 viewers cannot modify canvas content (server-validated)' },
+      { type: 'improvement', text: 'Arrow/ellipse fully integrated with hit testing, bounds, select/resize, undo/redo, and export' },
+      { type: 'improvement', text: 'i18n \u2014 all new strings in Deutsch, English, and Piratensprache' },
+    ],
+  },
+  {
     version: '3.2.0',
     subtitle: 'Editor-First Plan Creation & Filters',
     date: '2026-04-09',
-    tag: 'Latest',
     changes: [
       { type: 'improvement', text: 'Plans are now created from within the editor \u2014 "New Plan" button removed, plans are saved via the editor save dialog' },
       { type: 'improvement', text: 'Save dialog in editor asks for name, description, tags, and public visibility when saving a plan for the first time' },

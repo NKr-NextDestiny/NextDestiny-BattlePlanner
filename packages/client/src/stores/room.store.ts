@@ -1,9 +1,11 @@
 import { create } from 'zustand';
+import type { RoomUserRole } from '@nd-battleplanner/shared';
 
 export interface RoomUser {
   userId: string;
   username: string;
   color: string;
+  role: RoomUserRole;
 }
 
 export interface CursorPosition {
@@ -26,6 +28,7 @@ interface RoomStoreState {
   connectionString: string | null;
   users: RoomUser[];
   myColor: string | null;
+  myRole: RoomUserRole;
   battleplan: any | null;
   currentFloorId: string | null;
   cursors: Map<string, CursorPosition>;
@@ -37,6 +40,8 @@ interface RoomStoreState {
   addUser: (user: RoomUser) => void;
   removeUser: (userId: string) => void;
   setMyColor: (color: string) => void;
+  setMyRole: (role: RoomUserRole) => void;
+  updateUserRole: (userId: string, role: RoomUserRole) => void;
   setBattleplan: (bp: any | null) => void;
   setCurrentFloorId: (id: string | null) => void;
   updateCursor: (cursor: CursorPosition) => void;
@@ -51,6 +56,7 @@ export const useRoomStore = create<RoomStoreState>((set) => ({
   connectionString: null,
   users: [],
   myColor: null,
+  myRole: 'editor' as RoomUserRole,
   battleplan: null,
   currentFloorId: null,
   cursors: new Map(),
@@ -64,6 +70,10 @@ export const useRoomStore = create<RoomStoreState>((set) => ({
     users: s.users.filter(u => u.userId !== userId),
   })),
   setMyColor: (color) => set({ myColor: color }),
+  setMyRole: (role) => set({ myRole: role }),
+  updateUserRole: (userId, role) => set((s) => ({
+    users: s.users.map(u => u.userId === userId ? { ...u, role } : u),
+  })),
   setBattleplan: (bp) => set({ battleplan: bp }),
   setCurrentFloorId: (id) => set({ currentFloorId: id }),
   updateCursor: (cursor) => set((s) => {
@@ -88,6 +98,7 @@ export const useRoomStore = create<RoomStoreState>((set) => ({
     connectionString: null,
     users: [],
     myColor: null,
+    myRole: 'editor' as RoomUserRole,
     battleplan: null,
     currentFloorId: null,
     cursors: new Map(),

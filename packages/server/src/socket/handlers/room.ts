@@ -1,5 +1,6 @@
 import type { Server, Socket } from 'socket.io';
-import { getRoomState, assignColor, roomStates } from '../index.js';
+import type { RoomUserRole } from '@nd-battleplanner/shared';
+import { getRoomState, getUserRole, assignColor, roomStates } from '../index.js';
 import { db } from '../../db/connection.js';
 import { rooms, battleplans, battleplanFloors, draws, operatorSlots, mapFloors, operators } from '../../db/schema/index.js';
 import { eq, and } from 'drizzle-orm';
@@ -18,19 +19,35 @@ export function setupRoomHandlers(io: Server, socket: Socket, userId: string, us
       const state = getRoomState(connectionString);
       const color = assignColor(state);
 
+      // Set owner on first join or if this user owns the room
+      if (state.ownerId === null) {
+        state.ownerId = room.ownerId;
+      }
+
+      // Assign role: owner gets 'owner', others get existing permission or 'editor'
+      const isOwner = userId === room.ownerId;
+      if (isOwner) {
+        state.permissions.set(userId, 'owner');
+      } else if (!state.permissions.has(userId)) {
+        state.permissions.set(userId, 'editor');
+      }
+
       state.users.set(socket.id, { userId, username, socketId: socket.id, color });
 
       const usersList = Array.from(state.users.values()).map(u => ({
         userId: u.userId,
         username: u.username,
         color: u.color,
+        role: getUserRole(state, u.userId),
       }));
 
+      const myRole = getUserRole(state, userId);
+
       // Send room state to joining user
-      socket.emit('room:joined', { userId, color, users: usersList });
+      socket.emit('room:joined', { userId, color, users: usersList, role: myRole });
 
       // Notify others
-      socket.to(connectionString).emit('room:user-joined', { userId, username, color });
+      socket.to(connectionString).emit('room:user-joined', { userId, username, color, role: myRole });
     } catch (err) {
       console.error('Error joining room:', err);
       socket.emit('error', { message: 'Failed to join room' });
@@ -46,6 +63,27 @@ export function setupRoomHandlers(io: Server, socket: Socket, userId: string, us
 
       if (state.users.size === 0) {
         roomStates.delete(connectionString);
+      }
+    }
+  });
+
+  // Permission update — only owner can change roles
+  socket.on('room:permission-update', ({ targetUserId, role }: { targetUserId: string; role: RoomUserRole }) => {
+    for (const [connString, state] of roomStates) {
+      if (state.users.has(socket.id)) {
+        const senderRole = getUserRole(state, userId);
+        if (senderRole !== 'owner') {
+          socket.emit('error', { message: 'Only the room owner can change permissions' });
+          return;
+        }
+        // Cannot change owner's own role
+        if (targetUserId === userId) return;
+        // Only allow setting editor or viewer
+        if (role !== 'editor' && role !== 'viewer') return;
+
+        state.permissions.set(targetUserId, role);
+        io.to(connString).emit('room:permission-updated', { userId: targetUserId, role });
+        break;
       }
     }
   });

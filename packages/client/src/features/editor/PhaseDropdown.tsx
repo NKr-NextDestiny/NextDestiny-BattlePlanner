@@ -4,23 +4,26 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useStratStore } from '@/stores/strat.store';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
-import { Plus, Pencil, Trash2, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, Copy, ChevronDown } from 'lucide-react';
 
 interface PhaseDropdownProps {
   onPhaseCreate?: (name: string) => void;
   onPhaseUpdate?: (phaseId: string, name: string) => void;
   onPhaseDelete?: (phaseId: string) => void;
+  onPhaseCopy?: (phaseId: string) => void;
   onPhaseSwitch?: (phaseId: string) => void;
   readOnly?: boolean;
 }
 
 export function PhaseDropdown({
-  onPhaseCreate, onPhaseUpdate, onPhaseDelete, onPhaseSwitch, readOnly,
+  onPhaseCreate, onPhaseUpdate, onPhaseDelete, onPhaseCopy, onPhaseSwitch, readOnly,
 }: PhaseDropdownProps) {
+  const { t } = useTranslation();
   const phases = useStratStore(s => s.phases);
   const activePhaseId = useStratStore(s => s.activePhaseId);
   const setActivePhaseId = useStratStore(s => s.setActivePhaseId);
@@ -28,7 +31,7 @@ export function PhaseDropdown({
   const [editName, setEditName] = useState('');
 
   const activePhase = phases.find(p => p.id === activePhaseId);
-  const label = activePhase ? activePhase.name : 'Action Phase 0';
+  const label = activePhase ? activePhase.name : t('editor.phase.defaultName', { index: 0 });
 
   const handleSwitch = (phaseId: string) => {
     setActivePhaseId(phaseId);
@@ -36,7 +39,7 @@ export function PhaseDropdown({
   };
 
   const handleCreate = () => {
-    const name = `Phase ${phases.length}`;
+    const name = t('editor.phase.defaultName', { index: phases.length });
     onPhaseCreate?.(name);
   };
 
@@ -65,7 +68,7 @@ export function PhaseDropdown({
           {phases.map(phase => (
             <div
               key={phase.id}
-              className={`flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer transition-colors ${
+              className={`group flex items-center gap-1 px-2 py-1 rounded text-xs cursor-pointer transition-colors ${
                 phase.id === activePhaseId ? 'bg-primary/20 text-primary' : 'hover:bg-muted'
               }`}
               onClick={() => handleSwitch(phase.id)}
@@ -92,6 +95,12 @@ export function PhaseDropdown({
                         <Pencil className="h-2.5 w-2.5" />
                       </button>
                       <button
+                        className="h-4 w-4 flex items-center justify-center rounded hover:bg-muted-foreground/20"
+                        onClick={(e) => { e.stopPropagation(); onPhaseCopy?.(phase.id); }}
+                      >
+                        <Copy className="h-2.5 w-2.5" />
+                      </button>
+                      <button
                         className="h-4 w-4 flex items-center justify-center rounded hover:bg-destructive/20 text-destructive"
                         onClick={(e) => { e.stopPropagation(); onPhaseDelete?.(phase.id); }}
                       >
@@ -104,12 +113,12 @@ export function PhaseDropdown({
             </div>
           ))}
           {phases.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-2">No phases yet</p>
+            <p className="text-xs text-muted-foreground text-center py-2">{t('editor.phase.noPhases')}</p>
           )}
         </div>
         {!readOnly && (
           <Button variant="ghost" size="sm" className="w-full h-6 text-xs mt-1" onClick={handleCreate}>
-            <Plus className="h-3 w-3 mr-1" /> Add Phase
+            <Plus className="h-3 w-3 mr-1" /> {t('editor.phase.add')}
           </Button>
         )}
       </PopoverContent>

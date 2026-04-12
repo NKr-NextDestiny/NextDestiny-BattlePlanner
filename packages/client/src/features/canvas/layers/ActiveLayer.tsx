@@ -155,6 +155,37 @@ function paintDrawPreview(ctx: CanvasRenderingContext2D, p: DrawPreview) {
     ctx.moveTo(p.start.x, p.start.y);
     ctx.lineTo(p.end.x, p.end.y);
     ctx.stroke();
+  } else if (p.type === 'arrow' && p.start && p.end) {
+    // Shaft
+    ctx.beginPath();
+    ctx.moveTo(p.start.x, p.start.y);
+    ctx.lineTo(p.end.x, p.end.y);
+    ctx.stroke();
+    // Arrowhead
+    const angle = Math.atan2(p.end.y - p.start.y, p.end.x - p.start.x);
+    const headLen = Math.max(10, p.lineWidth * 4);
+    const headAngle = Math.PI / 7;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.moveTo(p.end.x, p.end.y);
+    ctx.lineTo(
+      p.end.x - headLen * Math.cos(angle - headAngle),
+      p.end.y - headLen * Math.sin(angle - headAngle),
+    );
+    ctx.lineTo(
+      p.end.x - headLen * Math.cos(angle + headAngle),
+      p.end.y - headLen * Math.sin(angle + headAngle),
+    );
+    ctx.closePath();
+    ctx.fill();
+  } else if (p.type === 'ellipse' && p.start && p.end) {
+    const rx = Math.abs(p.end.x - p.start.x);
+    const ry = Math.abs(p.end.y - p.start.y);
+    if (rx > 0 || ry > 0) {
+      ctx.beginPath();
+      ctx.ellipse(p.start.x, p.start.y, rx, ry, 0, 0, 2 * Math.PI);
+      ctx.stroke();
+    }
   } else if (p.type === 'rectangle' && p.start && p.end) {
     ctx.strokeRect(
       p.start.x, p.start.y,

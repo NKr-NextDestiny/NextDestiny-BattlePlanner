@@ -14,7 +14,7 @@ import { useCanvasStore } from '@/stores/canvas.store';
 import { screenToCanvas } from '../rendering/viewport';
 
 export interface DrawPreview {
-  type: 'pen' | 'line' | 'rectangle';
+  type: 'pen' | 'line' | 'arrow' | 'rectangle' | 'ellipse';
   color: string;
   lineWidth: number;
   path?: Array<{ x: number; y: number }>;
@@ -43,7 +43,7 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
   function onMouseDown(e: React.MouseEvent): boolean {
     const { tool, color, lineWidth } = useCanvasStore.getState();
 
-    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Rectangle) return false;
+    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Arrow && tool !== Tool.Rectangle && tool !== Tool.Ellipse) return false;
 
     const pos = toCanvas(e);
     originRef.current = pos;
@@ -61,7 +61,7 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
     if (!isDrawing || !originRef.current) return false;
 
     const { tool, color, lineWidth } = useCanvasStore.getState();
-    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Rectangle) return false;
+    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Arrow && tool !== Tool.Rectangle && tool !== Tool.Ellipse) return false;
 
     const pos = toCanvas(e);
 
@@ -70,6 +70,10 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
       setPreview({ type: 'pen', color, lineWidth, path: [...pointsRef.current] });
     } else if (tool === Tool.Line) {
       setPreview({ type: 'line', color, lineWidth, start: originRef.current, end: pos });
+    } else if (tool === Tool.Arrow) {
+      setPreview({ type: 'arrow', color, lineWidth, start: originRef.current, end: pos });
+    } else if (tool === Tool.Ellipse) {
+      setPreview({ type: 'ellipse', color, lineWidth, start: originRef.current, end: pos });
     } else {
       setPreview({ type: 'rectangle', color, lineWidth, start: originRef.current, end: pos });
     }
@@ -81,7 +85,7 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
     if (!isDrawing || !originRef.current) return false;
 
     const { tool, color, lineWidth } = useCanvasStore.getState();
-    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Rectangle) return false;
+    if (tool !== Tool.Pen && tool !== Tool.Line && tool !== Tool.Arrow && tool !== Tool.Rectangle && tool !== Tool.Ellipse) return false;
 
     const pos = toCanvas(e);
     setIsDrawing(false);
@@ -109,6 +113,28 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
         destinationY: pos.y,
         data: { color, lineWidth },
       };
+    } else if (tool === Tool.Arrow) {
+      const start = originRef.current;
+      draw = {
+        type: 'arrow',
+        originX: start.x,
+        originY: start.y,
+        destinationX: pos.x,
+        destinationY: pos.y,
+        data: { color, lineWidth },
+      };
+    } else if (tool === Tool.Ellipse) {
+      const start = originRef.current;
+      const radiusX = Math.abs(pos.x - start.x);
+      const radiusY = Math.abs(pos.y - start.y);
+      draw = {
+        type: 'ellipse',
+        originX: start.x,
+        originY: start.y,
+        destinationX: pos.x,
+        destinationY: pos.y,
+        data: { radiusX, radiusY, color, lineWidth, filled: false },
+      };
     } else {
       const start = originRef.current;
       draw = {
@@ -130,8 +156,8 @@ export function useDrawTool({ containerRef, floorId, onDrawCreate }: UseDrawTool
     if (draw && onDrawCreate) {
       onDrawCreate(floorId, [draw]);
 
-      // Auto-switch to Select after Line/Rectangle
-      if (tool === Tool.Line || tool === Tool.Rectangle) {
+      // Auto-switch to Select after Line/Arrow/Rectangle/Ellipse
+      if (tool === Tool.Line || tool === Tool.Arrow || tool === Tool.Rectangle || tool === Tool.Ellipse) {
         useCanvasStore.getState().setTool(Tool.Select);
       }
     }

@@ -50,8 +50,14 @@ export function renderDraw(
     case 'line':
       drawLine(ctx, draw, d);
       break;
+    case 'arrow':
+      drawArrow(ctx, draw, d);
+      break;
     case 'rectangle':
       drawRectangle(ctx, draw, d);
+      break;
+    case 'ellipse':
+      drawEllipse(ctx, draw, d);
       break;
     case 'text':
       drawText(ctx, draw, d);
@@ -94,6 +100,69 @@ function drawLine(ctx: CanvasRenderingContext2D, draw: any, d: any): void {
   ctx.beginPath();
   ctx.moveTo(x1, y1);
   ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
+function drawArrow(ctx: CanvasRenderingContext2D, draw: any, d: any): void {
+  const x1 = draw.originX;
+  const y1 = draw.originY;
+  const x2 = draw.destinationX ?? x1;
+  const y2 = draw.destinationY ?? y1;
+
+  const color = d.color ?? '#FF0000';
+  const lw = d.lineWidth ?? 1;
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  ctx.lineCap = 'round';
+
+  // Draw the line shaft
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+
+  // Draw the arrowhead
+  const angle = Math.atan2(y2 - y1, x2 - x1);
+  const headLen = Math.max(10, lw * 4);
+  const headAngle = Math.PI / 7; // ~25 degrees
+
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x2, y2);
+  ctx.lineTo(
+    x2 - headLen * Math.cos(angle - headAngle),
+    y2 - headLen * Math.sin(angle - headAngle),
+  );
+  ctx.lineTo(
+    x2 - headLen * Math.cos(angle + headAngle),
+    y2 - headLen * Math.sin(angle + headAngle),
+  );
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawEllipse(ctx: CanvasRenderingContext2D, draw: any, d: any): void {
+  const cx = draw.originX;
+  const cy = draw.originY;
+  const rx = d.radiusX ?? Math.abs((draw.destinationX ?? cx) - cx);
+  const ry = d.radiusY ?? Math.abs((draw.destinationY ?? cy) - cy);
+
+  if (rx === 0 && ry === 0) return;
+
+  ctx.strokeStyle = d.color ?? '#FF0000';
+  ctx.lineWidth = d.lineWidth ?? 1;
+
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, 2 * Math.PI);
+
+  if (d.filled) {
+    ctx.fillStyle = d.color ?? '#FF0000';
+    ctx.globalAlpha = 0.3;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
   ctx.stroke();
 }
 
@@ -153,6 +222,15 @@ function drawIcon(
     ctx.closePath();
     ctx.fill();
     ctx.globalAlpha = 1;
+  }
+
+  // Apply flip transforms
+  const flipH = d.flipH ? -1 : 1;
+  const flipV = d.flipV ? -1 : 1;
+  if (d.flipH || d.flipV) {
+    ctx.translate(draw.originX, draw.originY);
+    ctx.scale(flipH, flipV);
+    ctx.translate(-draw.originX, -draw.originY);
   }
 
   if (d.iconUrl) {

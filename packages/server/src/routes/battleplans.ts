@@ -197,7 +197,7 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
     }
 
     // Check access within team
-    if (!plan.isPublic && plan.ownerId !== request.user?.userId && request.user?.role !== 'admin') {
+    if (plan.isSaved && !plan.isPublic && plan.ownerId !== request.user?.userId && request.user?.role !== 'admin') {
       return reply.status(404).send({ error: 'Not Found', message: 'Battleplan not found', statusCode: 404 });
     }
 
@@ -432,6 +432,48 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
     return { message: 'Phase deleted' };
   });
 
+  // POST /api/battleplans/:id/phases/:phaseId/copy
+  fastify.post('/:id/phases/:phaseId/copy', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
+    const { id, phaseId } = z.object({ id: z.string().uuid(), phaseId: z.string().uuid() }).parse(request.params);
+
+    const [original] = await db.select().from(battleplanPhases)
+      .where(and(eq(battleplanPhases.id, phaseId), eq(battleplanPhases.battleplanId, id)));
+    if (!original) return reply.status(404).send({ error: 'Not Found', message: 'Phase not found', statusCode: 404 });
+
+    // Get next index
+    const allPhases = await db.select().from(battleplanPhases)
+      .where(eq(battleplanPhases.battleplanId, id));
+    const nextIndex = allPhases.length;
+
+    const [newPhase] = await db.insert(battleplanPhases).values({
+      battleplanId: id,
+      index: nextIndex,
+      name: `Copy of ${original.name}`,
+      description: original.description,
+    }).returning();
+
+    // Copy all draws from original phase
+    const phaseDraws = await db.select().from(draws)
+      .where(and(eq(draws.phaseId, phaseId), eq(draws.isDeleted, false)));
+
+    for (const draw of phaseDraws) {
+      await db.insert(draws).values({
+        battleplanFloorId: draw.battleplanFloorId,
+        userId: draw.userId,
+        type: draw.type,
+        originX: draw.originX,
+        originY: draw.originY,
+        destinationX: draw.destinationX,
+        destinationY: draw.destinationY,
+        data: draw.data,
+        phaseId: newPhase.id,
+        operatorSlotId: draw.operatorSlotId,
+      });
+    }
+
+    return reply.status(201).send({ data: newPhase });
+  });
+
   // --- Bans ---
 
   // GET /api/battleplans/:id/bans
@@ -507,5 +549,200 @@ export default async function battleplansRoutes(fastify: FastifyInstance) {
       .from(votes).where(eq(votes.battleplanId, id));
 
     return { data: { voteCount: Number(voteResult[0]?.total || 0), userVote: value || null } };
+  });
+
+  // --- NDS Import ---
+
+  // POST /api/battleplans/import - Import from .nds JSON payload
+  fastify.post('/import', { preHandler: [requireAuth, requireTeamAccess] }, async (request, reply) => {
+    const body = z.object({
+      version: z.literal('1.0'),
+      app: z.string(),
+      appVersion: z.string(),
+      exportedAt: z.string(),
+      exportedBy: z.string(),
+      game: z.object({ slug: z.string(), name: z.string() }),
+      map: z.object({ slug: z.string(), name: z.string() }),
+      strat: z.object({
+        name: z.string().min(1).max(255),
+        description: z.string().nullable().optional(),
+        notes: z.string().nullable().optional(),
+        tags: z.array(z.string().max(30)).max(10).optional(),
+        config: z.object({
+          side: z.enum(['Attackers', 'Defenders', 'Unknown']),
+          mode: z.enum(['Bomb', 'Secure', 'Hostage', 'Unknown']),
+          site: z.enum(['1', '2', '3', '4', '5', 'Unknown']),
+        }),
+        bans: z.array(z.object({
+          operatorName: z.string(),
+          side: z.enum(['attacker', 'defender']),
+          slotIndex: z.number().int().min(0).max(1),
+        })).optional(),
+        operators: z.array(z.object({
+          slotNumber: z.number().int().min(1).max(MAX_OPERATOR_SLOTS),
+          side: z.enum(['attacker', 'defender']),
+          operatorName: z.string().nullable(),
+          color: z.string(),
+          visible: z.boolean(),
+          loadout: z.object({
+            primaryWeapon: z.string().nullable(),
+            secondaryWeapon: z.string().nullable(),
+            primaryEquipment: z.string().nullable(),
+            secondaryEquipment: z.string().nullable(),
+          }),
+        })).optional(),
+        phases: z.array(z.object({
+          index: z.number().int(),
+          name: z.string(),
+          description: z.string().nullable().optional(),
+          draws: z.array(z.object({
+            type: z.enum(['path', 'line', 'arrow', 'rectangle', 'ellipse', 'text', 'icon']),
+            floorIndex: z.number().int().min(0),
+            originX: z.number(),
+            originY: z.number(),
+            destinationX: z.number().nullable(),
+            destinationY: z.number().nullable(),
+            data: z.any(),
+            operatorSlotNumber: z.number().int().nullable(),
+            operatorSide: z.enum(['attacker', 'defender']).nullable(),
+          })),
+        })).optional(),
+      }),
+    }).parse(request.body);
+
+    // Resolve game by slug
+    const [game] = await db.select().from(games).where(eq(games.slug, body.game.slug));
+    if (!game) return reply.status(400).send({ error: 'Bad Request', message: `Unknown game: ${body.game.slug}`, statusCode: 400 });
+
+    // Resolve map by slug within the game
+    const [map] = await db.select().from(maps).where(and(eq(maps.gameId, game.id), eq(maps.slug, body.map.slug)));
+    if (!map) return reply.status(400).send({ error: 'Bad Request', message: `Unknown map: ${body.map.slug}`, statusCode: 400 });
+
+    const strat = body.strat;
+
+    // Create battleplan
+    const [plan] = await db.insert(battleplans).values({
+      ownerId: request.user!.userId,
+      teamId: request.teamId!,
+      gameId: game.id,
+      mapId: map.id,
+      name: strat.name,
+      description: strat.description ?? null,
+      notes: strat.notes ?? null,
+      tags: strat.tags || [],
+      stratSide: strat.config.side,
+      stratMode: strat.config.mode,
+      stratSite: strat.config.site,
+    }).returning();
+
+    // Create floors from map
+    const mFloors = await db.select().from(mapFloors).where(eq(mapFloors.mapId, map.id)).orderBy(mapFloors.floorNumber);
+    const floorMap = new Map<number, string>(); // floorIndex → battleplanFloorId
+    for (let i = 0; i < mFloors.length; i++) {
+      const [bpFloor] = await db.insert(battleplanFloors).values({
+        battleplanId: plan.id,
+        mapFloorId: mFloors[i]!.id,
+      }).returning();
+      floorMap.set(i, bpFloor.id);
+    }
+
+    // Create operator slots + resolve operatorId by name
+    const slotIdMap = new Map<string, string>(); // "side:slotNumber" → operatorSlotId
+    const defaultColors = ['#FF4444', '#44AAFF', '#44FF44', '#FFAA44', '#AA44FF'];
+
+    if (strat.operators && strat.operators.length > 0) {
+      for (const op of strat.operators) {
+        let operatorId: string | null = null;
+        if (op.operatorName) {
+          const [found] = await db.select().from(operators)
+            .where(and(eq(operators.gameId, game.id), eq(operators.name, op.operatorName)));
+          if (found) operatorId = found.id;
+        }
+
+        const [slot] = await db.insert(operatorSlots).values({
+          battleplanId: plan.id,
+          slotNumber: op.slotNumber,
+          side: op.side,
+          operatorId,
+          color: op.color,
+          visible: op.visible,
+          primaryWeapon: op.loadout.primaryWeapon,
+          secondaryWeapon: op.loadout.secondaryWeapon,
+          primaryEquipment: op.loadout.primaryEquipment,
+          secondaryEquipment: op.loadout.secondaryEquipment,
+        }).returning();
+        slotIdMap.set(`${op.side}:${op.slotNumber}`, slot.id);
+      }
+    } else {
+      // Default slots like in the create endpoint
+      for (let i = 1; i <= MAX_OPERATOR_SLOTS; i++) {
+        for (const side of ['defender', 'attacker'] as const) {
+          const [slot] = await db.insert(operatorSlots).values({
+            battleplanId: plan.id,
+            slotNumber: i,
+            side,
+            color: defaultColors[(i - 1) % defaultColors.length],
+          }).returning();
+          slotIdMap.set(`${side}:${i}`, slot.id);
+        }
+      }
+    }
+
+    // Create bans
+    if (strat.bans) {
+      for (const ban of strat.bans) {
+        await db.insert(operatorBans).values({
+          battleplanId: plan.id,
+          operatorName: ban.operatorName,
+          side: ban.side,
+          slotIndex: ban.slotIndex,
+        });
+      }
+    }
+
+    // Create phases + draws
+    if (strat.phases && strat.phases.length > 0) {
+      for (const phase of strat.phases) {
+        const [newPhase] = await db.insert(battleplanPhases).values({
+          battleplanId: plan.id,
+          index: phase.index,
+          name: phase.name,
+          description: phase.description ?? null,
+        }).returning();
+
+        for (const draw of phase.draws) {
+          const bpFloorId = floorMap.get(draw.floorIndex);
+          if (!bpFloorId) continue; // skip draws for floors that don't exist
+
+          let operatorSlotId: string | null = null;
+          if (draw.operatorSlotNumber != null && draw.operatorSide) {
+            operatorSlotId = slotIdMap.get(`${draw.operatorSide}:${draw.operatorSlotNumber}`) ?? null;
+          }
+
+          await db.insert(draws).values({
+            battleplanFloorId: bpFloorId,
+            userId: request.user!.userId,
+            type: draw.type,
+            originX: draw.originX,
+            originY: draw.originY,
+            destinationX: draw.destinationX,
+            destinationY: draw.destinationY,
+            data: draw.data,
+            phaseId: newPhase.id,
+            operatorSlotId,
+          });
+        }
+      }
+    } else {
+      // Default phase
+      await db.insert(battleplanPhases).values({
+        battleplanId: plan.id,
+        index: 0,
+        name: 'Action Phase',
+      });
+    }
+
+    const fullPlan = await getBattleplanWithDetails(plan.id, request.user!.userId);
+    return reply.status(201).send({ data: fullPlan });
   });
 }

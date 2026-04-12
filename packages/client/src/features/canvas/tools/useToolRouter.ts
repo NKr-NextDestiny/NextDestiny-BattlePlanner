@@ -71,7 +71,9 @@ export function useToolRouter(opts: UseToolRouterOptions) {
     switch (tool) {
       case Tool.Pen:
       case Tool.Line:
+      case Tool.Arrow:
       case Tool.Rectangle:
+      case Tool.Ellipse:
         draw.onMouseDown(e);
         break;
       case Tool.Text:
@@ -114,7 +116,7 @@ export function useToolRouter(opts: UseToolRouterOptions) {
     }
 
     // Drawing tools
-    if (tool === Tool.Pen || tool === Tool.Line || tool === Tool.Rectangle) {
+    if (tool === Tool.Pen || tool === Tool.Line || tool === Tool.Arrow || tool === Tool.Rectangle || tool === Tool.Ellipse) {
       draw.onMouseMove(e);
     }
 
@@ -135,7 +137,9 @@ export function useToolRouter(opts: UseToolRouterOptions) {
     switch (tool) {
       case Tool.Pen:
       case Tool.Line:
+      case Tool.Arrow:
       case Tool.Rectangle:
+      case Tool.Ellipse:
         draw.onMouseUp(e);
         break;
       case Tool.Select:

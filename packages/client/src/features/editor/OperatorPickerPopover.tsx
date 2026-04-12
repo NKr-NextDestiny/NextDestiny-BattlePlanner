@@ -4,6 +4,7 @@
  */
 
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { apiGet } from '@/lib/api';
 import { useStratStore } from '@/stores/strat.store';
@@ -25,11 +26,13 @@ interface OperatorPickerPopoverProps {
   gameSlug: string;
   trigger: React.ReactNode;
   onSelect: (slotId: string, operatorId: string | null, operatorName?: string) => void;
+  isBanPicker?: boolean;
 }
 
 export function OperatorPickerPopover({
-  side, slotId, gameSlug, trigger, onSelect,
+  side, slotId, gameSlug, trigger, onSelect, isBanPicker,
 }: OperatorPickerPopoverProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -68,7 +71,7 @@ export function OperatorPickerPopover({
         <div className="relative mb-2">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
-            placeholder="Search operator..."
+            placeholder={t('editor.operatorPicker.search')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-7 h-7 text-xs"
@@ -79,7 +82,7 @@ export function OperatorPickerPopover({
           {operators.map(op => {
             const isBanned = bannedNames.has(op.name);
             const isAssigned = assignedIds.has(op.id);
-            const dimmed = isBanned || isAssigned;
+            const dimmed = isBanPicker ? isBanned : (isBanned || isAssigned);
             return (
               <button
                 key={op.id}
@@ -88,7 +91,7 @@ export function OperatorPickerPopover({
                 }`}
                 onClick={() => !dimmed && handlePick(op)}
                 disabled={dimmed}
-                title={`${op.name}${isBanned ? ' (banned)' : isAssigned ? ' (assigned)' : ''}`}
+                title={`${op.name}${isBanned ? ` (${t('editor.operatorPicker.banned')})` : isAssigned ? ` (${t('editor.operatorPicker.assigned')})` : ''}`}
               >
                 {op.icon ? (
                   <div className="h-8 w-8 rounded-full overflow-hidden" style={{ backgroundColor: op.color }}>
@@ -107,7 +110,7 @@ export function OperatorPickerPopover({
             );
           })}
           {operators.length === 0 && (
-            <p className="col-span-6 text-xs text-muted-foreground text-center py-4">No operators found</p>
+            <p className="col-span-6 text-xs text-muted-foreground text-center py-4">{t('editor.operatorPicker.none')}</p>
           )}
         </div>
       </PopoverContent>

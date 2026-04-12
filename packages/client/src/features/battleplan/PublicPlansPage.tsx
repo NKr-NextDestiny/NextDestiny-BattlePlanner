@@ -10,8 +10,6 @@ import { ArrowLeft, Eye, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuthStore } from '@/stores/auth.store';
 import { toast } from 'sonner';
 
-const FILTER_TAGS = ['Aggressive', 'Default', 'Retake', 'Rush', 'Anchor', 'Roam', 'Site A', 'Site B'];
-
 interface PublicPlan {
   id: string; name: string; description: string | null; tags: string[]; isPublic: boolean;
   ownerId: string; gameId: string; mapId: string; createdAt: string;
@@ -23,6 +21,16 @@ export default function PublicPlansPage() {
   const queryClient = useQueryClient();
   const { t } = useTranslation();
   const [filterTag, setFilterTag] = useState<string>('');
+  const filterTags = [
+    { value: 'Aggressive', label: t('plans.suggestedTags.aggressive') },
+    { value: 'Default', label: t('plans.suggestedTags.default') },
+    { value: 'Retake', label: t('plans.suggestedTags.retake') },
+    { value: 'Rush', label: t('plans.suggestedTags.rush') },
+    { value: 'Anchor', label: t('plans.suggestedTags.anchor') },
+    { value: 'Roam', label: t('plans.suggestedTags.roam') },
+    { value: 'Site A', label: t('plans.suggestedTags.siteA') },
+    { value: 'Site B', label: t('plans.suggestedTags.siteB') },
+  ];
 
   const { data } = useQuery({
     queryKey: ['battleplans', 'public', filterTag],
@@ -48,8 +56,8 @@ export default function PublicPlansPage() {
       <div className="flex flex-wrap items-center gap-2 mb-6">
         <span className="text-sm text-muted-foreground">{t('plans.filter')}</span>
         <Badge variant={filterTag === '' ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag('')}>{t('plans.all')}</Badge>
-        {FILTER_TAGS.map((tag) => (
-          <Badge key={tag} variant={filterTag === tag ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag ? '' : tag)}>{tag}</Badge>
+        {filterTags.map((tag) => (
+          <Badge key={tag.value} variant={filterTag === tag.value ? 'default' : 'outline'} className="cursor-pointer" onClick={() => setFilterTag(filterTag === tag.value ? '' : tag.value)}>{tag.label}</Badge>
         ))}
       </div>
 

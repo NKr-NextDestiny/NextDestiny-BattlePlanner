@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '@/stores/auth.store';
 import { apiPost } from '@/lib/api';
 
 export default function DiscordCallbackPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -16,7 +18,7 @@ export default function DiscordCallbackPage() {
 
     const code = searchParams.get('code');
     if (!code) {
-      setError('No authorization code received from Discord.');
+      setError(t('auth.noCode'));
       return;
     }
 
@@ -26,21 +28,21 @@ export default function DiscordCallbackPage() {
         navigate('/teams', { replace: true });
       })
       .catch((err) => {
-        setError(err.message || 'Failed to authenticate with Discord.');
+        setError(err.message || t('auth.failed'));
       });
-  }, [searchParams, navigate, setAuth]);
+  }, [searchParams, navigate, setAuth, t]);
 
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="mx-auto max-w-md rounded-lg border border-border bg-card p-8 text-center">
-          <h2 className="mb-4 text-xl font-bold text-destructive">Login Failed</h2>
+          <h2 className="mb-4 text-xl font-bold text-destructive">{t('auth.loginFailed')}</h2>
           <p className="mb-6 text-muted-foreground">{error}</p>
           <a
             href="/"
             className="inline-block rounded-md bg-primary px-6 py-2 text-primary-foreground hover:opacity-90"
           >
-            Back to Home
+            {t('auth.backHome')}
           </a>
         </div>
       </div>
@@ -51,7 +53,7 @@ export default function DiscordCallbackPage() {
     <div className="flex min-h-screen items-center justify-center bg-background">
       <div className="text-center">
         <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-primary border-t-transparent" />
-        <p className="text-muted-foreground">Authenticating with Discord...</p>
+        <p className="text-muted-foreground">{t('auth.authenticating')}</p>
       </div>
     </div>
   );

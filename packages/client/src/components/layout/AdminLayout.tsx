@@ -33,7 +33,7 @@ export function AdminLayout() {
               </Link>
             </Button>
 
-            <h2 className="px-2 mb-2 text-lg font-semibold tracking-wide">Admin Panel</h2>
+            <h2 className="px-2 mb-2 text-lg font-semibold tracking-wide">{t('nav.adminPanel')}</h2>
 
             {navItems.map((item) => {
               const Icon = item.icon;

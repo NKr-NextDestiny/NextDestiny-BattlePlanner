@@ -1,11 +1,12 @@
 import type { Server, Socket } from 'socket.io';
-import { roomStates } from '../index.js';
+import { roomStates, getUserRole } from '../index.js';
 
 export function setupDrawingHandlers(io: Server, socket: Socket, userId: string) {
   // Broadcast only — persistence is handled by REST API to avoid duplicate inserts
   socket.on('draw:create', ({ battleplanFloorId, draws: drawItems }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
+    if (isViewer(connString, userId)) { socket.emit('error', { message: 'Viewers cannot draw' }); return; }
 
     socket.to(connString).emit('draw:created', { userId, battleplanFloorId, draws: drawItems });
   });
@@ -13,6 +14,7 @@ export function setupDrawingHandlers(io: Server, socket: Socket, userId: string)
   socket.on('draw:delete', ({ drawIds }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
+    if (isViewer(connString, userId)) { socket.emit('error', { message: 'Viewers cannot delete draws' }); return; }
 
     socket.to(connString).emit('draw:deleted', { userId, drawIds });
   });
@@ -20,6 +22,7 @@ export function setupDrawingHandlers(io: Server, socket: Socket, userId: string)
   socket.on('draw:update', ({ drawId, data }) => {
     const connString = getSocketRoom(socket);
     if (!connString) return;
+    if (isViewer(connString, userId)) { socket.emit('error', { message: 'Viewers cannot edit draws' }); return; }
 
     socket.to(connString).emit('draw:updated', { userId, drawId, data });
   });
@@ -40,4 +43,9 @@ function getSocketRoom(socket: Socket): string | null {
     }
   }
   return null;
+}
+
+function isViewer(connString: string, userId: string): boolean {
+  const state = roomStates.get(connString);
+  return state ? getUserRole(state, userId) === 'viewer' : false;
 }

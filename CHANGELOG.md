@@ -1,5 +1,25 @@
 # Changelog
 
+## v3.3.0 — 2026-04-12 — r6calls Feature Parity & .nds File Format
+
+- [feature] Arrow drawing tool — draw directional arrows with filled arrowhead
+- [feature] Ellipse drawing tool — draw circles and ovals with optional fill
+- [feature] Room permission system — room owner can toggle users between Editor and Viewer roles
+- [feature] User list popover — see all active room participants with role badges, toggle permissions
+- [feature] Room settings popover — share link with copy button, connection ID display, room deletion for owner
+- [feature] Operator ban UI — 2 ATK + 2 DEF ban slots in the operator strip, click to pick banned operators
+- [feature] Loadout popover — configure primary/secondary weapons and equipment per operator slot
+- [feature] Phase copy/duplicate — duplicate a phase with all its draws via copy button in phase dropdown
+- [feature] Floor clear — delete all your own drawings on the current floor with one click
+- [feature] Icon flip rendering — support for horizontal/vertical flip transforms on placed icons
+- [feature] .nds strat file format — custom binary format (NDS header + gzip-compressed JSON + CRC32 integrity check)
+- [feature] .nds export — download the entire strat (operators, bans, loadouts, phases, draws) as a single .nds file
+- [feature] .nds import — upload a .nds file to create a new battleplan with all data restored
+- [improvement] Viewer role enforcement — viewers cannot draw, erase, or modify any canvas content (server-side validation)
+- [improvement] Arrow and ellipse tools integrate with hit testing, bounding boxes, select/resize, undo/redo, and PNG/PDF export
+- [improvement] Ban picker reuses OperatorPickerPopover with dedicated ban mode (only dims already-banned operators)
+- [improvement] i18n — all new UI strings available in Deutsch, English, and Piratensprache
+
 ## v3.2.0 — 2026-04-09 — Editor-First Plan Creation & Filters
 
 - [improvement] Plans are now created from within the editor — "New Plan" button removed, plans are saved via the editor save dialog

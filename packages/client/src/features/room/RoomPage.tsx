@@ -18,6 +18,9 @@ import { EditorShell } from '@/features/editor/EditorShell';
 import { ChatDrawer } from '@/features/editor/ChatDrawer';
 import MapCanvas from '@/features/canvas/MapCanvas';
 import { exportFloorAsPng, exportAllFloorsAsPdf } from '@/features/canvas/utils/exportCanvas';
+import { exportNds, parseNds } from '@/features/canvas/utils/stratFile';
+import { APP_NAME, APP_VERSION } from '@nd-battleplanner/shared';
+import type { NdsPayload, NdsPhase, NdsOperator, NdsBan, NdsDraw } from '@nd-battleplanner/shared';
 import type { LaserLineData, CursorData } from '@/features/canvas/types';
 import { ArrowLeft, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,9 +32,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
-const SUGGESTED_TAGS = ['Aggressive', 'Default', 'Retake', 'Rush', 'Anchor', 'Roam', 'Site A', 'Site B'];
-
-console.log('[RoomPage] module loaded');
 let drawCounter = 0;
 
 export default function RoomPage() {
@@ -63,6 +63,16 @@ export default function RoomPage() {
   });
 
   const { t } = useTranslation();
+  const suggestedTags = useMemo(() => ([
+    { value: 'Aggressive', label: t('plans.suggestedTags.aggressive') },
+    { value: 'Default', label: t('plans.suggestedTags.default') },
+    { value: 'Retake', label: t('plans.suggestedTags.retake') },
+    { value: 'Rush', label: t('plans.suggestedTags.rush') },
+    { value: 'Anchor', label: t('plans.suggestedTags.anchor') },
+    { value: 'Roam', label: t('plans.suggestedTags.roam') },
+    { value: 'Site A', label: t('plans.suggestedTags.siteA') },
+    { value: 'Site B', label: t('plans.suggestedTags.siteB') },
+  ]), [t]);
   const gameSlug = planData?.game?.slug || 'r6-siege';
 
   // Save dialog state
@@ -174,14 +184,22 @@ export default function RoomPage() {
     socket.emit('room:join', { connectionString });
 
     // Room events
-    socket.on('room:joined', ({ color, users }: any) => {
+    socket.on('room:joined', ({ color, users, role }: any) => {
       roomStore.getState().setMyColor(color);
       roomStore.getState().setUsers(users);
+      roomStore.getState().setMyRole(role);
     });
     socket.on('room:user-joined', (u: any) => roomStore.getState().addUser(u));
     socket.on('room:user-left', ({ userId }: any) => {
       roomStore.getState().removeUser(userId);
       roomStore.getState().removeCursor(userId);
+    });
+    socket.on('room:permission-updated', ({ userId: uid, role }: any) => {
+      roomStore.getState().updateUserRole(uid, role);
+      // If it's me, update my role
+      if (uid === user?.id) {
+        roomStore.getState().setMyRole(role);
+      }
     });
 
     // Cursor events
@@ -421,15 +439,55 @@ export default function RoomPage() {
     apiPost(`/battleplans/${battleplanId}/phases/${phaseId}/delete`).then(() => refetchPlan());
   }, [battleplanId, refetchPlan]);
 
+  const handlePhaseCopy = useCallback((phaseId: string) => {
+    apiPost(`/battleplans/${battleplanId}/phases/${phaseId}/copy`).then(() => refetchPlan());
+  }, [battleplanId, refetchPlan]);
+
   const handlePhaseSwitch = useCallback((phaseId: string) => {
     getSocket()?.emit('strat:phase-switch', { phaseId });
   }, []);
+
+  // Ban update
+  const handleBanUpdate = useCallback((operatorName: string, side: 'attacker' | 'defender', slotIndex: number) => {
+    getSocket()?.emit('strat:ban-update', { battleplanId, operatorName, side, slotIndex });
+    apiPost(`/battleplans/${battleplanId}/bans`, { operatorName, side, slotIndex }).then((res: any) => {
+      const ban = res.data || res;
+      stratStore.getState().setBan(ban);
+    });
+  }, [battleplanId, stratStore]);
+
+  // Ban remove
+  const handleBanRemove = useCallback((banId: string) => {
+    getSocket()?.emit('strat:ban-remove', { banId });
+    apiPost(`/battleplans/${battleplanId}/bans/${banId}/delete`).then(() => {
+      stratStore.getState().removeBan(banId);
+    });
+  }, [battleplanId, stratStore]);
+
+  // Loadout update
+  const handleLoadoutUpdate = useCallback((slotId: string, loadout: Record<string, string | null>) => {
+    getSocket()?.emit('strat:loadout-update', { slotId, ...loadout });
+    apiPost(`/operator-slots/${slotId}/loadout`, loadout).then(() => {
+      stratStore.getState().updateOperatorSlot(slotId, loadout as any);
+    });
+  }, [stratStore]);
 
   // Config change
   const handleConfigChange = useCallback((config: any) => {
     getSocket()?.emit('strat:config-update', { battleplanId, ...config });
     apiPost(`/battleplans/${battleplanId}/strat-config`, config);
   }, [battleplanId]);
+
+  // Floor clear
+  const handleFloorClear = useCallback(() => {
+    if (!currentFloor?.id) return;
+    if (!confirm(t('editor.sidePanel.clearFloorConfirm'))) return;
+    apiPost(`/battleplan-floors/${currentFloor.id}/draws/clear`).then(() => {
+      setLocalDraws(prev => ({ ...prev, [currentFloor.id]: [] }));
+      canvasStore.getState().clearHistory();
+      refetchPlan();
+    });
+  }, [currentFloor?.id, canvasStore, refetchPlan, t]);
 
   // Export
   const handleExportPng = useCallback(() => {
@@ -444,6 +502,145 @@ export default function RoomPage() {
       currentFloor?.mapFloor?.name?.split(' ')[0] || 'strategy',
     );
   }, [sortedFloors, localDraws, currentFloor]);
+
+  // NDS export
+  const handleExportNds = useCallback(() => {
+    if (!planData) return;
+
+    const slots: NdsOperator[] = (planData.operatorSlots || []).map((s: any) => ({
+      slotNumber: s.slotNumber,
+      side: s.side,
+      operatorName: s.operator?.name ?? s.operatorName ?? null,
+      color: s.color || '#FF4444',
+      visible: s.visible !== false,
+      loadout: {
+        primaryWeapon: s.primaryWeapon ?? null,
+        secondaryWeapon: s.secondaryWeapon ?? null,
+        primaryEquipment: s.primaryEquipment ?? null,
+        secondaryEquipment: s.secondaryEquipment ?? null,
+      },
+    }));
+
+    const bans: NdsBan[] = (planData.bans || []).map((b: any) => ({
+      operatorName: b.operatorName,
+      side: b.side,
+      slotIndex: b.slotIndex,
+    }));
+
+    // Build floor index map: battleplanFloorId → floorIndex (sorted order)
+    const floorIndexMap = new Map<string, number>();
+    sortedFloors.forEach((f: any, i: number) => floorIndexMap.set(f.id, i));
+
+    // Build slot lookup: slotId → { slotNumber, side }
+    const slotLookup = new Map<string, { slotNumber: number; side: 'attacker' | 'defender' }>();
+    for (const s of planData.operatorSlots || []) {
+      slotLookup.set(s.id, { slotNumber: s.slotNumber, side: s.side });
+    }
+
+    const phases: NdsPhase[] = (planData.phases || []).map((phase: any) => {
+      // Collect all draws for this phase across all floors
+      const phaseDraws: NdsDraw[] = [];
+      for (const floor of sortedFloors) {
+        const floorIdx = floorIndexMap.get(floor.id) ?? 0;
+        for (const draw of (floor.draws || [])) {
+          if (draw.isDeleted) continue;
+          if (draw.phaseId !== phase.id) continue;
+          const slot = draw.operatorSlotId ? slotLookup.get(draw.operatorSlotId) : null;
+          phaseDraws.push({
+            type: draw.type,
+            floorIndex: floorIdx,
+            originX: draw.originX,
+            originY: draw.originY,
+            destinationX: draw.destinationX,
+            destinationY: draw.destinationY,
+            data: draw.data,
+            operatorSlotNumber: slot?.slotNumber ?? null,
+            operatorSide: slot?.side ?? null,
+          });
+        }
+      }
+      return {
+        index: phase.index,
+        name: phase.name,
+        description: phase.description ?? null,
+        draws: phaseDraws,
+      };
+    });
+
+    // Also collect draws without a phase
+    const orphanDraws: NdsDraw[] = [];
+    for (const floor of sortedFloors) {
+      const floorIdx = floorIndexMap.get(floor.id) ?? 0;
+      for (const draw of (floor.draws || [])) {
+        if (draw.isDeleted) continue;
+        if (draw.phaseId) continue; // belongs to a phase already
+        const slot = draw.operatorSlotId ? slotLookup.get(draw.operatorSlotId) : null;
+        orphanDraws.push({
+          type: draw.type,
+          floorIndex: floorIdx,
+          originX: draw.originX,
+          originY: draw.originY,
+          destinationX: draw.destinationX,
+          destinationY: draw.destinationY,
+          data: draw.data,
+          operatorSlotNumber: slot?.slotNumber ?? null,
+          operatorSide: slot?.side ?? null,
+        });
+      }
+    }
+    // If there are orphan draws and no phases include them, add a default phase
+    if (orphanDraws.length > 0) {
+      if (phases.length === 0) {
+        phases.push({ index: 0, name: 'Default', description: null, draws: orphanDraws });
+      } else {
+        // Attach to first phase
+        phases[0]!.draws = [...phases[0]!.draws, ...orphanDraws];
+      }
+    }
+
+    const payload: NdsPayload = {
+      version: '1.0',
+      app: APP_NAME,
+      appVersion: APP_VERSION,
+      exportedAt: new Date().toISOString(),
+      exportedBy: user?.username || 'Unknown',
+      game: { slug: planData.game?.slug || 'r6-siege', name: planData.game?.name || 'Rainbow Six Siege' },
+      map: { slug: planData.map?.slug || 'unknown', name: planData.map?.name || 'Unknown' },
+      strat: {
+        name: planData.name || 'Untitled',
+        description: planData.description ?? null,
+        notes: planData.notes ?? null,
+        tags: planData.tags || [],
+        config: {
+          side: planData.stratSide || 'Unknown',
+          mode: planData.stratMode || 'Unknown',
+          site: planData.stratSite || 'Unknown',
+        },
+        bans,
+        operators: slots,
+        phases,
+      },
+    };
+
+    const fileName = (planData.name || 'strat').replace(/[^a-zA-Z0-9_-]/g, '_');
+    exportNds(payload, fileName);
+  }, [planData, sortedFloors, user]);
+
+  // NDS import
+  const handleImportNds = useCallback(async (file: File) => {
+    try {
+      const payload = await parseNds(file);
+      const res = await apiPost<any>('/battleplans/import', payload);
+      const newPlan = res.data;
+      if (newPlan?.id) {
+        toast.success(t('editor.topNav.ndsImported'));
+        // Navigate to the newly created plan
+        window.location.href = `/${payload.game.slug}/plans/${newPlan.id}`;
+      }
+    } catch (err: any) {
+      toast.error(err.message || t('editor.topNav.ndsImportError'));
+    }
+  }, [t]);
 
   // Peer cursors as Map
   const cursors = useRoomStore((s) => s.cursors);
@@ -466,17 +663,21 @@ export default function RoomPage() {
     [sortedFloors],
   );
 
+  const myRole = useRoomStore((s) => s.myRole);
+  const isViewer = myRole === 'viewer';
+  const isRoomOwner = myRole === 'owner';
+
   const activePhaseId = useStratStore((s) => s.activePhaseId);
   const operatorSlots = useStratStore((s) => s.operatorSlots);
   const visibleSlotIds = useMemo(() => new Set(operatorSlots.filter(s => s.visible).map(s => s.id)), [operatorSlots]);
   const landscapeVisible = useStratStore((s) => s.landscapeVisible);
 
   if (!roomData || !planData) {
-    return <div className="flex items-center justify-center h-screen text-muted-foreground">Loading room...</div>;
+    return <div className="flex items-center justify-center h-screen text-muted-foreground">{t('viewer.loadingRoom')}</div>;
   }
 
   if (sortedFloors.length === 0) {
-    return <div className="flex items-center justify-center h-screen text-muted-foreground">No floors available</div>;
+    return <div className="flex items-center justify-center h-screen text-muted-foreground">{t('viewer.noFloors')}</div>;
   }
 
   return (
@@ -491,15 +692,24 @@ export default function RoomPage() {
         onRedo={handleRedo}
         onExportPng={handleExportPng}
         onExportPdf={handleExportPdf}
+        onExportNds={handleExportNds}
+        onImportNds={handleImportNds}
         onOperatorAssign={handleOperatorAssign}
+        onBanUpdate={handleBanUpdate}
+        onBanRemove={handleBanRemove}
         onVisibilityToggle={handleVisibilityToggle}
         onColorChange={handleColorChange}
+        onLoadoutUpdate={handleLoadoutUpdate}
         onPhaseCreate={handlePhaseCreate}
         onPhaseUpdate={handlePhaseUpdate}
         onPhaseDelete={handlePhaseDelete}
+        onPhaseCopy={handlePhaseCopy}
         onPhaseSwitch={handlePhaseSwitch}
         onConfigChange={handleConfigChange}
-        readOnly={false}
+        onFloorClear={handleFloorClear}
+        readOnly={isViewer}
+        connectionString={connectionString}
+        isRoomOwner={isRoomOwner}
         headerRight={
           <div className="flex items-center gap-1 ml-2">
             {isAuthenticated && (
@@ -522,7 +732,7 @@ export default function RoomPage() {
         <MapCanvas
           floor={currentFloor}
           floorIndex={currentFloorIndex}
-          readOnly={false}
+          readOnly={isViewer}
           onDrawCreate={handleDrawCreate}
           onDrawDelete={handleDrawDelete}
           onDrawUpdate={handleDrawUpdate}
@@ -573,8 +783,8 @@ export default function RoomPage() {
                 placeholder={t('plans.tagPlaceholder')}
               />
               <div className="flex flex-wrap gap-1">
-                {SUGGESTED_TAGS.filter(tg => !saveTags.includes(tg)).map((tag) => (
-                  <Badge key={tag} variant="outline" className="cursor-pointer text-xs" onClick={() => addSaveTag(tag)}>+ {tag}</Badge>
+                {suggestedTags.filter(tag => !saveTags.includes(tag.value)).map((tag) => (
+                  <Badge key={tag.value} variant="outline" className="cursor-pointer text-xs" onClick={() => addSaveTag(tag.value)}>+ {tag.label}</Badge>
                 ))}
               </div>
             </div>

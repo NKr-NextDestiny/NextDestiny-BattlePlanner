@@ -4,6 +4,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useRoomStore } from '@/stores/room.store';
 import { useAuthStore } from '@/stores/auth.store';
 import { getSocket } from '@/lib/socket';
@@ -12,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { MessageSquare, X, Send } from 'lucide-react';
 
 export function ChatDrawer() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const { chatMessages, unreadCount, resetUnread } = useRoomStore();
   const isAuthenticated = useAuthStore((s) => !!s.user);
@@ -38,7 +40,7 @@ export function ChatDrawer() {
       <button
         onClick={() => setOpen(!open)}
         className="absolute bottom-3 left-3 z-20 flex items-center justify-center h-8 w-8 rounded-full bg-background/90 border hover:bg-muted transition-colors"
-        title="Chat"
+        title={t('editor.chat.title')}
       >
         <MessageSquare className="h-4 w-4" />
         {!open && unreadCount > 0 && (
@@ -52,7 +54,7 @@ export function ChatDrawer() {
       {open && (
         <div className="absolute bottom-12 left-3 z-20 w-72 h-80 bg-background/95 backdrop-blur border rounded-lg flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-3 py-1.5 border-b">
-            <span className="text-xs font-medium">Chat</span>
+            <span className="text-xs font-medium">{t('editor.chat.title')}</span>
             <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={() => setOpen(false)}>
               <X className="h-3 w-3" />
             </Button>
@@ -66,7 +68,7 @@ export function ChatDrawer() {
               </div>
             ))}
             {chatMessages.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-4">No messages yet</p>
+              <p className="text-xs text-muted-foreground text-center py-4">{t('editor.chat.noMessages')}</p>
             )}
           </div>
 
@@ -75,7 +77,7 @@ export function ChatDrawer() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder={isAuthenticated ? 'Type a message...' : 'Login to chat'}
+              placeholder={isAuthenticated ? t('editor.chat.placeholder') : t('editor.chat.loginPlaceholder')}
               disabled={!isAuthenticated}
               className="h-6 text-xs flex-1"
               maxLength={500}

@@ -4,16 +4,19 @@
  */
 
 import { Tool, ZOOM_STEP } from '@nd-battleplanner/shared';
+import { useTranslation } from 'react-i18next';
 import { useCanvasStore } from '@/stores/canvas.store';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import {
   Undo2, Redo2, Camera, FileDown, ZoomIn, ZoomOut, Maximize,
-  Move, Crosshair, Presentation,
+  Move, Crosshair, Presentation, Download, Upload,
 } from 'lucide-react';
 import { PhaseDropdown } from './PhaseDropdown';
 import { StratConfigPopover } from './StratConfigPopover';
 import { LayerTogglePopover } from './LayerTogglePopover';
+import { UserListPopover } from './UserListPopover';
+import { RoomSettingsPopover } from './RoomSettingsPopover';
 
 interface TopNavBarProps {
   mapName?: string;
@@ -24,21 +27,27 @@ interface TopNavBarProps {
   onRedo?: () => void;
   onExportPng?: () => void;
   onExportPdf?: () => void;
+  onExportNds?: () => void;
+  onImportNds?: (file: File) => void;
   onPhaseCreate?: (name: string) => void;
   onPhaseUpdate?: (phaseId: string, name: string) => void;
   onPhaseDelete?: (phaseId: string) => void;
+  onPhaseCopy?: (phaseId: string) => void;
   onPhaseSwitch?: (phaseId: string) => void;
   onConfigChange?: (config: any) => void;
+  connectionString?: string;
+  isRoomOwner?: boolean;
   headerRight?: React.ReactNode;
   readOnly?: boolean;
 }
 
 export function TopNavBar({
   mapName, floors, currentFloorIndex, onFloorChange,
-  onUndo, onRedo, onExportPng, onExportPdf,
-  onPhaseCreate, onPhaseUpdate, onPhaseDelete, onPhaseSwitch,
-  onConfigChange, headerRight, readOnly,
+  onUndo, onRedo, onExportPng, onExportPdf, onExportNds, onImportNds,
+  onPhaseCreate, onPhaseUpdate, onPhaseDelete, onPhaseCopy, onPhaseSwitch,
+  onConfigChange, connectionString, isRoomOwner, headerRight, readOnly,
 }: TopNavBarProps) {
+  const { t } = useTranslation();
   const scale = useCanvasStore(s => s.scale);
   const zoomTo = useCanvasStore(s => s.zoomTo);
   const resetViewport = useCanvasStore(s => s.resetViewport);
@@ -91,6 +100,7 @@ export function TopNavBar({
             onPhaseCreate={onPhaseCreate}
             onPhaseUpdate={onPhaseUpdate}
             onPhaseDelete={onPhaseDelete}
+            onPhaseCopy={onPhaseCopy}
             onPhaseSwitch={onPhaseSwitch}
             readOnly={readOnly}
           />
@@ -112,7 +122,7 @@ export function TopNavBar({
                 <Move className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">Pan</TooltipContent>
+            <TooltipContent className="text-xs">{t('editor.topNav.pan')}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -120,7 +130,7 @@ export function TopNavBar({
                 <Crosshair className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">Laser Dot</TooltipContent>
+            <TooltipContent className="text-xs">{t('editor.topNav.laserDot')}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -128,7 +138,7 @@ export function TopNavBar({
                 <Presentation className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">Laser Line</TooltipContent>
+            <TooltipContent className="text-xs">{t('editor.topNav.laserLine')}</TooltipContent>
           </Tooltip>
 
           <div className="h-4 w-px bg-border mx-1" />
@@ -144,7 +154,7 @@ export function TopNavBar({
                 <Undo2 className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">Undo (Ctrl+Z)</TooltipContent>
+            <TooltipContent className="text-xs">{t('editor.topNav.undo')}</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -152,7 +162,7 @@ export function TopNavBar({
                 <Redo2 className="h-3 w-3" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent className="text-xs">Redo (Ctrl+Y)</TooltipContent>
+            <TooltipContent className="text-xs">{t('editor.topNav.redo')}</TooltipContent>
           </Tooltip>
         </>
       )}
@@ -164,7 +174,7 @@ export function TopNavBar({
             <Camera className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="text-xs">Export PNG</TooltipContent>
+        <TooltipContent className="text-xs">{t('editor.topNav.exportPng')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -172,8 +182,37 @@ export function TopNavBar({
             <FileDown className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="text-xs">Export PDF</TooltipContent>
+        <TooltipContent className="text-xs">{t('editor.topNav.exportPdf')}</TooltipContent>
       </Tooltip>
+
+      {/* NDS Export/Import */}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={onExportNds}>
+            <Download className="h-3 w-3" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent className="text-xs">{t('editor.topNav.exportNds')}</TooltipContent>
+      </Tooltip>
+      {!readOnly && onImportNds && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0 relative" onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.nds';
+              input.onchange = () => {
+                const file = input.files?.[0];
+                if (file) onImportNds(file);
+              };
+              input.click();
+            }}>
+              <Upload className="h-3 w-3" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent className="text-xs">{t('editor.topNav.importNds')}</TooltipContent>
+        </Tooltip>
+      )}
 
       <div className="h-4 w-px bg-border mx-1" />
 
@@ -184,7 +223,7 @@ export function TopNavBar({
             <ZoomIn className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="text-xs">Zoom In</TooltipContent>
+        <TooltipContent className="text-xs">{t('editor.topNav.zoomIn')}</TooltipContent>
       </Tooltip>
       <span className="text-[10px] text-muted-foreground w-8 text-center">{Math.round(scale * 100)}%</span>
       <Tooltip>
@@ -193,7 +232,7 @@ export function TopNavBar({
             <ZoomOut className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="text-xs">Zoom Out</TooltipContent>
+        <TooltipContent className="text-xs">{t('editor.topNav.zoomOut')}</TooltipContent>
       </Tooltip>
       <Tooltip>
         <TooltipTrigger asChild>
@@ -201,8 +240,17 @@ export function TopNavBar({
             <Maximize className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent className="text-xs">Fit to Screen</TooltipContent>
+        <TooltipContent className="text-xs">{t('editor.topNav.fitToScreen')}</TooltipContent>
       </Tooltip>
+
+      {/* Room controls */}
+      {connectionString && (
+        <>
+          <div className="h-4 w-px bg-border mx-1" />
+          <UserListPopover isRoomOwner={isRoomOwner ?? false} />
+          <RoomSettingsPopover connectionString={connectionString} isRoomOwner={isRoomOwner ?? false} />
+        </>
+      )}
 
       {/* Extra header content */}
       {headerRight}

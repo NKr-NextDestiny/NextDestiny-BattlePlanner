@@ -1,4 +1,4 @@
-# CLAUDE.md — NextDestiny BattlePlanner Project Guide
+# AGENTS.md — NextDestiny BattlePlanner Project Guide
 
 This file provides context for AI assistants working on the NextDestiny BattlePlanner codebase.
 
@@ -9,7 +9,7 @@ This file provides context for AI assistants working on the NextDestiny BattlePl
 NextDestiny BattlePlanner is a team-scoped, real-time collaborative strategy planning tool for Rainbow Six Siege, built for the NKr-NextDestiny Discord community. Users authenticate via Discord OAuth2, select their team, and collaborate on battle plans within team-isolated spaces. Based on TactiHub.
 
 **Author**: Niklas Kronig
-**Version**: 3.3.0
+**Version**: 1.0.0
 **Repo**: https://github.com/NKr-NextDestiny/NextDestiny-BattlePlanner
 **Based on**: [TactiHub](https://github.com/niklask52t/TactiHub)
 
@@ -55,7 +55,7 @@ packages/
 
 ### Database Schema
 - `draws` table uses a JSONB `data` column instead of polymorphic tables — flexible, no joins needed
-- `draw_type` enum: path, line, arrow, rectangle, ellipse, text, icon
+- `draw_type` enum: path, line, rectangle, text, icon
 - `settings` table is key-value for app-wide config (registration_enabled, etc.)
 - `operator_gadgets` is a many-to-many junction table (composite PK)
 - `votes` has unique constraint on (user_id, battleplan_id)
@@ -156,23 +156,13 @@ packages/
 - Real-time sync: `operator-slot:update/updated` (includes `side`), `attacker-lineup:create/created` socket events
 - BattleplanViewer: read-only lineup display with operator avatar circles (blue border for DEF, orange for ATK)
 
-### Export (PNG + PDF + .nds)
+### Export (PNG + PDF)
 - Export utilities in `packages/client/src/features/canvas/utils/exportCanvas.ts`
 - **PNG**: `exportFloorAsPng()` — composites current floor background + all draws onto offscreen canvas, triggers download
 - **PDF**: `exportAllFloorsAsPdf()` — iterates all floors, composites each onto offscreen canvas, builds multi-page landscape PDF with floor name headers via jsPDF
-- **NDS**: `exportNds()` / `parseNds()` in `packages/client/src/features/canvas/utils/stratFile.ts` — custom binary strat file format
-- Export buttons in TopNavBar (Camera = PNG, FileDown = PDF, Download = .nds export, Upload = .nds import)
-- Available to all authenticated users, uses `renderDraw()` exported from rendering module
-- Client dependencies: `jspdf` (PDF), native `CompressionStream`/`DecompressionStream` (.nds gzip)
-
-### .nds Strat File Format
-- Custom binary format for full strat export/import: operators, bans, loadouts, phases, draws
-- Binary header: `[4B] Magic "NDS\x01"` `[4B] Flags (bit 0: compressed)` `[4B] Payload size` `[4B] CRC32`
-- Payload: gzip-compressed JSON (`NdsPayload` type in `packages/shared/src/types/nds.ts`)
-- CRC32 checksum validates payload integrity on import
-- Import endpoint: `POST /api/battleplans/import` — resolves game/map by slug, creates full battleplan with floors, slots, bans, phases, draws
-- Draws reference operators by `slotNumber + side` (not UUID) for portability across different databases
-- Uses browser-native `CompressionStream`/`DecompressionStream` API — no external compression dependency
+- Export buttons in CanvasView bottom-right area (Camera icon = PNG, FileDown icon = PDF)
+- Available to all users (authenticated and guests), uses `renderDraw()` exported from CanvasLayer
+- Client dependency: `jspdf`
 
 ### Select, Resize & Rotate Tool
 - Tool.Select in toolbar allows selecting, dragging, resizing, and rotating own draws
@@ -183,7 +173,7 @@ packages/
 - Release: persists via POST /api/draws/:id + socket broadcast
 - `getDrawBounds()` helper in CanvasLayer computes axis-aligned bounding box for all draw types
 - `selectedDrawId`, `interactionMode` ('none'|'move'|'resize'|'rotate'), `activeResizeHandle` in Zustand canvas store
-- **Auto-switch**: After completing a Line, Arrow, Rectangle, or Ellipse drawing, tool automatically switches to Select and auto-selects the new draw. Pen and Text tools stay active. Icon tool stays active for multi-placement.
+- **Auto-switch**: After completing a Line or Rectangle drawing, tool automatically switches to Select and auto-selects the new draw. Pen and Text tools stay active. Icon tool stays active for multi-placement.
 
 ### Ownership-Based Draw Interaction
 - Eraser and Select tools only interact with draws where `draw.userId === currentUserId`
@@ -210,30 +200,6 @@ packages/
 - Suggested tags: Aggressive, Default, Retake, Rush, Anchor, Roam, Site A, Site B
 - Copy endpoint preserves tags
 
-### Room Permissions (Editor/Viewer)
-- `RoomUserRole` type: `'owner' | 'editor' | 'viewer'` in `packages/shared/src/types/room.ts`
-- Server tracks permissions in `RoomState.permissions` Map (in-memory, not DB-persisted)
-- Room creator is `owner`, all others default to `editor`
-- Owner can toggle others between `editor` and `viewer` via `room:permission-update` socket event
-- Viewers cannot draw, erase, or modify canvas content — server-side validation in `draw:create`, `draw:delete`, `draw:update` handlers
-- Client derives `readOnly` from `myRole === 'viewer'` and passes to EditorShell/MapCanvas
-- `UserListPopover` in TopNavBar shows active users with role badges and permission toggle (owner only)
-- `RoomSettingsPopover` in TopNavBar shows share link, connection ID, and room deletion (owner only)
-
-### Operator Bans UI
-- 2 ATK + 2 DEF ban slots rendered by `BanStrip` component in `OperatorStrip`
-- Empty slots show dashed border with Ban icon, click opens `OperatorPickerPopover` in ban picker mode (`isBanPicker` prop)
-- Ban picker only dims already-banned operators (not assigned ones)
-- Filled slots show 3-letter operator abbreviation with red styling, hover reveals X to remove
-- REST: `POST /battleplans/:id/bans` (create/upsert), `POST /battleplans/:id/bans/:banId/delete` (remove)
-- Socket: `strat:ban-update`, `strat:ban-remove` → `strat:ban-updated`, `strat:ban-removed`
-
-### Operator Loadout UI
-- `LoadoutPopover` component opens per operator slot (when operator is assigned) from SidePanel
-- 4 text inputs: primaryWeapon, secondaryWeapon, primaryEquipment, secondaryEquipment
-- Save button calls `POST /operator-slots/:id/loadout` + emits `strat:loadout-update` via socket
-- `operator_slots` table has `primary_weapon`, `secondary_weapon`, `primary_equipment`, `secondary_equipment` varchar columns
-
 ### In-Room Chat
 - Ephemeral (not persisted to DB) text messaging between room participants
 - `chat:message` client→server event, `chat:messaged` server→client event
@@ -245,8 +211,8 @@ packages/
 - Chat state (chatMessages, unreadCount) in room Zustand store, cleared on room leave
 
 ### Socket.IO Events
-- Client emits: `room:join`, `room:leave`, `room:permission-update`, `cursor:move`, `draw:create`, `draw:delete`, `draw:update`, `operator-slot:update`, `battleplan:change`, `laser:line`, `chat:message`, `attacker-lineup:create`, `strat:ban-update`, `strat:ban-remove`, `strat:loadout-update`, `strat:visibility-toggle`, `strat:color-update`, `strat:phase-create`, `strat:phase-update`, `strat:phase-delete`, `strat:phase-copy`, `strat:phase-switch`, `strat:config-update`
-- Server emits: `room:joined`, `room:user-joined`, `room:user-left`, `room:permission-updated`, `cursor:moved`, `draw:created`, `draw:deleted`, `draw:updated`, `operator-slot:updated`, `battleplan:changed`, `laser:line`, `chat:messaged`, `attacker-lineup:created`, `strat:ban-updated`, `strat:ban-removed`, `strat:loadout-updated`, `strat:visibility-toggled`, `strat:color-updated`, `strat:phase-created`, `strat:phase-updated`, `strat:phase-deleted`, `strat:phase-switched`, `strat:config-updated`, `strat:slot-updated`
+- Client emits: `room:join`, `room:leave`, `cursor:move`, `draw:create`, `draw:delete`, `draw:update`, `operator-slot:update`, `battleplan:change`, `laser:line`, `chat:message`, `attacker-lineup:create`
+- Server emits: `room:joined`, `room:user-joined`, `room:user-left`, `cursor:moved`, `draw:created`, `draw:deleted`, `draw:updated`, `operator-slot:updated`, `battleplan:changed`, `laser:line`, `chat:messaged`, `attacker-lineup:created`
 - `operator-slot:updated` includes `side` field ('defender' | 'attacker')
 - `cursor:move` now includes optional `isLaser` flag for laser dot rendering
 - `laser:line` broadcasts `{ userId, points, color }` — no DB persistence
@@ -279,7 +245,7 @@ packages/
 ### Shared
 - Types in `src/types/` (auth, game, battleplan, room, admin, api, canvas)
 - Constants in `src/constants/index.ts` (includes `APP_VERSION`)
-- `Tool` enum is in `src/types/canvas.ts` (Pen, Line, Arrow, Rectangle, Ellipse, Text, Icon, Eraser, Select, Pan, LaserDot, LaserLine)
+- `Tool` enum is in `src/types/canvas.ts` (Pen, Line, Rectangle, Text, Icon, Eraser, Select, Pan, LaserDot, LaserLine)
 - Barrel export from `src/index.ts` (uses `export type *` for type-only re-exports)
 
 ---
@@ -410,13 +376,10 @@ GET /:id/members, POST /:id/members (add), POST /:id/members/:memberId/delete (r
 GET games, games/:slug, games/:slug/maps/:mapSlug, games/:slug/operators, games/:slug/gadgets
 
 ### Battleplans: `/api/battleplans/`
-GET (public, paginated), GET mine, POST create, GET/:id (optionalAuth), POST/:id (update), POST/:id/delete, POST/:id/copy, POST/:id/vote, POST/:id/bans, POST/:id/bans/:banId/delete, POST/:id/phases, POST/:id/phases/:phaseId/update, POST/:id/phases/:phaseId/delete, POST/:id/phases/:phaseId/copy, POST/:id/strat-config, POST/:id/attacker-lineup, POST/:id/attacker-lineup/delete, POST/import (.nds JSON payload)
-
-### Operator Slots: `/api/operator-slots/`
-POST/:id (assign operator), POST/:id/loadout, POST/:id/visibility, POST/:id/color
+GET (public, paginated), GET mine, POST create, GET/:id (optionalAuth), POST/:id (update), POST/:id/delete, POST/:id/copy, POST/:id/vote
 
 ### Draws: `/api/`
-POST battleplan-floors/:id/draws (batch), POST battleplan-floors/:id/draws/clear (floor clear), POST draws/:id (update), POST draws/:id/delete (soft delete)
+POST battleplan-floors/:id/draws (batch), POST draws/:id (update), POST draws/:id/delete (soft delete)
 
 ### Rooms: `/api/rooms/`
 POST create (supports gameId+mapId for auto-battleplan), GET/:connString (optionalAuth), POST/:connString/battleplan (update), POST/:connString/delete

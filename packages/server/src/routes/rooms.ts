@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { db } from '../db/connection.js';
-import { rooms, battleplans, battleplanFloors, mapFloors, operatorSlots } from '../db/schema/index.js';
+import { rooms, battleplans, battleplanFloors, battleplanPhases, mapFloors, operatorSlots } from '../db/schema/index.js';
 import { requireAuth, requireTeamAccess } from '../middleware/auth.js';
 import { MAX_OPERATOR_SLOTS } from '@nd-battleplanner/shared';
 
@@ -42,7 +42,18 @@ export default async function roomsRoutes(fastify: FastifyInstance) {
           slotNumber: i,
           side: 'defender',
         });
+        await db.insert(operatorSlots).values({
+          battleplanId: plan.id,
+          slotNumber: i,
+          side: 'attacker',
+        });
       }
+
+      await db.insert(battleplanPhases).values({
+        battleplanId: plan.id,
+        index: 0,
+        name: 'Action Phase',
+      });
 
       battleplanId = plan.id;
     }

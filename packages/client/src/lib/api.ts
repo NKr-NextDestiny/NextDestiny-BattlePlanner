@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.store';
+import i18n from '@/lib/i18n';
 
 const API_BASE = '/api';
 
@@ -56,13 +57,13 @@ export async function apiFetch<T>(
       res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' });
     } else {
       useAuthStore.getState().logout();
-      throw new Error('Session expired');
+      throw new Error(i18n.t('errors.sessionExpired'));
     }
   }
 
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ message: `Request failed (${res.status})` }));
-    throw new Error(error.message || `HTTP ${res.status}`);
+    const error = await res.json().catch(() => ({ message: i18n.t('errors.requestFailed', { status: res.status }) }));
+    throw new Error(error.message || i18n.t('errors.httpStatus', { status: res.status }));
   }
 
   return res.json();

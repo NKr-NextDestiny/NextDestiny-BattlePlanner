@@ -80,7 +80,21 @@
     "mapLabel": "Map",
     "creating": "Creating...",
     "createRoom": "Create Room",
-    "back": "Back"
+    "back": "Back",
+    "activeUsers": "Active Users",
+    "settings": "Room Settings",
+    "shareLink": "Share Link",
+    "connectionId": "Connection ID",
+    "deleteRoom": "Delete Room",
+    "deleteConfirm": "Are you sure you want to delete this room? This cannot be undone.",
+    "deleted": "Room deleted",
+    "makeEditor": "Editor",
+    "makeViewer": "Viewer",
+    "roles": {
+      "owner": "Owner",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    }
   },
   "account": {
     "title": "Account Settings",

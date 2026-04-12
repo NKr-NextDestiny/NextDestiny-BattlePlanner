@@ -18,6 +18,7 @@ export function hitTestDraw(draw: any, px: number, py: number): boolean {
       return testPath(d.points, px, py, d.lineWidth);
 
     case 'line':
+    case 'arrow':
       return testLine(
         draw.originX, draw.originY,
         draw.destinationX ?? draw.originX,
@@ -25,6 +26,9 @@ export function hitTestDraw(draw: any, px: number, py: number): boolean {
         px, py,
         d.lineWidth,
       );
+
+    case 'ellipse':
+      return testEllipse(draw, d, px, py);
 
     case 'rectangle':
       return testRectangle(draw, d, px, py);
@@ -106,6 +110,27 @@ function testIcon(
 ): boolean {
   const half = ((size ?? 14) + 4) / 2; // include background padding
   return px >= ox - half && px <= ox + half && py >= oy - half && py <= oy + half;
+}
+
+function testEllipse(draw: any, d: any, px: number, py: number): boolean {
+  const cx = draw.originX;
+  const cy = draw.originY;
+  const rx = d.radiusX ?? Math.abs((draw.destinationX ?? cx) - cx);
+  const ry = d.radiusY ?? Math.abs((draw.destinationY ?? cy) - cy);
+
+  if (rx === 0 && ry === 0) return false;
+
+  // Normalized distance from center: (dx/rx)^2 + (dy/ry)^2
+  const norm = ((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2;
+
+  // Filled: inside the ellipse
+  if (d.filled) return norm <= 1;
+
+  // Stroked: near the ellipse edge (tolerance ring)
+  const tol = Math.max(BASE_TOLERANCE, ((d.lineWidth ?? 3) / 2) + 4);
+  const avgRadius = (rx + ry) / 2;
+  const normTol = tol / avgRadius;
+  return Math.abs(norm - 1) < normTol;
 }
 
 /**
