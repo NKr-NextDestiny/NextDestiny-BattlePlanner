@@ -148,10 +148,9 @@ elif [ "$MODE" = "update" ]; then
   fi
 
 elif [ "$MODE" = "setup" ]; then
-  require_node_24
   echo "=== FIRST-TIME SETUP (branch: $BRANCH) ==="
-  echo "This will start Docker services, install dependencies, apply existing"
-  echo "database migrations, seed the database, and build the project."
+  echo "This will build the full Docker stack, apply existing database"
+  echo "migrations, seed the database, and start the app."
   echo "Make sure your .env file is already configured before continuing."
   echo ""
 
@@ -162,7 +161,7 @@ elif [ "$MODE" = "setup" ]; then
 
   echo ""
   echo "--- Starting PostgreSQL + Redis ---"
-  docker compose up -d
+  docker compose up -d postgres redis
 
   echo ""
   echo "--- Waiting for PostgreSQL to be ready ---"
@@ -172,33 +171,24 @@ elif [ "$MODE" = "setup" ]; then
   echo "PostgreSQL is ready."
 
   echo ""
-  echo "--- Installing dependencies ---"
-  pnpm install
-
-  echo ""
-  echo "--- Building shared package ---"
-  pnpm --filter @nd-battleplanner/shared build
+  echo "--- Building Docker images ---"
+  docker compose build app web migrate seed
 
   echo ""
   echo "--- Applying database migrations ---"
-  pnpm db:migrate
+  docker compose run --rm migrate
 
   echo ""
   echo "--- Seeding database ---"
-  pnpm db:seed
+  docker compose run --rm seed
 
   echo ""
-  echo "--- Building all packages ---"
-  pnpm build
+  echo "--- Starting app stack ---"
+  docker compose up -d app web
 
   echo ""
   echo "=== First-time setup complete! ==="
-
-  if ask_yn "Start dev server now?"; then
-    pnpm dev
-  else
-    echo "Run 'pnpm dev' to start."
-  fi
+  echo "Open the app in your browser on port 80."
 
 elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
   require_node_24
@@ -277,13 +267,10 @@ elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
   fi
 
 elif [ "$MODE" = "prod" ]; then
-  require_node_24
   echo "=== PRODUCTION UPDATE (branch: $BRANCH) ==="
-  echo "This will pull the latest changes from '$BRANCH', install dependencies,"
-  echo "apply database migrations, and rebuild the project."
+  echo "This will pull the latest changes from '$BRANCH', rebuild the Docker"
+  echo "images, apply database migrations, and restart the app containers."
   echo "Your existing data will be preserved."
-  echo ""
-  echo "All build operations run as the 'battleplanner' user."
   echo ""
 
   if ! ask_yn "Continue with production update?"; then
@@ -292,57 +279,34 @@ elif [ "$MODE" = "prod" ]; then
   fi
 
   echo ""
-  echo "--- Stopping BattlePlanner service ---"
-  sudo systemctl stop battleplanner 2>/dev/null || true
-
-  echo ""
-  echo "--- Fixing file ownership ---"
-  if id "battleplanner" &>/dev/null; then
-    sudo chown -R battleplanner:battleplanner "$SCRIPT_DIR"
-    echo "Ownership set to battleplanner:battleplanner"
-  fi
-
-  echo ""
   echo "--- Pulling latest $BRANCH branch ---"
-  run_as_bp git checkout "$BRANCH"
-  run_as_bp git pull origin "$BRANCH"
+  git checkout "$BRANCH"
+  git pull origin "$BRANCH"
 
   echo ""
-  echo "--- Installing dependencies ---"
-  run_as_bp pnpm install
+  echo "--- Starting PostgreSQL + Redis ---"
+  docker compose up -d postgres redis
 
   echo ""
-  echo "--- Building shared package ---"
-  run_as_bp pnpm --filter @nd-battleplanner/shared build
+  echo "--- Building Docker images ---"
+  docker compose build app web migrate seed
 
   echo ""
   echo "--- Applying database migrations ---"
-  run_as_bp pnpm db:migrate
+  docker compose run --rm migrate
 
   echo ""
-  echo "--- Building all packages ---"
-  run_as_bp pnpm build
+  echo "--- Restarting app stack ---"
+  docker compose up -d app web
 
   echo ""
   echo "=== Production update complete! ==="
-
-  if ask_yn "Restart BattlePlanner service now?"; then
-    sudo systemctl restart battleplanner
-    sleep 2
-    echo ""
-    echo "--- Service status ---"
-    sudo systemctl status battleplanner --no-pager -l
-  else
-    echo "Run 'sudo systemctl restart battleplanner' to apply changes."
-  fi
+  docker compose ps
 
 elif [ "$MODE" = "prod-reset" ]; then
-  require_node_24
   echo "=== PRODUCTION RESET ==="
   echo "This will DELETE all database data (users, battleplans, everything)"
-  echo "and rebuild the entire project from scratch in production mode."
-  echo ""
-  echo "All build operations run as the 'battleplanner' user."
+  echo "and rebuild the Dockerized stack from scratch."
   echo ""
 
   if ! ask_yn "Are you sure?"; then
@@ -373,24 +337,9 @@ elif [ "$MODE" = "prod-reset" ]; then
   done
 
   echo ""
-  echo "--- Stopping BattlePlanner service ---"
-  sudo systemctl stop battleplanner 2>/dev/null || true
-
-  echo ""
-  echo "--- Fixing file ownership ---"
-  if id "battleplanner" &>/dev/null; then
-    sudo chown -R battleplanner:battleplanner "$SCRIPT_DIR"
-    echo "Ownership set to battleplanner:battleplanner"
-  fi
-
-  echo ""
   echo "--- Pulling latest $RESET_BRANCH branch ---"
-  run_as_bp git checkout "$RESET_BRANCH"
-  run_as_bp git pull origin "$RESET_BRANCH"
-
-  echo ""
-  echo "--- Installing dependencies ---"
-  run_as_bp pnpm install
+  git checkout "$RESET_BRANCH"
+  git pull origin "$RESET_BRANCH"
 
   echo ""
   echo "--- Stopping containers & deleting volumes ---"
@@ -402,37 +351,28 @@ elif [ "$MODE" = "prod-reset" ]; then
 
   echo ""
   echo "--- Waiting for PostgreSQL to be ready ---"
-  until docker compose exec -T postgres pg_isready -U postgres > /dev/null 2>&1; do
+  until docker compose exec -T postgres pg_isready -U battleplanner > /dev/null 2>&1; do
     sleep 1
   done
   echo "PostgreSQL is ready."
 
   echo ""
-  echo "--- Building shared package ---"
-  run_as_bp pnpm --filter @nd-battleplanner/shared build
+  echo "--- Building Docker images ---"
+  docker compose build app web migrate seed
 
   echo ""
   echo "--- Applying migrations ---"
-  run_as_bp pnpm db:migrate
+  docker compose run --rm migrate
 
   echo ""
   echo "--- Seeding database ---"
-  run_as_bp pnpm db:seed
+  docker compose run --rm seed
 
   echo ""
-  echo "--- Building all packages ---"
-  run_as_bp pnpm build
+  echo "--- Starting app stack ---"
+  docker compose up -d app web
 
   echo ""
   echo "=== Production reset complete! ==="
-
-  if ask_yn "Restart BattlePlanner service now?"; then
-    sudo systemctl restart battleplanner
-    sleep 2
-    echo ""
-    echo "--- Service status ---"
-    sudo systemctl status battleplanner --no-pager -l
-  else
-    echo "Run 'sudo systemctl restart battleplanner' to apply changes."
-  fi
+  docker compose ps
 fi

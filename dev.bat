@@ -5,7 +5,7 @@ echo   NextDestiny BattlePlanner - Dev Setup
 echo ============================================
 echo.
 
-echo [1/6] Starting Docker containers...
+echo [1/6] Starting Docker services (postgres + redis)...
 docker info >nul 2>&1
 if %errorlevel% neq 0 (
     echo.
@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
-docker compose up -d
+docker compose up -d postgres redis
 echo       Done (%errorlevel%)
 echo.
 

@@ -9,6 +9,11 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U battleplanner -d battleplanner"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:7-alpine
@@ -16,7 +21,85 @@ services:
       - "6379:6379"
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://battleplanner:battleplanner@postgres:5432/battleplanner
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - uploads:/app/packages/server/uploads
+    expose:
+      - "3001"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://battleplanner:battleplanner@postgres:5432/battleplanner
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-lc", "cd /app && pnpm db:migrate"]
+    profiles: ["tools"]
+
+  seed:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://battleplanner:battleplanner@postgres:5432/battleplanner
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+      PORT: 3001
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-lc", "cd /app && pnpm db:seed"]
+    profiles: ["tools"]
 
 volumes:
   pgdata:
   redisdata:
+  uploads:

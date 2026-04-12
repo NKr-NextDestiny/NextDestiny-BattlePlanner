@@ -2,7 +2,7 @@
 
 **Team-scoped collaborative tactical strategy planning for Rainbow Six Siege.**
 
-Built for the NKr-NextDestiny Discord community. Authenticate via Discord, select your team, and plan strategies together in real-time. All content is isolated per team.
+Built for the NKr-NextDestiny Discord community. Authenticate via Discord, select your team, and plan strategies together in real time. All content is isolated per team.
 
 ![Version](https://img.shields.io/badge/version-3.4.0-red)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)
@@ -12,61 +12,62 @@ Built for the NKr-NextDestiny Discord community. Authenticate via Discord, selec
 
 ## Features
 
-- **Discord OAuth2 Only** — Login exclusively via Discord. No email/password, no guests.
-- **Team Isolation** — Each Discord role maps to a team. All battleplans and rooms are scoped to the selected team.
-- **Real-Time Collaboration** — Create rooms and draw together with Socket.IO. Live cursors, instant drawing sync.
-- **Canvas Drawing System** — 3-layer canvas with pen, lines, rectangles, text, operator/gadget icons.
-- **Zoom + Pan** — Mouse wheel zoom (25%-400%), pan tool, middle-click pan.
-- **Select, Drag, Resize & Rotate** — Click to select, drag to move, corner handles to resize, rotate handle.
-- **Undo / Redo** — Ctrl+Z / Ctrl+Y with full history.
-- **Operator Lineup** — 5 defender + 5 attacker slots with real-time sync.
-- **Battle Plan Management** — Save, name, tag, and organize plans. Public sharing with voting.
-- **Export** — PNG (current floor) or PDF (all floors as multi-page landscape).
-- **Admin Panel** — Manage teams, users, games, maps, operators, gadgets, and settings.
-- **Pre-Seeded Data** — Ships with full R6 Siege data: 21 maps, ~78 operators, ~87 gadgets, 165 floor images.
+- **Discord OAuth2 Only** - Login exclusively via Discord. No email/password, no guests.
+- **Team Isolation** - Each Discord role maps to a team. All battleplans and rooms are scoped to the selected team.
+- **Real-Time Collaboration** - Create rooms and draw together with Socket.IO. Live cursors, instant drawing sync.
+- **Canvas Drawing System** - 3-layer canvas with pen, lines, rectangles, text, icons, arrows, and ellipses.
+- **Operator Lineup + Bans + Loadouts** - Full R6 planning workflow directly in the editor.
+- **Undo / Redo** - Ctrl+Z / Ctrl+Y with full history.
+- **Export** - PNG, PDF, and `.nds` strat export/import.
+- **Admin Panel** - Manage teams, users, games, maps, operators, gadgets, and settings.
+- **Pre-Seeded Data** - Ships with R6 Siege maps, operators, gadgets, and uploaded assets.
 
 ---
 
-## Tech Stack
+## Deployment Modes
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, Vite 6, Tailwind CSS v4, shadcn/ui, Zustand, TanStack Query |
-| **Backend** | Fastify 5, Socket.IO 4.8 |
-| **Database** | PostgreSQL 16 (Drizzle ORM) |
-| **Cache** | Redis 7 |
-| **Auth** | Discord OAuth2 + JWT |
-| **Language** | TypeScript 5.7 |
-| **Package Manager** | pnpm (monorepo) |
+- **Development**: app runs on the host with `pnpm dev`, while `postgres` and `redis` run via Docker.
+- **Production**: full Docker stack via `docker compose` with `postgres`, `redis`, `app`, and `web`.
 
 ---
 
 ## Requirements
 
-- **Node.js** 24.x
-- **pnpm** >= 10.30
-- **npm** >= 11.12 (only if you use npm directly; the project itself uses pnpm)
-- **Docker** + **Docker Compose** (for PostgreSQL + Redis)
-- **Git**
-- A **Discord Application** with OAuth2 configured
+### Development
 
-Docker is only needed if you want this repo to provide PostgreSQL and Redis for you. If you already have external PostgreSQL/Redis instances, you can point `.env` at those and skip `docker compose`.
+- Node.js 24.x
+- pnpm >= 10.30
+- npm >= 11.12 if you use npm directly
+- Docker + Docker Compose
+- Git
+- A Discord Application with OAuth2 configured
+
+### Production
+
+- Docker + Docker Compose
+- Git
+- A Discord Application with OAuth2 configured
 
 ---
 
-## Windows Development (dev.bat)
+## Windows Development
 
-```
+Use:
+
+```bat
 dev.bat
 ```
 
-Starts Docker containers (PostgreSQL + Redis), installs dependencies, builds shared package, runs migrations + seed, and starts the dev server. Requires Docker Desktop to be running.
+This starts only `postgres` and `redis` in Docker, then runs the app locally with Vite and Fastify.
+
+Dev URLs:
+
+- Client: `http://localhost:5173`
+- API: `http://localhost:3001`
 
 ---
 
-## Production Installation (Debian 13)
-
-Complete guide for a fresh **Debian 13 (Trixie)** server. SSL is not covered here — add it separately with certbot/nginx if needed.
+## Production Installation (Debian 13, Full Docker)
 
 ### 1. System Dependencies
 
@@ -74,29 +75,14 @@ Complete guide for a fresh **Debian 13 (Trixie)** server. SSL is not covered her
 apt update && apt upgrade -y
 apt install -y curl git ca-certificates gnupg
 
-# Node.js 24
-curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
-apt install -y nodejs
-
-# pnpm via Corepack (preferred)
-corepack enable
-corepack prepare pnpm@10.30.0 --activate
-
-# Docker
 curl -fsSL https://get.docker.com | sh
 systemctl enable --now docker
+
+docker -v
+docker compose version
 ```
 
-Verify:
-
-```bash
-node -v    # v24.x
-npm -v     # v11.12.x
-pnpm -v    # 10.30.x
-docker -v  # 27.x
-```
-
-> **Proxmox LXC**: Enable **Nesting** in container features (Options > Features > Nesting). For unprivileged containers, also enable **keyctl**.
+> Proxmox LXC: enable `Nesting`, and for unprivileged containers also enable `keyctl`.
 
 ### 2. Clone & Configure
 
@@ -109,173 +95,94 @@ cp .env.example .env
 nano .env
 ```
 
-Configure `.env`:
+Minimal production `.env`:
 
 ```env
-# Database (matches docker-compose defaults)
-DATABASE_URL=postgresql://battleplanner:battleplanner@localhost:5432/battleplanner
-
-# Redis
-REDIS_URL=redis://localhost:6379
-
-# Server
-PORT=3001
+APP_URL=http://your-server-ip
 NODE_ENV=production
 
-# Public URL (your domain or IP — NO trailing slash)
-# Public browser URL (your domain or IP, no trailing slash)
-# In development this is the Vite app URL (5173), not the API port (3001).
-APP_URL=http://your-server-ip:5173
-
-# JWT — generate with: openssl rand -base64 48
 JWT_SECRET=<random-string-1>
 JWT_REFRESH_SECRET=<random-string-2>
 
-# Discord OAuth2 — create at https://discord.com/developers/applications
-# Redirect URI: http://your-server-ip:5173/auth/discord/callback
 DISCORD_CLIENT_ID=your-client-id
 DISCORD_CLIENT_SECRET=your-client-secret
 DISCORD_GUILD_ID=your-discord-server-id
-DISCORD_REDIRECT_URI=http://your-server-ip:5173/auth/discord/callback
-
-# Discord Admin — your Discord user ID (first admin user)
+DISCORD_REDIRECT_URI=http://your-server-ip/auth/discord/callback
 DISCORD_ADMIN_ID=your-discord-user-id
-
-# Client
 ```
+
+Notes:
+
+- `APP_URL` is the public browser URL, not the API port.
+- Inside Docker, `DATABASE_URL` and `REDIS_URL` are injected by `docker-compose.yml`.
+- For local dev, `APP_URL` stays `http://localhost:5173`.
 
 ### 3. Discord Application Setup
 
 1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Click **New Application**, name it (e.g. "NextDestiny BattlePlanner")
-3. Go to **OAuth2** > **General**
-4. Copy **Client ID** and **Client Secret** into `.env`
-5. Add **Redirect URI**: `http://your-server-ip:5173/auth/discord/callback` (or your domain)
-6. Go to **Bot** section — no bot is needed, but the application must exist
-7. Get your **Guild ID**: Enable Developer Mode in Discord (Settings > Advanced), right-click your server > Copy Server ID
+2. Create a new application
+3. Copy `Client ID` and `Client Secret` into `.env`
+4. Add Redirect URI: `http://your-server-ip/auth/discord/callback`
+5. Get your Guild ID via Discord Developer Mode
 
-### 4. Initial Setup
+### 4. First-Time Setup
 
-```bash
-# Start PostgreSQL + Redis
-docker compose up -d
-
-# Install dependencies
-pnpm install
-
-# Build shared package first
-pnpm --filter @nd-battleplanner/shared build
-
-# Apply committed migrations
-pnpm db:migrate
-
-# Seed database (admin user + R6 Siege data)
-pnpm db:seed
-
-# Build everything
-pnpm build
-```
-
-If you want one interactive command after `.env` is configured, you can also run:
+Option A:
 
 ```bash
 bash update.sh
 ```
 
-and choose `9` (`setup`).
+Then choose:
 
-### 5. Runtime Model
+```text
+9
+```
 
-Current repo status:
-
-- `docker-compose.yml` only provides `postgres` and `redis`
-- the app itself is still built and started on the host
-- there is currently no `Dockerfile` and no fully containerized app stack in this repository
-
-That means the old nginx/systemd style deployment is a host-based production setup, not an all-Docker deployment.
-
-If you want a pure Docker deployment, that still needs to be implemented in the repo first.
-
-### 6. systemd Service
-
-Create system user:
+Option B:
 
 ```bash
-useradd --system --no-create-home --shell /usr/sbin/nologin battleplanner
-chown -R battleplanner:battleplanner /opt/battleplanner
+docker compose up -d postgres redis
+docker compose build app web migrate seed
+docker compose run --rm migrate
+docker compose run --rm seed
+docker compose up -d app web
 ```
 
-Create `/etc/systemd/system/battleplanner.service`:
+### 5. Open the App
 
-```ini
-[Unit]
-Description=NextDestiny BattlePlanner
-After=network.target docker.service
-Wants=docker.service
+Open:
 
-[Service]
-Type=simple
-User=battleplanner
-WorkingDirectory=/opt/battleplanner
-ExecStart=/usr/bin/node packages/server/dist/index.js
-Restart=on-failure
-RestartSec=5
-Environment=NODE_ENV=production
-EnvironmentFile=/opt/battleplanner/.env
-
-[Install]
-WantedBy=multi-user.target
+```text
+http://your-server-ip
 ```
 
-Enable and start:
-
-```bash
-systemctl daemon-reload
-systemctl enable battleplanner
-systemctl start battleplanner
-systemctl status battleplanner
-```
-
-View logs:
-
-```bash
-journalctl -u battleplanner -f
-```
-
-### 7. Firewall (ufw)
-
-```bash
-ufw allow 22/tcp    # SSH
-ufw allow 80/tcp    # HTTP
-ufw enable
-ufw status
-```
-
-### 8. Open the App
-
-Navigate to `http://your-server-ip` in your browser. Click **Login with Discord** to authenticate.
-
-The first user with the `DISCORD_ADMIN_ID` from `.env` will automatically be an admin with access to the admin panel.
+The first user matching `DISCORD_ADMIN_ID` becomes admin automatically.
 
 ---
 
 ## Updating (Production)
 
-Use the update script:
+Interactive:
 
 ```bash
 bash update.sh
 ```
 
-Or create a global command:
+Recommended production mode:
+
+- `6` for `main`
+- `7` for `dev`
+
+Manual alternative:
 
 ```bash
-chmod +x /opt/battleplanner/update.sh
-ln -sf /opt/battleplanner/update.sh /usr/local/bin/battleplanner-update
-battleplanner-update
+git pull origin main
+docker compose up -d postgres redis
+docker compose build app web migrate seed
+docker compose run --rm migrate
+docker compose up -d app web
 ```
-
-Select the appropriate mode. Data is preserved during normal updates.
 
 ---
 
@@ -283,72 +190,72 @@ Select the appropriate mode. Data is preserved during normal updates.
 
 | Command | Description |
 |---------|-------------|
-| `pnpm dev` | Start dev server (API:3001 + Client:5173) |
-| `pnpm build` | Build all packages for production |
-| `pnpm db:generate` | Generate Drizzle migration files |
-| `pnpm db:migrate` | Apply database migrations |
-| `pnpm db:seed` | Seed database with initial data |
-| `pnpm db:studio` | Open Drizzle Studio (visual DB browser) |
-| `docker compose up -d` | Start PostgreSQL + Redis |
-| `docker compose down` | Stop containers (data persists) |
-| `docker compose down -v` | Stop + **delete all data** |
+| `pnpm dev` | Start local development app |
+| `pnpm build` | Build all packages locally |
+| `pnpm db:migrate` | Apply migrations locally |
+| `pnpm db:seed` | Seed locally |
+| `docker compose up -d postgres redis` | Start only DB services for dev |
+| `docker compose build app web migrate seed` | Build Docker images |
+| `docker compose run --rm migrate` | Run DB migrations in Docker |
+| `docker compose run --rm seed` | Seed DB in Docker |
+| `docker compose up -d app web` | Start production app containers |
+| `docker compose ps` | Show container status |
+| `docker compose logs -f app` | Follow backend logs |
+| `docker compose logs -f web` | Follow frontend/nginx logs |
+| `docker compose down` | Stop containers |
+| `docker compose down -v` | Stop containers and delete all data volumes |
 
 ---
 
-## Database Management
-
-### Reset Everything
+## Reset Everything
 
 ```bash
 docker compose down -v
-docker compose up -d
-sleep 3
-pnpm db:migrate
-pnpm db:seed
+docker compose up -d postgres redis
+docker compose build app web migrate seed
+docker compose run --rm migrate
+docker compose run --rm seed
+docker compose up -d app web
 ```
 
-### Browse Database
+---
 
-```bash
-pnpm db:studio
-```
+## Repo Size
 
-Opens Drizzle Studio at `https://local.drizzle.studio`.
+The repository is large mainly because of committed R6 SVG map files and uploaded assets.
+
+Main size driver:
+
+- `packages/client/public/maps/svg/`
+
+This is expected for the current project state and is much larger than the gadget PNGs or DB migration files.
 
 ---
 
 ## Troubleshooting
 
-### "ECONNREFUSED" in Vite console
-The backend server is not running. Start it with `pnpm dev` or `node packages/server/dist/index.js`.
+### `Unsupported engine` warnings
 
-### `db:migrate` fails with "column already exists"
-Clean old migration files and regenerate:
+For local host development, install Node.js 24.x.
+
+For production Docker deployment, the containers already use Node 24.
+
+### OAuth redirect issues
+
+Make sure:
+
+- `APP_URL` matches the public URL you actually open in the browser
+- `DISCORD_REDIRECT_URI` matches `{APP_URL}/auth/discord/callback`
+- the same redirect URI is registered in the Discord Developer Portal
+
+### Docker setup works, but browser cannot connect
+
+Check:
+
 ```bash
-rm -rf packages/server/drizzle/*
-pnpm db:generate
-pnpm db:migrate
+docker compose ps
+docker compose logs -f app
+docker compose logs -f web
 ```
 
-### Discord login fails
-- Check `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_GUILD_ID` in `.env`
-- Verify the redirect URI in Discord Developer Portal matches `DISCORD_REDIRECT_URI` in `.env` exactly
-- Make sure the user is a member of the Discord server (guild)
-
-### No teams shown after login
-Teams are mapped from Discord roles. An admin must create teams in the admin panel (Admin > Teams) and assign Discord role IDs.
-
----
-
-## Credits
-
-Based on [TactiHub](https://github.com/niklask52t/TactiHub) by Niklas Kronig, which was inspired by [r6-map-planner](https://github.com/prayansh/r6-map-planner) and [r6-maps](https://github.com/jayfoe/r6-maps).
-
----
-
-## Disclaimer
-
-This is a fan-made tool and is not affiliated with Ubisoft or any game publisher. All game names, logos, and assets are trademarks of their respective owners.
-
----
-_Last reviewed: 2026-04-11_
+Make sure port `80` is reachable on the host.
