@@ -1,5 +1,5 @@
 export const APP_NAME = 'NextDestiny BattlePlanner';
-export const APP_VERSION = '3.3.0';
+export const APP_VERSION = '3.4.0';
 
 export const COLORS_ARRAY = [
   '#FF0000', // Red

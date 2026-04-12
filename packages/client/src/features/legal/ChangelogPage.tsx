@@ -15,10 +15,25 @@ interface Release {
 
 const releases: Release[] = [
   {
+    version: '3.4.0',
+    subtitle: 'Complete Gadget Icons & Loadout Dropdowns',
+    date: '2026-04-12',
+    tag: 'Latest',
+    changes: [
+      { type: 'feature', text: 'Loadout dropdowns \u2014 operator weapons and secondary gadgets as selectable dropdowns, data for all 76 operators' },
+      { type: 'feature', text: '73 unique ability icons from r6calls.com \u2014 nearly every operator gadget now has a proper PNG icon' },
+      { type: 'feature', text: 'Tactical marker gadgets \u2014 Stand, Crouch, Prone, Run, Rappel (Upside), Camera, Plant/Disable Defuser with icons' },
+      { type: 'feature', text: 'Loadout trigger on OperatorStrip \u2014 hover assigned operators to open loadout directly from top bar' },
+      { type: 'improvement', text: 'All gadget icons upgraded from WebP to high-quality r6calls PNG icons (97 total)' },
+      { type: 'improvement', text: 'Clean circular icon rendering \u2014 dark circle with operator-color border replaces colored rectangles' },
+      { type: 'improvement', text: '3 operator bans per side (was 2) to match R6 Siege competitive rules' },
+      { type: 'improvement', text: 'Secondary gadget selection in loadout popover from operator\u2019s actual gadget list' },
+    ],
+  },
+  {
     version: '3.3.0',
     subtitle: 'r6calls Feature Parity & .nds File Format',
     date: '2026-04-12',
-    tag: 'Latest',
     changes: [
       { type: 'feature', text: 'Arrow drawing tool \u2014 draw directional arrows with filled arrowhead' },
       { type: 'feature', text: 'Ellipse drawing tool \u2014 draw circles and ovals with optional fill' },

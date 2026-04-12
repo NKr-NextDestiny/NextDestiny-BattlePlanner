@@ -1,5 +1,16 @@
 # Changelog
 
+## v3.4.0 — 2026-04-12 — Complete Gadget Icons & Loadout Dropdowns
+
+- [feature] Loadout dropdowns — operator weapons and secondary gadgets as selectable dropdowns (not free-text), data for all 76 operators
+- [feature] 73 unique ability icons from r6calls.com — nearly every operator gadget now has a proper PNG icon
+- [feature] Tactical marker gadgets — Stand, Crouch, Prone, Run, Rappel (Upside), Camera, Plant Defuser, Disable Defuser with r6calls icons
+- [feature] Loadout trigger on OperatorStrip — hover any assigned operator to open loadout popover directly from the top bar
+- [improvement] All gadget icons upgraded from WebP to high-quality r6calls PNG icons (97 total icon files)
+- [improvement] Clean circular icon rendering — replaced colored background rectangles with subtle dark circle + operator-color border
+- [improvement] 3 operator bans per side (was 2) to match R6 Siege competitive rules
+- [improvement] Secondary gadget selection in loadout popover — dropdown populated from operator's actual gadget list
+
 ## v3.3.0 — 2026-04-12 — r6calls Feature Parity & .nds File Format
 
 - [feature] Arrow drawing tool — draw directional arrows with filled arrowhead
