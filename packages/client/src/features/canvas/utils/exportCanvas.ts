@@ -1,4 +1,3 @@
-import { jsPDF } from 'jspdf';
 import { renderDraw } from '../rendering/renderDraw';
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -62,6 +61,7 @@ export async function exportAllFloorsAsPdf(
   localDraws: Record<string, any[]>,
   fileName: string,
 ) {
+  const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'pt' });
 
   for (let i = 0; i < floors.length; i++) {

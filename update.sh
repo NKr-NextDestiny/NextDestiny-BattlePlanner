@@ -28,29 +28,46 @@ run_as_bp() {
   fi
 }
 
+require_node_24() {
+  if ! command -v node >/dev/null 2>&1; then
+    echo "ERROR: Node.js is not installed."
+    echo "Install Node.js 24 first, then rerun this script."
+    exit 1
+  fi
+
+  local node_major
+  node_major="$(node -p "process.versions.node.split('.')[0]")"
+
+  if [ "$node_major" != "24" ]; then
+    echo "ERROR: Detected Node.js $(node -v), but this project requires Node.js 24.x."
+    echo "Please upgrade Node.js before continuing."
+    exit 1
+  fi
+}
+
 CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
 
 echo "=== NextDestiny BattlePlanner Update ==="
 echo ""
 echo "Current branch: $CURRENT_BRANCH"
 echo ""
-echo "── Current Branch ($CURRENT_BRANCH) ──"
-echo "  [1] update — Pull, install, migrate, rebuild (keeps data)"
-echo "  [2] reset  — Full reset: delete ALL data, rebuild from scratch"
+echo "-- Current Branch ($CURRENT_BRANCH) --"
+echo "  [1] update - Pull, install, migrate, rebuild (keeps data)"
+echo "  [2] reset  - Full reset: delete ALL data, rebuild from scratch"
 echo ""
-echo "── Dev ──"
-echo "  [3] dev reset — Checkout dev, full reset from scratch"
+echo "-- Dev --"
+echo "  [3] dev reset - Checkout dev, full reset from scratch"
 echo ""
-echo "── Git Only ──"
-echo "  [4] pull main — Switch to main and pull (no build)"
-echo "  [5] pull dev  — Switch to dev and pull (no build)"
+echo "-- Git Only --"
+echo "  [4] pull main - Switch to main and pull (no build)"
+echo "  [5] pull dev  - Switch to dev and pull (no build)"
 echo ""
-echo "── Produktiv ──"
-echo "  [6] prod main  — Pull main, install, migrate, rebuild (keeps data)"
-echo "  [7] prod dev   — Pull dev, install, migrate, rebuild (keeps data)"
-echo "  [8] prod reset — Full reset: delete ALL data, rebuild from scratch"
+echo "-- Production --"
+echo "  [6] prod main  - Pull main, install, migrate, rebuild (keeps data)"
+echo "  [7] prod dev   - Pull dev, install, migrate, rebuild (keeps data)"
+echo "  [8] prod reset - Full reset: delete ALL data, rebuild from scratch"
+echo "  [9] setup      - First-time setup for current branch"
 echo ""
-echo "  [9] setup      â€” First-time setup for current branch"
 
 while true; do
   read -p "Enter mode (1-9): " mode
@@ -89,6 +106,7 @@ if [ "$MODE" = "pull" ]; then
   echo "Branch is now on the latest '$BRANCH'. Run 'bash update.sh' mode 1 to build."
 
 elif [ "$MODE" = "update" ]; then
+  require_node_24
   echo "=== UPDATE (branch: $BRANCH) ==="
   echo "This will pull the latest changes from '$BRANCH', install dependencies,"
   echo "apply database migrations, and rebuild the project."
@@ -130,6 +148,7 @@ elif [ "$MODE" = "update" ]; then
   fi
 
 elif [ "$MODE" = "setup" ]; then
+  require_node_24
   echo "=== FIRST-TIME SETUP (branch: $BRANCH) ==="
   echo "This will start Docker services, install dependencies, apply existing"
   echo "database migrations, seed the database, and build the project."
@@ -182,6 +201,7 @@ elif [ "$MODE" = "setup" ]; then
   fi
 
 elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
+  require_node_24
   if [ "$MODE" = "dev-current" ]; then
     RESET_BRANCH="$CURRENT_BRANCH"
   else
@@ -257,6 +277,7 @@ elif [ "$MODE" = "dev" ] || [ "$MODE" = "dev-current" ]; then
   fi
 
 elif [ "$MODE" = "prod" ]; then
+  require_node_24
   echo "=== PRODUCTION UPDATE (branch: $BRANCH) ==="
   echo "This will pull the latest changes from '$BRANCH', install dependencies,"
   echo "apply database migrations, and rebuild the project."
@@ -316,6 +337,7 @@ elif [ "$MODE" = "prod" ]; then
   fi
 
 elif [ "$MODE" = "prod-reset" ]; then
+  require_node_24
   echo "=== PRODUCTION RESET ==="
   echo "This will DELETE all database data (users, battleplans, everything)"
   echo "and rebuild the entire project from scratch in production mode."

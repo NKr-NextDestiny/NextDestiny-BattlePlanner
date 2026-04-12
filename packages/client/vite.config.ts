@@ -25,7 +25,6 @@ export default defineConfig({
       '@radix-ui/react-label',
       '@radix-ui/react-separator',
       '@radix-ui/react-slot',
-      'jspdf',
       'socket.io-client',
       'cmdk',
     ],
